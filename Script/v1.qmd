@@ -74,6 +74,7 @@ exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
 ```
 
 ```{r}
+# TABLE of exit categories
 kable(exit_categories, 
       caption = "Table of Exit Reasons",
       col.names = c('Exit Reasons','Exit Category Codes')) %>% 

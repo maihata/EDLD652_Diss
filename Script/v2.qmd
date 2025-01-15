@@ -1,0 +1,97 @@
+---
+title: "v2"
+author: "Maiko Hata"
+format: pdf
+editor: visual
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 7
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+```
+
+Table of 10 exit reasons
+
+```{r}
+exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
+ clean_names() 
+```
+
+```{r}
+kable(exit_categories, 
+      caption = "Table of Exit Reasons",
+      col.names = c('Exit Reasons','Exit Category Codes')) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+**Preparatory work**: We prepared the data in a following manner:
+
+1.  Created an Excel sheet from the national and Oregon data sets
+2.  Imported Excel sheet into RStudio
+3.  Collapsed/removed DVs
+4.  Collapsed data from multiple years into one aggregated data by race
+
+**Data Analysis**: We used chi-square goodness of fit test to understand associations between children's race and their EI exit reasons. Chi-square tests tell us if we can be confident that differences in counts and expected counts are not due to chance. In other words, chi-square tests can be used to evaluate if there is a statistically significant relationship between two dichotomous or nominal variable. However, they are not able to indicate the strength or the direction of the relationship (Morgan et al., 2020).
+
+First, we ran descriptive analysis of the national data set as an omnibus test. For this, we used foundational statistical functions and chi-square to test our null-hypothesis; there is no associations between children's race and their exit reasons.
+
+We then analyzed the association between the exit reason, "Attempts to Contact Unsuccessful", using similar analysis. For this portion, we looked at the association between two racial categories, Black/African American and White infants/toddler groups, with "Attempts to Contact Unsuccessful". We created 2x2 table for this analysis, complete with the total number of exits. This was used to analyze the odd ratio and Cohen's \*h\*. Odds ratio are commonly used for reporting the odds of one outcome between two independent groups (Morgan, et al., 2020).
+
+```{r}
+#|label: load-data
+# importing the data and cleaning it up: 
+# 1. REMOVED DECEASED and NOT IN USE IN OREGON CATEGORY
+# 2. CREATED THE complete_or_not_eligible combining three categories 
+
+byrace <- import(here("Data", "race v.2.xlsx")) %>% 
+  clean_names() %>% 
+  select(-7, -12) %>% 
+  mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+```
+
+```{r}
+# importing the data and clinining up: 
+# 1. REMOVED DECEASED 
+# 2. CREATED THE complete_or_not_eligible combining three categories 
+
+bylang <- import(here("Data", "ODE data v2.xlsx")) %>% 
+  clean_names() %>% 
+  select(-6, -13, -14, -15) %>% 
+  mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
+not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+```
