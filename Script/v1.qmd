@@ -15,9 +15,11 @@ execute:
   warning: false
 editor: visual
 engine: knitr
-bibliography: 
-- references.bib
-- grateful-refs.bib
+
+# after I took out the following specifications, it rendered beautifully: 
+# bibliography: 
+# - references.bib
+# - grateful-refs.bib
 ---
 
 # Abstract
@@ -101,3 +103,431 @@ First, we ran descriptive analysis of the national data set as an omnibus test. 
 We then analyzed the association between the exit reason, "Attempts to Contact Unsuccessful", using similar analysis. For this portion, we looked at the association between two racial categories, Black/African American and White infants/toddler groups, with "Attempts to Contact Unsuccessful". We created 2x2 table for this analysis, complete with the total number of exits. This was used to analyze the odd ratio and Cohen's \*h\*. Odds ratio are commonly used for reporting the odds of one outcome between two independent groups (Morgan, et al., 2020).
 
 # Results
+
+```{r include=FALSE}
+#|label: load-data
+# importing the data and cleaning it up
+
+byrace <- import(here("Data", "race v.2.xlsx")) %>% 
+  clean_names() %>% 
+  select(-7, -12) %>% 
+  mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+
+# str(byrace) I think we can remove this because it is only for examining the structure
+```
+
+```{r}
+#| label: aggregated-by-race
+
+# aggregated by race and state
+agg_by_race_and_state <- byrace %>% 
+  group_by(race, area) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            withdrawal_by_parent = sum(withdrawal_by_parent),
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
+            moved_out_of_state = sum(moved_out_of_state),
+            part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
+            complete_or_not_eligible = sum(complete_or_not_eligible))
+
+# aggregated by race for OR
+race_oregon <- agg_by_race_and_state %>%
+  filter(area == "Oregon")
+
+# aggregated by race for US
+race_us <- agg_by_race_and_state %>% 
+  filter(area == "US and Outlying Areas")
+```
+
+```{r}
+#| label: chisq-test-trial-omnibus
+# run a quick chi square tests for Omnibus. Saving the p-value and test-statistics p value and result 
+chi_omni <-chisq.test(race_us[, 3:8])
+omni_p_value <- chi_omni$p.value
+omni_statistic <- chi_omni$statistic
+
+# chisq.test(race_oregon[, 3:8])
+```
+
+```{r}
+#| label: exit-total
+# Do we need to use this table to report the white and black students percentage? Or we can show the result using an inline code in the Results section
+
+# Created two objective that show percentage and total exits - 1127
+# Figured out how to pull percentage, need to check the correctness - 1201
+# Added area_by_race, but the computed figures are different from what Maiko put in the results - 1202
+
+area_by_race <- byrace %>% 
+  group_by(race) %>% 
+  summarize(
+    total_exit = sum(exiting_total2),
+    .groups = "drop") %>% 
+  mutate(percentage = round(total_exit/sum(total_exit),
+                            digits = 4)*100)
+
+other_by_race <- byrace %>% 
+  filter(area == "US and Outlying Areas") %>% 
+  group_by(race) %>% 
+  summarize(
+    total_exit = sum(exiting_total2),
+    .groups = "drop"
+    ) %>% 
+  mutate(percentage = round(total_exit/sum(total_exit), digits = 3)*100)
+
+oregon_by_race <- byrace %>% 
+  filter(area == "Oregon") %>% 
+  group_by(race) %>% 
+  summarize(
+    total_exit = sum(exiting_total2),
+    .groups = "drop" # .groups = drop: All levels of grouping are dropped.
+  ) %>% 
+  mutate(percentage = round(total_exit/sum(total_exit), digits = 3)*100)
+```
+
+The initial exploration included exit data from 3,310,559 children who exited the EI services between 2013 and 2022 nationally. Approximately `r area_by_race %>% filter(race == "BL") %>% pull(percentage)`% of the children were Black/African American, while `r area_by_race %>% filter(race == "WH") %>% pull(percentage)`% of the children were reported as being White. This shows a possible disproportionate representation of children, as census showed that during these years, Black/African American and White children represented approximately 14% for Black/African American children under the age of 18 and between 52% to 49 % for White children nationally (The Annie E. Casey Foundation, 2024). When looking at children under the age of six in 2022, the disparities widen: White children represented only 46.5% nationally, while Black/African American children represented 12.7% of the children under the age of 6 (Schneider & Gibbs, 2023).
+
+The chi-square omnibus test indicated that there was a statistically significant association between children's race and their exit reasons, X-squared (30, N = 3,310,559) = `r format(round(omni_statistic, digits = 2), scientific = FALSE)`, with a p-value of `r ifelse(omni_p_value < 0.001, "< 0.001", round(omni_p_value, 3))`
+
+```{r}
+# We were curious if PI's (Pacific Islanders) small numbers skewed the chi-square, so we took it out and ran it again. It doesn't seem to have impacted much as P value is still very small with or without PI data. 
+race_oregon_subset <- race_oregon %>% 
+  filter(race != "PI")
+# chisq.test(race_oregon_subset[, 3:8])
+```
+
+Looking specifically at the "Attempts to Contact Unsuccessful" category, approximately 13.5% of Black/African American infants and toddlers were disqualified from EI services nationally due to agencies losing contact with families, while only about 5.98% of White children were disqualified for the same reason (Figure 1).
+
+```{r}
+# US long and wide  
+
+us_data_long <- race_us %>% 
+  pivot_longer(
+    cols = 4:8,
+    values_to = "values",
+    names_to = "names"
+  ) %>% 
+  group_by(race) %>% 
+  mutate(percentage = round(values/exit_total, digits = 4))
+
+us_data_wide <- us_data_long %>% 
+  select(-c(exit_total,values)) %>% 
+  pivot_wider(
+    names_from = names,
+    values_from = percentage
+  )
+```
+
+```{r}
+agg_by_area <- byrace %>% 
+  group_by(area) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            withdrawal_by_parent = sum(withdrawal_by_parent))
+
+# chisq.test(agg_by_area[, 2:3])
+```
+
+```{r}
+data_oregon <- byrace %>% 
+  filter(area == "Oregon") %>% 
+  group_by(race) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            withdrawal_by_parent = sum(withdrawal_by_parent)) %>% 
+  mutate(proportion = withdrawal_by_parent / exit_total)
+
+# chi square for oregon 
+# chisq.test(data_oregon[, 2:3])
+```
+
+```{r}
+# data national 
+
+data_national <- byrace %>% 
+  filter(area == "US and Outlying Areas") %>% 
+  group_by(race) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            withdrawal_by_parent = sum(withdrawal_by_parent)) %>% 
+  mutate(proportion = withdrawal_by_parent / exit_total)
+
+# chisq.test(data_oregon[, 2])
+```
+
+```{r}
+# figure 1 for DQ data in US   
+
+us_data_wide <- us_data_wide %>% 
+  select(race, attempts_to_contact_unsuccessful) %>% 
+    mutate(attempts_to_contact_unsuccessful = attempts_to_contact_unsuccessful * 100)
+```
+
+```{r}
+# figure 1 continues 
+
+ggplot(us_data_wide, aes(x = race, y = attempts_to_contact_unsuccessful)) +
+  geom_col(stat = "identity", fill = "gray43", position = 'dodge') +
+   geom_text(aes(label = attempts_to_contact_unsuccessful),
+             position = position_dodge(0.9),
+             hjust = -0.05,
+             size = 2)+
+  labs(
+    title = "Figure 1: Unsuccessful Contacts/DQ (U.S.)", 
+    x = "Race", 
+    y = "Percentage of Exit by Race (%)"
+  ) +
+  theme_classic()+
+  scale_x_discrete(labels = c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic", "Multiracial", "Pacific Islander", "White"))+
+  coord_flip()
+
+```
+
+```{r}
+# remaking a df with exit total and DQ 12/1
+us_data_attempts <- byrace %>% 
+  filter(area == "US and Outlying Areas") %>% 
+  group_by(race) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful)) %>% 
+  mutate(proportion = attempts_to_contact_unsuccessful / exit_total)
+```
+
+```{r}
+# 12/1 DQ chi-square prep continues SUCCESS!! :) 
+us_data_attempts_BLWH <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "BL" | race == "WH") 
+```
+
+```{r}
+# mutated a column grand_total for all the kiddos exiting for earlier figures 
+us_data_attempts <- us_data_attempts %>% 
+  mutate(grand_total = sum(exit_total), na.rm = TRUE)
+```
+
+```{r}
+# now, divide the attempts_to_contact_unsuccessful by grand_total x 100 for % of each race represented in relation to the exit total between 2013-2022. 
+us_data_attempts <- us_data_attempts %>% 
+  mutate(
+    grand_total = sum(exit_total, na.rm = TRUE), 
+    portion = (exit_total / grand_total) * 100
+  )
+```
+
+```{r}
+# YAY 12/1 
+# chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
+# chi_dq_BLWH_result
+```
+
+When we look at the data at state level, the numbers change slightly. Approximately 9.85% of Black/African American infants and toddlers were disqualified from EI services in Oregon due to agencies losing contact with families, while only about 8.03% of White children were disqualified for the same reason in Oregon (Figure 2).
+
+```{r}
+# Oregon data long and wide
+oregon_data_long <- race_oregon %>% 
+  pivot_longer(
+  cols = 4:8,
+  values_to = "values",
+  names_to = "names"
+ ) %>% 
+  group_by(race) %>% 
+  mutate(percentage = round(values/exit_total, digits = 4))
+
+oregon_data_wide <- oregon_data_long %>% 
+  select(-c(exit_total,values)) %>% 
+  pivot_wider(
+    names_from = names,
+    values_from = percentage
+  )
+```
+
+```{r}
+# figure 2 for Oregon DQ data 
+oregon_data_wide_DQ <- oregon_data_wide %>% 
+  select(race, attempts_to_contact_unsuccessful) %>%  
+  mutate(
+    attempts_to_contact_unsuccessful = attempts_to_contact_unsuccessful * 100
+  )
+```
+
+```{r}
+# figure 2 continues 
+# rotate x axis text labels - 1202
+ ggplot(oregon_data_wide_DQ, 
+        aes(x = race, y = attempts_to_contact_unsuccessful)) +
+  geom_col(stat = "identity", fill = "gray24", position = 'dodge') +
+   geom_text(aes(label = attempts_to_contact_unsuccessful),
+             position = position_dodge(0.9),
+             hjust = -0.3,
+             size = 2.2) +
+  labs(
+    title = "Figure 2: Unsuccessful Contacts/DQ (Oregon)", 
+    x = "Race", 
+    y = "Percentage of Exit by Race"
+  ) +
+  theme_classic() +
+  scale_x_discrete(labels = c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic", "Multiracial", "Pacific Islander", "White"))+
+  coord_flip()
+ 
+ # print(oregon_data_wide_DQ) 
+```
+
+```{r}
+# Did I just make the summary table of what we decided to look at for this project!?!? Okay I did the same work again but that's okay, GAH 
+# WE STILL HAVE TO FILTER ONLY BL AND WHITE BEFORE RUNNING THE CHI SQUARE 
+# us_data_DQ <- byrace %>% 
+#  filter(area == "US and Outlying Areas") %>% 
+#  group_by(race) %>% 
+#  summarize(exit_total = sum(exiting_total2), 
+#            attempts_to_contact_unsuccessful = 
+# sum(attempts_to_contact_unsuccessful))
+
+# Filtered BL and WH - 1202
+# Is the chisq_test correct? Need to check this
+
+us_data_DQ <- byrace %>%
+ filter(area == "US and Outlying Areas", race %in% c("BL", "WH")) %>%
+ group_by(race) %>%
+ summarize(exit_total = sum(exiting_total2),
+           attempts_to_contact_unsuccessful =
+sum(attempts_to_contact_unsuccessful))
+
+chisq_dq <- chisq.test(us_data_DQ[, -1])
+```
+
+```{r}
+# Used this dataset for making the figure 2
+us_data_DQ_proportion <- byrace %>% 
+  filter(area == "US and Outlying Areas") %>% 
+  group_by(race) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful)) %>% 
+  mutate(proportion = (attempts_to_contact_unsuccessful / exit_total) * 100) 
+```
+
+The chi-square indicated that there was a statistically significant association between children being Black/African American or White and them leaving EI due to being disqualified nationally. The chi-square test indicated, X-squared (222556.00, N = 2,088,058), *p* \< 2.2e-16 or 0.0000000000000002 (*p* \< .001).
+
+Because whether or not children were Black/African American or White and whether they were likely to be disqualified from EI services due to "Attempts to Contact Unsuccessful" were both binary variables, we computed an odds ratio as well.
+
+In order to calculate the odds ratio to determine the relative likelihood of the students being disqualified between the two groups, a 2x2 contingency table in a matrix format was created and analyzed. The odds of Black infants and toddlers being disqualified from EI services due to "attempts to contact unsuccessful" were significantly higher than those for White infants and toddlers, with an odds ratio of **2.46** (95% CI \[2.43, 2.48\]). This indicates that Black students were approximately 2.46 times more likely than White students to be disqualified from EI services for this reason.
+
+```{r}
+# used wording from Morgan et al. (2020) and ChatGPT 
+# prepping the df to mutate a column to have non_dq and delete total 
+us_data_wide_DQ_BLWH <- us_data_attempts_BLWH %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+
+us_data_wide_DQ_BLWH_nototal <- us_data_wide_DQ_BLWH %>% 
+  select(-exit_total)
+```
+
+```{r}
+#Per chatGPT. The columns and rows switched...? 
+us_dq_BLWH_matrix <- matrix( 
+  c(56155, 359718, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Black", "White")
+  ))
+
+```
+
+```{r}
+# ODDS RATIO SUCCESS 
+# oddsratio(us_dq_BLWH_matrix)
+```
+
+```{r}
+
+```
+
+Cohen's *h* was calculated to evaluate the effect size of the analysis**.** The result indicated a small to medium effect size, *h* = 0.259. However, even though effect size shows the magnitude of the difference, it is not necessarily considered to be a direct indication of the importance of the findings (Morgan et al., 2020).
+
+```{r}
+# Cohen's h prep 
+
+# black_unsuccessful <- 56155
+# black_total <- 359718
+# white_unsuccessful <- 99922
+# white_total <- 1572263
+```
+
+```{r}
+# Correct cohen's h (-.0.259)
+# cohenH(df, observation = "column")
+# p1 <- 56155 / (56155 + 359718)
+# p1
+# p2 <- 99922 / (99922 + 1572263)
+# p2
+# h <- 2 * (asin(sqrt(p2)) - asin(sqrt(p1)))
+# h
+```
+
+```{r}
+# Cameron helped me make sure
+
+# h <- ES.h(p1, p2)
+# h
+
+# pwr.p.test(h = h, n = (black_total + white_total))
+```
+
+```{r}
+# Another way to get cohen's H, can have NEGATIVE COHEN'S H
+# We explored column vs row, but column should be the one we should use, so h = -.259
+# library(rcompanion)
+
+# cohenH(us_dq_BLWH_matrix, observation = "column", verbose = TRUE)
+
+# h <- ES.h()
+```
+
+```{r}
+# CITE ALL THE PACKAGES I USE 
+# citation("rcompanion")
+```
+
+# Discussion
+
+Our analysis revealed that the odds ratio for Black/African American infants and toddlers to be disqualified from EI services due to "Attempts to Contact Unsuccessful" was 2.46 times higher when compared to their White peers nationally. In addition, state-level data showed smaller disparities between disqiualification rates between Black/African American children and that of their White peers. However, there are many limitations to this descriptive analysis.
+
+First of all, we have to remember that race is not a predictive factor for outcomes. At a quick glance, race seems to be associated with inequity in EI service exit patterns. However, research following the completion of the Human Genome Project has shown that race, from a genetic standpoint, does not contribute to health inequities. Instead, it is the environments experienced by racially minoritized communities that play a significant role (Silverstein, 2015). Silverstein cited Kittles (2015) in order to clarify this: “the bulk of those disparities are not due to any biological difference. The vast majority of health disparities are due to social, behavioral, and environmental components”. Race is merely one of the many descriptors for individuals. 
+
+In addition, as Crenshaw (1989) established in her seminal work, we must take the framework of Intersectionality when conducting a research. This type of oversimplified statistical analysis can contribute to reinforce the status-quo where race is quickly to be blamed, rather than the complex environments and multiple layers of identities that members of marginalized communities live in.
+
+The smaller disparity between racial groups in Oregon in terms of disqualification rate could be due to the state's limited diversity, meaning we simply don't have enough data. This makes it challenging to conduct quantitative studies on marginalized populations, even though research is so urgently needed for that very reason.
+
+Last but not least, researchers have argued that quantitative methods are inequitable, as "the history of quant methods is inseparable from eugenics movement" (p. 4, Castillo & Strunk, 2024) and that it stems from and reinforces inequity. QuantCrit philosophy are based and expands on the centrality of racism and the lack of neutrality in numbers and categories. Going forward, it would be extremely important to remember these tenets and to approach data collection, categorization and analysis with equity and justice as the central philosophy.
+
+\newpage
+
+```{r}
+# We decided to go with just handtyping references as opposed to using only Zotero. Inserting Zotero citaitons in-line and handthyping renders mixed and cannot be fixed to make it alphabetical, and Zotero doesn't get the automatic citations right for many of them, especially non-journal articles and books (e.g. online sources, database, older and scanned articles, slides, guidance docs etc.)
+```
+
+# References
+
+Annie E. Casey Foundation. (2024, July). Child population by race and ethnicity. KIDS COUNT Data Center. <https://datacenter.aecf.org/data/tables/103-child-population-by-race-and-ethnicity#detailed/1/any/false/1095,2048,574,1729,37,871,870,573,869,36/72,66,67,8367,69,70,71,12/423,424>
+
+Castillo, W. & Strunk, K. (2024, November 15). How to QuantCrit \[PowerPoint slides\]. <https://www.sree.org/critical-perspectives>
+
+Crenshaw, K. (1989). Demarginalizing the intersection of race and sex: A Black feminist critique of antidiscrimination doctrine, feminist theory and antiracist politics. University of Chicago Legal Forum, 1989(1), 139-167.
+
+Early Childhood Technical Assistance Center \[ecta\], (2023, October 6). *Part C of IDEA*. ecta. <https://ectacenter.org/partc/partc.asp>
+
+Individuals with Disabilities Education Act, 20 U.S.C. § 1400 (2004).
+
+Morgan, G.A., Barrett, K.C., Leech, N.L., & Gloeckner, G.W. (2020). *IBM SPSS for introductory statistics: Use and interpretation.* Routledge.
+
+Morgan, P. L., Farkas, G., Hillemeier, M. M., & Maczuga, S. (2012). Are minority children disproportionately represented in Early Intervention and Early Childhood Special Education? Educational Researcher, 41(9), 339–351. https://doi.org/10.3102/0013189X12459678
+
+OpenAI. (2024). *ChatGPT* \[Large language model\]. Provided code assistance. Retrieved from <https://chat.openai.com/>
+
+Romano, S.D. (2006). Historical perspectives. In G. M. Foley & J.D. Hochman (Eds.), *Mental health in early intervention: Achieving unity in principles and practice* (pp. 33-58). Baltimore: Paul H. Brookes Publishing Company.
+
+Schneider, A. & Gibbs, H. (2023, December 14). Data dashboard: An overview of child care and early learning in the United States. The Center for American Progress. <https://www.americanprogress.org/article/data-dashboard-an-overview-of-child-care-and-early-learning-in-the-united-states/>
+
+Silverstein, J. (2015, April 15). Genes don’t cause racial-health disparities, society does. The Atlantic. <https://www.theatlantic.com/health/archive/2015/04/genes-dont-cause-racial-health-disparities-society-does/389637/> 
+
+\newpage
+
+```{r}
+cite_packages(output = "paragraph", out.dir = tempdir())
+```
