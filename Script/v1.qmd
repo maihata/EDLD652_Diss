@@ -139,6 +139,38 @@ race_us <- agg_by_race_and_state %>%
   filter(area == "US and Outlying Areas")
 ```
 
+US Exit reasons by race chart
+
+```{r}
+race_us_chart <-race_us %>% 
+  select(-"area")
+```
+
+```{r}
+race_us_chart <- race_us %>% 
+  select(-area, everything(), -exit_total, exit_total)
+```
+
+```{r US Exit reasons by race chart}
+
+kable(race_us_chart, 
+      caption = "Table of Exit Reasons (National)") %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+Oregon Exit reasons by race chart
+
+```{r}
+race_oregon_chart <-race_oregon %>% 
+  select(-"area")
+```
+
+```{r}
+kable(race_oregon_chart, 
+      caption = "Table of Exit Reasons") %>% 
+      kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
 ```{r}
 #| label: chisq-test-trial-omnibus
 # run a quick chi square tests for Omnibus. Saving the p-value and test-statistics p value and result 

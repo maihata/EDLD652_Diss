@@ -1,0 +1,36 @@
+---
+title: "Maiko Final Project v.1"
+author: "Maiko Hata"
+fig-width: 6
+fig-height: 4
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+```
