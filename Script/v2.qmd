@@ -110,13 +110,14 @@ childcount1920USOR <- childcount1920USOR %>%
 
 ```{r}
 kable(childcount1920USOR, 
-      caption = "Child Count (US & Oregon)") %>% 
+      caption = "Child Count (US \\& Oregon)") %>% 
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
 B-2: visualization 1
 
 ```{r}
+# making it longer yeah
 childcount1920USOR_long <- childcount1920USOR %>%
  gather(key = "race", value = "percent", -State)
 ```
@@ -168,7 +169,7 @@ ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
        x = "State",
        y = "Percentage",
        fill = "Race") +
-  theme_minimal()
+  theme_minimal() 
 ```
 
 C. National and Oregon EXIT data by RACE
@@ -207,23 +208,67 @@ race_oregon <- agg_by_race_and_state %>%
 ```{r}
 # aggregated by race for US
 race_us <- agg_by_race_and_state %>% 
-  filter(area == "US and Outlying Areas")
+  filter(area == "US and Outlying Areas") 
 ```
 
 ```{r}
+race_us <- race_us %>% 
+  select(-area)
+```
+
+```{r}
+# renaming category names to full names for race_us 
+race_us <- race_us %>%
+  mutate(race = recode(race,
+    "AM" = "Alaska Native or American Indian",
+    "AS" = "Asian",
+    "BL" = "Black or African American",
+    "HI" = "Hispanic/Latino",
+    "WH" = "White",
+    "MU" = "Two or More Races",
+    "PI" = "Pacific Islander"
+  ))
 
 ```
 
 ```{r}
-
+# rename exit category names 
 ```
 
 ```{r}
-
+# Made it LONGER for real! 
+us_data_long <- race_us %>% 
+  pivot_longer(
+    cols = 3:7, 
+    values_to = "values",
+    names_to = "names"
+  ) %>% 
+  group_by(race) %>% 
+  mutate(percentage = round(values/exit_total, digits = 4))
 ```
 
 ```{r}
+# made it WIDER
+us_data_wide <- us_data_long %>% 
+  select(-c(exit_total,values)) %>% 
+  pivot_wider(
+    names_from = names,
+    values_from = percentage
+  ) 
+```
 
+OH NO where did Part B eligibility not determined go?!?!?
+
+```{r}
+# Changing category names in us_data_wide to clearner names 
+us_data_wide <- us_data_wide %>% 
+  rename(
+    "Withdrawal by Parents" = withdrawal_by_parent, 
+    "Disqualified" = attempts_to_contact_unsuccessful, 
+    "Moved Out of State" = moved_out_of_state, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c, 
+    "Complete or Not Eligible" = complete_or_not_eligible
+  )
 ```
 
 C. Oregon data by LANGUAGES
