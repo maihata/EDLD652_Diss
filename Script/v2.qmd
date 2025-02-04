@@ -43,6 +43,7 @@ library(distill)
 library(readxl)
 library(scales)
 library(tidyr)
+library(patchwork)
 ```
 
 A. Table of 10 exit reasons
@@ -103,9 +104,20 @@ B-2: chart 1
 #|label: Make_a_visualizaion_CHILDCOUNT-1920-US_OR 
 ```
 
+CAMERON, how do I round up to the 2 digits below decimal?
+
 ```{r}
-childcount1920USOR <- childcount1920USOR %>% 
-  mutate_if(is.numeric, ~ round(.x, 2)) 
+# something about the syntax is not right 
+#childcount1920USOR <- childcount1920USOR %>% 
+#  mutate_if(is.numeric, ~ round(.x, 2)) 
+
+# childcount1920USOR <- childcount1920USOR %>%
+#  mutate(percent = round(percent, 2))
+```
+
+```{r}
+# childcount1920USOR <- childcount1920USOR %>%   
+#  mutate_if(is.numeric, round, 2)
 ```
 
 ```{r}
@@ -187,8 +199,11 @@ byrace <- import(here("Data", "race v.2.xlsx")) %>%
   mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
 ```
 
+I FIXED THE MISSING COLUMN by adding back part_b_eligibility_not_determined. I think this is what I can use for CHI-SQUARE WITH RESIDUALS?
+
 ```{r}
 #| label: aggregated-by-race
+
 agg_by_race_and_state <- byrace %>% 
   group_by(race, area) %>% 
   summarize(exit_total = sum(exiting_total2), 
@@ -196,8 +211,23 @@ agg_by_race_and_state <- byrace %>%
             attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
             moved_out_of_state = sum(moved_out_of_state),
             part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
-            complete_or_not_eligible = sum(complete_or_not_eligible))
+            complete_or_not_eligible = sum(complete_or_not_eligible), 
+            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
 ```
+
+```{r}
+# chatgpt says it's pretty easy to reorder the categories 
+```
+
+I should be able to export df to excel this way but haven't tried it yet.
+
+```{r}
+# library(writexl)
+# df <- tibble::tibble(A = 1:5, B = 6:10, C = 11:15)  # Example tibble
+# write_xlsx(df, "my_data.xlsx")  # Saves to an Excel file 
+```
+
+agg_by_race_and_state
 
 ```{r}
 # aggregated by race for OR
@@ -269,6 +299,75 @@ us_data_wide <- us_data_wide %>%
     "Part B Eligible" = part_b_eligible_exiting_part_c, 
     "Complete or Not Eligible" = complete_or_not_eligible
   )
+```
+
+I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
+
+Chi-square with Residuals 1:
+
+CAMERON - This doesn't run :(
+
+```{r}
+race_matrix <- as.matrix(race_us[ , -1])
+race_matrix <- apply(race_matrix, 2, as.numeric)
+```
+
+```{r}
+rownames(race_matrix) <- c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic/Latino", "More than Two Races", "Pacific Islander", "White")
+```
+
+Chi-square with Residuals 2:
+
+```{r}
+chi_result <- chisq.test(race_matrix)
+print(chi_result)
+```
+
+Chi-square with Residuals 3:
+
+```{r}
+print(chi_result$stdres)
+# Residual > +2 → Observed count is higher than expected.
+# Residual < -2 → Observed count is lower than expected.
+```
+
+Chi-square with Residuals 4:
+
+```{r}
+residuals_df <- as.data.frame(as.table(chi_result$stdres))
+```
+
+Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
+
+```{r}
+# this is race on X (columns )
+ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+  labs(title = "Chi-Square Standardized Residuals",
+       x = "Exit Reason", y = "Race") +
+  theme_minimal()
+
+```
+
+```{r}
+# this is race on Y (rows)
+# ggplot(residuals_df, aes(Var2, Var1, fill = Freq)) +  # Flip x and y
+#  geom_tile() +
+#  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+#  labs(title = "Chi-Square Standardized Residuals",
+#       x = "Race", y = "Exit Reason") +  # Adjust labels accordingly
+#  theme_minimal()
+
+```
+
+```{r}
+# viridis_d doesn't look good, doesn't make any sense. 
+# ggplot(residuals_df, aes(Var2, Var1, fill = Freq)) +  # Flip x and y
+#  geom_tile() +
+#  scale_fill_viridis_c(option = "magma") +  # Choose a viridis color #  labs(title = "Chi-Square Standardized Residuals",
+#       x = "Race", y = "Exit Reason") +  # Adjust labels accordingly
+#  theme_minimal()
 ```
 
 C. Oregon data by LANGUAGES

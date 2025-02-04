@@ -117,6 +117,8 @@ byrace <- import(here("Data", "race v.2.xlsx")) %>%
 # str(byrace) I think we can remove this because it is only for examining the structure
 ```
 
+I DID SOMETHING WRONG IN THE FOLLOWING agg_by\_\_race_and_state BECAUSE THERE ARE ONLY 5 CATEGORIES, NOT 6, for EXIT
+
 ```{r}
 #| label: aggregated-by-race
 
@@ -128,7 +130,8 @@ agg_by_race_and_state <- byrace %>%
             attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
             moved_out_of_state = sum(moved_out_of_state),
             part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
-            complete_or_not_eligible = sum(complete_or_not_eligible))
+            complete_or_not_eligible = sum(complete_or_not_eligible), 
+            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
 
 # aggregated by race for OR
 race_oregon <- agg_by_race_and_state %>%
