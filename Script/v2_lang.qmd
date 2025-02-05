@@ -1,0 +1,96 @@
+---
+title: "v2"
+author: "Maiko Hata"
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 6
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+```
+
+C. Oregon data by LANGUAGES
+
+```{r}
+# importing the data and clinining up: 
+# 1. REMOVED DECEASED 
+# 2. CREATED THE complete_or_not_eligible combining three categories 
+
+bylang <- import(here("Data", "ODE data v2.xlsx")) %>% 
+  clean_names() %>% 
+  select(-6) %>%
+  mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
+not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+
+view(bylang)
+```
+
+```{r}
+agg_by_lang <- bylang %>% 
+  group_by(primary_language) %>% 
+  summarize(exit_total = sum(total), 
+            withdrawal_by_parent = sum(withdrawal_by_parent), 
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
+            moved_out_of_state = sum(moved_out_of_state),
+            part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
+            complete_or_not_eligible = sum(complete_or_not_eligible))
+
+# FROM v1: 
+# aggregated by race for OR
+#race_oregon <- agg_by_race_and_state %>%
+ # filter(area == "Oregon")
+
+# aggregated by race for US
+#race_us <- agg_by_race_and_state %>% 
+ # filter(area == "US and Outlying Areas")
+```
+
+```{r agg_by_lang_no_SL  take out Sign Language and NA rows}
+
+agg_by_lang_no_SL <- agg_by_lang %>% 
+  filter(primary_language != "Sign languages")
+```
+
+```{r}
+kable(agg_by_lang, 
+      caption = "Initial Oregon Data by Home Languages") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
