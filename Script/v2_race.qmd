@@ -77,45 +77,26 @@ childcount1920 <- read_excel("/Users/hata/Desktop/EDLD652_Diss/Data/1920-cchildc
 
 ```{r}
 #|label: load-OSEP-CHILDCOUNT-1920-clean_names()
-# Decided against clean_names as it messed up the column names 
-# childcount1920 <- clean_names(childcount1920)
-```
-
-```{r}
-# unique(childcount1920$state)
+# I cleaned names, then decided against clean_names as it messed up the column names, but it might be necessary as the file is not rendering 
+childcount1920 <- clean_names(childcount1920)
 ```
 
 ```{r}
 #|label: load-OSEP-CHILDCOUNT-1920-filter_US_OR
 
 childcount1920USOR <- childcount1920 %>% 
-  filter(State %in% c("US and Outlying Areas", "Oregon"))
+  filter(state %in% c("US and Outlying Areas", "Oregon"))
 ```
 
 ```{r}
 #deleting the "total 100%" column because it messes up with the visualization 
 
 childcount1920USOR <- childcount1920 %>%
-  filter(State %in% c("US and Outlying Areas", "Oregon")) %>%
-  select(-`Race/ethnicity Total3 (%)`)
+  filter(state %in% c("US and Outlying Areas", "Oregon")) %>%
+  select(- "race_ethnicity_total3_percent")
 ```
 
-B-2: chart 1
-
-```{r}
-#|label: Make_a_visualizaion_CHILDCOUNT-1920-US_OR 
-```
-
-CAMERON, how do I round up to the 2 digits below decimal?
-
-```{r}
-# Gabrielle: "something about the syntax is not right" 
-#childcount1920USOR <- childcount1920USOR %>% 
-#  mutate_if(is.numeric, ~ round(.x, 2)) 
-
-# childcount1920USOR <- childcount1920USOR %>%
-#  mutate(percent = round(percent, 2))
-```
+B-2: chart 1:
 
 ```{r}
 # YAY I converted the character columns to NUMERIC and then reduced it to dicimals
@@ -124,6 +105,14 @@ childcount1920USOR <- childcount1920USOR %>%
   # Convert character columns to numeric
   mutate(across(where(is.numeric), ~ round(.x, 2)))   
 # Round numeric columns to 2 decimals
+
+# ERROR/WARNING: 
+# Warning message:
+# There was 1 warning in `.fun()`.
+# ℹ In argument: `across(where(is.character), as.numeric)`.
+# Caused by warning:
+# ! NAs introduced by coercion 
+# > # Round numeric columns to 2 decimals
 ```
 
 ```{r}
@@ -132,12 +121,12 @@ kable(childcount1920USOR,
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-B-2: visualization 1
+B-2: visualization 2
 
 ```{r}
 # making it longer yeah
 childcount1920USOR_long <- childcount1920USOR %>%
- gather(key = "race", value = "percent", -State)
+ gather(key = "race", value = "percent", -state)
 ```
 
 ```{r}
@@ -154,7 +143,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 
 ```{r}
 # Chart 1 without viridis_d 
-ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(title = "Percentage of Child Count by Race in US & Oregon",
@@ -166,7 +155,7 @@ ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
 
 ```{r}
 # v.1 with viridis_d 
-ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
   scale_fill_viridis_d() +  
   scale_y_continuous(labels = percent_format(scale = 1)) +
@@ -179,7 +168,7 @@ ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
 
 ```{r}
 # Change it to the bar chart 
-ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity", position = "dodge") +  # "dodge" makes it a grouped bar chart
   scale_fill_viridis_d() +  # Apply Viridis discrete color palette
   scale_y_continuous(labels = percent_format(scale = 1)) +  # Format y-axis as percentages
@@ -307,11 +296,13 @@ us_data_wide <- us_data_wide %>%
   )
 ```
 
+```{r}
+
+```
+
 I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
 
 Chi-square with Residuals 1:
-
-CAMERON - This doesn't run :(
 
 ```{r}
 race_matrix <- as.matrix(race_us[ , -1])
@@ -349,6 +340,8 @@ residuals_df <- as.data.frame(as.table(chi_result$stdres))
 
 Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
 
+Chi-square with Residuals: Viz 1 (HEATMAP)
+
 ```{r}
 # this is race on X (columns )
 ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
@@ -359,8 +352,23 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
   theme_minimal() 
 ```
 
+Chi-square with Residuals: Viz 2 (CORRPLOT)
+
 ```{r}
-corrplot(chisq$residuals, is.cor = FALSE)
+# doesn't look great at all 
+chisq <- chisq.test(race_matrix)
+corrplot(chisq$residuals, 
+         is.cor = FALSE, 
+         tl.col = "black") 
+```
+
+```{r}
+# even worse
+chisq <- chisq.test(race_matrix)
+corrplot(chisq$residuals, 
+         is.cor = FALSE, 
+         tl.col = "black", 
+         tl.cex = 1.2)
 ```
 
 ```{r}
