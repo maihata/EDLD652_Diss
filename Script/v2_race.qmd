@@ -88,6 +88,8 @@ childcount1920USOR <- childcount1920 %>%
   filter(state %in% c("US and Outlying Areas", "Oregon"))
 ```
 
+where did the data go wrong? Did i combine it in below? But i think I just chose and selected the one i don't need? The one below is still correct. Where is the error?
+
 ```{r}
 #deleting the "total 100%" column because it messes up with the visualization 
 
@@ -96,15 +98,14 @@ childcount1920USOR <- childcount1920 %>%
   select(- "race_ethnicity_total3_percent")
 ```
 
-B-2: chart 1:
+B-2: chart 1:\
+THIS CHUNK TO ROUND TO 2 DIGITS CONVERTED THE COLUMN TOO the distinction between the OR/US somehow. I NEED TO FIX IT
 
 ```{r}
-# YAY I converted the character columns to NUMERIC and then reduced it to dicimals
-childcount1920USOR <- childcount1920USOR %>%
-  mutate(across(where(is.character), as.numeric)) %>%  
-  # Convert character columns to numeric
-  mutate(across(where(is.numeric), ~ round(.x, 2)))   
-# Round numeric columns to 2 decimals
+# YAY I PREVIOUSLY converted the character columns to NUMERIC and then reduced it to dicimals BUT IT ALSO CONVERTED state COLUMN INTO NUMERICS 
+# childcount1920USOR <- childcount1920USOR %>%
+#   mutate(across(where(is.character) & !any_of("state"), as.numeric, .names = "converted_{.col}")) %>%  
+#   mutate(across(where(is.numeric), ~ round(.x, 2)))   
 
 # ERROR/WARNING: 
 # Warning message:
@@ -116,12 +117,22 @@ childcount1920USOR <- childcount1920USOR %>%
 ```
 
 ```{r}
+# childcount1920USOR <- childcount1920USOR %>%
+#   mutate(percent = round(percent, 2))
+```
+
+```{r}
+# THIS finally worked to round to 2 digits below dicimal 
+childcount1920USOR[, 2:7] <- lapply(childcount1920USOR[, 2:7], function(x) round(as.numeric(x), 2))
+```
+
+```{r}
 kable(childcount1920USOR, 
       caption = "Child Count (US \\& Oregon)") %>% 
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-B-2: visualization 2
+B-2: visualization 2 FIX IT!!! SOMEWHERE ALONG THE LINE I LOST THE DATA ROWS IN DF
 
 ```{r}
 # making it longer yeah
@@ -369,6 +380,24 @@ corrplot(chisq$residuals,
          is.cor = FALSE, 
          tl.col = "black", 
          tl.cex = 1.2)
+```
+
+```{r}
+library(ggplot2)
+
+# Week 5 slide 13
+# preview a file that would be created by ggsave()
+# ggpreview <- function(...) {
+#  fname <- tempfile(fileext = ".png")
+#  ggsave(filename = fname, ...)
+#  system2("open", fname)
+#  invisible(NULL)}
+
+# ggplot(mtcars) + 
+#  aes(x = wt, y = mpg) + 
+#  geom_point() 
+
+# ggpreview(width = 3, height = 3, units = "in")
 ```
 
 ```{r}
