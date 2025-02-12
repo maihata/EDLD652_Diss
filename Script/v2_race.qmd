@@ -395,14 +395,14 @@ I'm trying out to see if I can do the chi-square with residuals (per <https://ch
 
 Chi-square with Residuals 1:
 
-```{r}
+```{r C-1 OSEP making matrix to run chi square with residuals}
 race_matrix <- as.matrix(race_us[ , -1])
 race_matrix <- apply(race_matrix, 2, as.numeric)
 ```
 
 R doesn't like spaces or dashes / - that's why we did clean names, it could work but it can be tricky later
 
-```{r}
+```{r C-1 OSEP back to clean names}
 rownames(race_matrix) <- c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic/Latino", "More than Two Races", "Pacific Islander", "White")
 ```
 
