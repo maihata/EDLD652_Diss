@@ -131,7 +131,19 @@ cc_transposed <- as.data.frame(t(childcount1920USOR))
 cc_transposed <- rownames_to_column(cc_transposed, var = "Category")
 ```
 
+Cameron helped me (google: kable and don't put the category names on top)
+
 ```{r B2-1 kable-ing transposed dataset}
+
+cc_transposed$Category <- c("Area", 
+                            "American Indian or Alaska Native", 
+                            "Asian", 
+                            "Black or African American", 
+                            "Hispanic or Latino", 
+                            "Native Hawaiian or Pacific Islander", 
+                            "Two or More Races", 
+                            "White")
+
 kable(cc_transposed, 
       caption = "Child Count (US \\& Oregon)") %>% 
   column_spec(1, width = "8cm") %>% 
@@ -160,10 +172,15 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
   mutate(percent = round(percent, 2))
 ```
 
+CAMERON helped - change the race category names back to what it should look like. Don't label them each.
+
 ```{r B2-2 Chart 1 without viridis_d}
+
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + 
+  # HERE"S THE CHANGES
+  scale_fill_discrete(labels = c("American Indian")) +
   labs(title = "Percentage of Child Count by Race in US & Oregon",
        x = "State",
        y = "Percentage",
@@ -184,7 +201,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
 
 ```
 
-B2 Visualization 2 v.2 - it has labels on the bar but it's ugly as hell
+B2 Visualization 2 v.2 - it has labels on the bar but it's ugly
 
 ```{r B2-2 v.2 with viridis_d}
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
@@ -267,6 +284,8 @@ ggplot(childcount1920USOR_long, aes(x = race, y = percent, fill = state)) +
   theme(legend.position = "bottom")  # Moves legend below for clarity
 
 ```
+
+Cameron might go with this one. Look into the feature within ggplot for "greatest to least percentage"
 
 ```{r B2-2 v.2 flip the X and Y for readability}
 ggplot(childcount1920USOR_long, 
@@ -473,11 +492,69 @@ corrplot(chisq$residuals,
 
 corrplot trial 2:
 
+Cameron: If I am presenting to researchers, they probably want something like the table with numbers rather than bubbles.
+
+I can change the ways that categories and such are named in the source source data, but that might make some codes not run/make some complications. So! Just try to rename them within each visualization chunks.
+
+Cameron helping me with the change labels on google.
+
+RENAMED THE CATEGORIES
+
 ```{r}
+
 chisq <- chisq.test(race_matrix)
+
+#Cameron 
+colnames(chisq$residuals) <- c("Withdrawal", 
+                     "Disqualification", 
+                     "Moved Out", 
+                     "Part B Eligible", 
+                     "Not Eligible", 
+                     "Eligibility Not Determined")
+
 corrplot(chisq$residuals, 
          method = 'number', 
+         is.corr = FALSE) 
+```
+
+```{r}
+corrplot(chisq$residuals, 
+         method = 'shade', 
          is.corr = FALSE)
+```
+
+```{r}
+corrplot(chisq$residuals, 
+         method = 'pie', 
+         is.corr = FALSE)
+```
+
+```{r}
+corrplot(chisq$residuals, 
+         method = 'circle', 
+         is.corr = FALSE)
+```
+
+REORDERED THE CATEGORIES ALPHABETICALLY
+
+```{r}
+residual_matrix <- as.matrix(chisq$residuals)
+col_order <- order(colnames(residual_matrix))
+row_order <- order(rownames(residual_matrix))
+residual_matrix <- residual_matrix[row_order, col_order]
+corrplot(residual_matrix, 
+         method = 'circle', 
+         is.corr = FALSE)
+```
+
+```{r}
+corrplot(chisq$residuals, 
+         method = 'circle', 
+         is.corr = FALSE)
+```
+
+```{r}
+
 ```
 
 ```{r}
