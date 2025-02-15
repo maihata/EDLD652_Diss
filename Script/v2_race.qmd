@@ -47,6 +47,7 @@ library(patchwork)
 library(corrplot)
 library(distill)
 library(tibble)
+library(rcartocolor)
 ```
 
 A. Table of 10 exit reasons
@@ -133,9 +134,9 @@ cc_transposed <- rownames_to_column(cc_transposed, var = "Category")
 
 Cameron helped me (google: kable and don't put the category names on top)
 
-```{r B2-1 kable-ing transposed dataset}
+```{r B2-1 kable-ing transposed dataset - changed the heading so that it's Race/Ethnicity, etc. '}
 
-cc_transposed$Category <- c("Area", 
+cc_transposed$Category <- c("Race/Ethnicity", 
                             "American Indian or Alaska Native", 
                             "Asian", 
                             "Black or African American", 
@@ -145,6 +146,7 @@ cc_transposed$Category <- c("Area",
                             "White")
 
 kable(cc_transposed, 
+      col.names = NULL, 
       caption = "Child Count (US \\& Oregon)") %>% 
   column_spec(1, width = "8cm") %>% 
   kable_styling(bootstrap_options = "striped", 
@@ -174,7 +176,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 
 CAMERON helped - change the race category names back to what it should look like. Don't label them each.
 
-```{r B2-2 Chart 1 without viridis_d}
+```{r B2-2 Chart 1 WITHOUT viridis_d}
 
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
@@ -188,7 +190,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   theme_minimal() 
 ```
 
-```{r B2-2: v.1 with viridis_d}
+```{r B2-2: v.1 WITH viridis_d - IT RUNS }
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
   scale_fill_viridis_d() +  
@@ -198,7 +200,44 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
        y = "Percentage",
        fill = "Race") +
   theme_minimal()
+```
 
+Trying to specify group_colors like Cameron taught me. I found this page where they talk about rcartocolor which has color combos <https://stackoverflow.com/questions/57153428/r-plot-color-combinations-that-are-colorblind-accessible> The Below codes DO NOT RUN
+
+2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
+
+```{r}
+# 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
+group_colors <- c(
+  "American Indian or Alaska Native" = "#E69F00",
+  "Asian" = "#56B4E9",
+  "Black or African American" = "#009E73",
+  "Hispanic or Latino" = "#F0E442",
+  "Native Hawaiian or Pacific Islander" = "#0072B2",
+  "Two or More Races" = "#D55E00",
+  "White" = "#CC79A7")
+
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity") + 
+  scale_fill_manual(values = group_colors) +  
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  theme_minimal()
+```
+
+```{r B2-2: v.1 WITH viridis_d}
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity") + 
+  scale_fill_manual(values = group_colors) +  
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  theme_minimal()
 ```
 
 B2 Visualization 2 v.2 - it has labels on the bar but it's ugly
@@ -369,7 +408,7 @@ race_us <- race_us %>%
     "AM" = "Alaska Native or American Indian",
     "AS" = "Asian",
     "BL" = "Black or African American",
-    "HI" = "Hispanic/Latino",
+    "HI" = "Hispanic or Latino",
     "WH" = "White",
     "MU" = "Two or More Races",
     "PI" = "Pacific Islander"
@@ -402,12 +441,20 @@ OH NO where did Part B eligibility not determined go?!?!?
 ```{r C-1 OSEP Changing category names in us_data_wide to clearner names}
 us_data_wide <- us_data_wide %>% 
   rename(
-    "Withdrawal by Parents" = withdrawal_by_parent, 
     "Disqualified" = attempts_to_contact_unsuccessful, 
-    "Moved Out of State" = moved_out_of_state, 
-    "Part B Eligible" = part_b_eligible_exiting_part_c, 
-    "Complete or Not Eligible" = complete_or_not_eligible
-  )
+    "Moved Out" = moved_out_of_state, 
+    "Not Determined" = part_b_eligibility_not_determined, 
+    "Not Eligible" = complete_or_not_eligible, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c,
+    "Withdrawal" = withdrawal_by_parent
+  ) %>% 
+  select("Disqualified", 
+         "Moved Out", 
+         "Not Determined", 
+         "Not Eligible", 
+         "Part B Eligible", 
+         "Withdrawal", 
+         everything())
 ```
 
 I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
@@ -480,11 +527,6 @@ race_matrix <- as.matrix(race_matrix)
 corrplot :) Trial 1: <https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html>
 
 ```{r}
-# CORRPLOT trial one
-# doesn't look great at all 
-# par(mar = c(5, 5, 5, 5))
-# par(pin = c(6, 6))
-
 chisq <- chisq.test(race_matrix)
 corrplot(chisq$residuals, 
          is.cor = FALSE) 
@@ -510,32 +552,11 @@ colnames(chisq$residuals) <- c("Withdrawal",
                      "Moved Out", 
                      "Part B Eligible", 
                      "Not Eligible", 
-                     "Eligibility Not Determined")
+                     "Not Determined")
 
-corrplot(chisq$residuals, 
-         method = 'number', 
-         is.corr = FALSE) 
 ```
 
-```{r}
-corrplot(chisq$residuals, 
-         method = 'shade', 
-         is.corr = FALSE)
-```
-
-```{r}
-corrplot(chisq$residuals, 
-         method = 'pie', 
-         is.corr = FALSE)
-```
-
-```{r}
-corrplot(chisq$residuals, 
-         method = 'circle', 
-         is.corr = FALSE)
-```
-
-REORDERED THE CATEGORIES ALPHABETICALLY
+REORDERED THE CATEGORIES ALPHABETICALLY ![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAaCAYAAADFTB7LAAAAcElEQVR4Xu3OwQmAQAxE0bClWYCW5N06tM6V2YPg5CjoF/JhLoHAi6iqn9eOefUbqrYvHY0cQDLyAlKRNyARmYA0ZMLRkAlGQyaU72tkAtlim7r/vJqDUDjlKBROOQyFU2icQuMUGqfQuBEaV1XPOwEx96nYACK8+wAAAABJRU5ErkJggg== "Run Current Chunk")
 
 ```{r}
 residual_matrix <- as.matrix(chisq$residuals)
@@ -543,18 +564,28 @@ col_order <- order(colnames(residual_matrix))
 row_order <- order(rownames(residual_matrix))
 residual_matrix <- residual_matrix[row_order, col_order]
 corrplot(residual_matrix, 
-         method = 'circle', 
+         method = 'shade', 
          is.corr = FALSE)
 ```
 
 ```{r}
-corrplot(chisq$residuals, 
-         method = 'circle', 
+# maybe use this for dissertation? (FOR RESEARCHER AUDIENCE)
+corrplot(residual_matrix, 
+         method = 'number', 
+         is.corr = FALSE) 
+```
+
+```{r}
+corrplot(residual_matrix, 
+         method = 'pie', 
          is.corr = FALSE)
 ```
 
 ```{r}
-
+# USE THIS AS THE FINAL PROJECT VISUALIZATION 
+corrplot(residual_matrix, 
+         method = 'circle', 
+         is.corr = FALSE)
 ```
 
 ```{r}
