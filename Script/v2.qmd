@@ -425,8 +425,38 @@ agg_by_lang_no_SL <- agg_by_lang %>%
   filter(primary_language != "Sign languages")
 ```
 
+Oregon data by language KABLE table
+
+-   Renaming the columns
+
+```{r}
+agg_by_lang <- agg_by_lang %>% 
+  rename( 
+    `Primary Language` = primary_language, 
+    `Total Exit` = exit_total, 
+    `Withdrawn` = withdrawal_by_parent, 
+    `Disqualified` = attempts_to_contact_unsuccessful, 
+    `Moved Out` = moved_out_of_state, 
+    `Part B Eligible` = part_b_eligible_exiting_part_c, 
+    `Not Eligible` = complete_or_not_eligible)
+```
+
+-   Reorder the Categories alphabetically :)
+
+```{r}
+agg_by_lang <- agg_by_lang %>%
+  select(
+    "Primary Language", 
+    sort(names(.)[names(.) 
+                  != "Primary Language"]))
+```
+
+-   Ran KABLE for a table
+
 ```{r}
 kable(agg_by_lang, 
       caption = "Initial Oregon Data by Home Languages") %>%
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
+
+-   trying to change font to TIMES NEW ROMAN
