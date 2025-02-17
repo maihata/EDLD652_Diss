@@ -52,7 +52,11 @@ library(ggplot2)
 library(quarto)
 ```
 
+
+
 A. Table of 10 exit reasons
+
+
 
 ```{r Table of 10 exit reasons }
 exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
@@ -67,11 +71,15 @@ kable(exit_categories,
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
+
+
 B. National and Oregon CHILD COUNTS
 
 NOTE TO SELF: ADD THE CENSUS NUMBER FOR FINAL PROJECT! BIND_ROWS!! WEEK 2? 3? Labs.
 
 B-1. Load data
+
+
 
 ```{r}
 #|label: load-OSEP-CHILDCOUNT-1920-data
@@ -93,7 +101,11 @@ childcount1920USOR <- childcount1920 %>%
   filter(state %in% c("US and Outlying Areas", "Oregon"))
 ```
 
+
+
 where did the data go wrong? Did i combine it in below? But i think I just chose and selected the one i don't need? The one below is still correct. Where is the error?
+
+
 
 ```{r B-1 delete "total 100% column"}
 
@@ -102,8 +114,12 @@ childcount1920USOR <- childcount1920 %>%
   select(- "race_ethnicity_total3_percent")
 ```
 
+
+
 B-2: chart 1:\
 THIS CHUNK TO ROUND TO 2 DIGITS CONVERTED THE COLUMN TOO the distinction between the OR/US somehow. I NEED TO FIX IT
+
+
 
 ```{r}
 # YAY I PREVIOUSLY converted the character columns to NUMERIC and then reduced it to dicimals BUT IT ALSO CONVERTED state COLUMN INTO NUMERICS 
@@ -129,7 +145,11 @@ cc_transposed <- as.data.frame(t(childcount1920USOR))
 cc_transposed <- rownames_to_column(cc_transposed, var = "Category")
 ```
 
+
+
 Cameron helped me (google: kable and don't put the category names on top)
+
+
 
 ```{r}
 
@@ -153,7 +173,11 @@ kable(cc_transposed,
                 latex_options = "scale_down")
 ```
 
+
+
 B-2: visualization 2 FIX IT!!! (OLD: SOMEWHERE ALONG THE LINE I LOST THE DATA ROWS IN DF)
+
+
 
 ```{r}
 # making it longer yeah
@@ -171,7 +195,11 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
   mutate(percent = round(percent, 2))
 ```
 
+
+
 CAMERON helped - change the race category names back to what it should look like. Don't label them each.
+
+
 
 ```{r}
 
@@ -199,9 +227,13 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   theme_minimal()
 ```
 
+
+
 Trying to specify group_colors like Cameron taught me. I found this page where they talk about rcartocolor which has color combos <https://stackoverflow.com/questions/57153428/r-plot-color-combinations-that-are-colorblind-accessible> The Below codes DO NOT RUN
 
 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
+
+
 
 ```{r}
 # 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
@@ -225,7 +257,11 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   theme_minimal()
 ```
 
+
+
 B2 Visualization 2 v.2 - it has labels on the bar but it's ugly
+
+
 
 ```{r}
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
@@ -309,7 +345,11 @@ ggplot(childcount1920USOR_long, aes(x = race, y = percent, fill = state)) +
 
 ```
 
+
+
 Cameron might go with this one. Look into the feature within ggplot for "greatest to least percentage"
+
+
 
 ```{r}
 ggplot(childcount1920USOR_long, 
@@ -331,7 +371,11 @@ ggplot(childcount1920USOR_long,
 
 ```
 
+
+
 C. National and Oregon EXIT data by RACE
+
+
 
 ```{r}
 #|label: load-OSEP-EXIT-data
@@ -346,7 +390,11 @@ byrace <- import(here("Data", "race v.2.xlsx")) %>%
   mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
 ```
 
+
+
 I FIXED THE MISSING COLUMN by adding back part_b_eligibility_not_determined. I think this is what I can use for CHI-SQUARE WITH RESIDUALS?
+
+
 
 ```{r}
 
@@ -361,7 +409,11 @@ agg_by_race_and_state <- byrace %>%
             part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
 ```
 
+
+
 I should be able to export df to excel this way but haven't tried it yet.
+
+
 
 ```{r}
 # library(writexl)
@@ -369,7 +421,11 @@ I should be able to export df to excel this way but haven't tried it yet.
 # write_xlsx(df, "my_data.xlsx")  # Saves to an Excel file 
 ```
 
+
+
 agg_by_race_and_state
+
+
 
 ```{r}
 # aggregated by race for OR
@@ -429,7 +485,11 @@ us_data_wide <- us_data_long %>%
   ) 
 ```
 
+
+
 OH NO where did Part B eligibility not determined go?!?!?
+
+
 
 ```{r}
 # MORE RECENTLY UPDATED in this - don't look at v2.qmd
@@ -453,6 +513,8 @@ us_data_wide <- us_data_wide %>%
          everything())
 ```
 
+
+
 I'm trying out to see if I can do the chi-square with residuals (per \# <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
 
 Chi-square with Residuals 1:
@@ -464,6 +526,8 @@ Chi-square with Residuals 1:
 # \* I want to remove the total exit column
 
 # \* do i need to make it numeric
+
+
 
 ```{r}
 race_matrix <- as.matrix(race_us[, -1, drop = FALSE])  
@@ -478,7 +542,11 @@ race_matrix <- apply(race_matrix, 2, as.numeric)
 # race_matrix <- apply(race_matrix, 2, as.numeric)
 ```
 
+
+
 R doesn't like spaces or dashes / - that's why we did clean names, it could work but it can be tricky later
+
+
 
 ```{r}
 rownames(race_matrix)
@@ -496,7 +564,11 @@ rownames(race_matrix) <- c(
   ) 
 ```
 
+
+
 ## I have to rename the categories, and then alphabetize them 
+
+
 
 ```{r}
 colnames(race_matrix) <- c(
@@ -520,11 +592,17 @@ race_matrix <- race_matrix[
 ]
 ```
 
+
+
 Chi-square with Residuals 2:
+
+
 
 ```{r}
 chi_result <- chisq.test(race_matrix)
 ```
+
+
 
 Chi-square with Residuals 3:
 
@@ -532,11 +610,17 @@ Cameron: Residuals are what we are measuring anyway. If nothing was happening, w
 
 # **LINA: IS THIS CORRECTLY RUN??**
 
+
+
 ```{r}
 print(chi_result$stdres)
 ```
 
+
+
 Chi-square with Residuals 4:
+
+
 
 ```{r}
 # DON'T USE THIS ONE 
@@ -544,9 +628,13 @@ residuals_df <- as.data.frame(
   as.table(chi_result$stdres))
 ```
 
+
+
 # HELP: How can I visualize better? Names
 
 Chi-square with Residuals: Viz 1 (HEATMAP)
+
+
 
 ```{r}
 str(residuals_df)
@@ -577,9 +665,13 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
 ```
 
 
+
+
 Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/chi-square-test-of-independence-in-r#google_vignette)
 
 # DOES IT JUST NOT WORK ON DF because it's long? 
+
+
 
 ```{r}
 #drop total column from race_matrix. I learned that I CANNOT USE SELECT() ON MATRIX FILES SO I CONVERTED IT BACK TO DF THEN BACK TO MATRIX AGAIN 
@@ -597,7 +689,11 @@ Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/c
 # %>%  select(-exit_total) 
 ```
 
+
+
 ## Why did we make the residuals_df ???
+
+
 
 ```{r}
 # residuals_df <- residuals_df[
@@ -605,13 +701,19 @@ Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/c
 #]
 ```
 
+
+
 corrplot :) Trial 1: <https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html>
+
+
 
 ```{r}
 chisq <- chisq.test(race_matrix)
 corrplot(chisq$residuals, 
          is.cor = FALSE) 
 ```
+
+
 
 corrplot trial 2:
 
@@ -621,12 +723,18 @@ Cameron helping me with the change labels on google.
 
 RENAMED THE CATEGORIES
 
+
+
 ```{r}
 dim(race_matrix)
 colnames(race_matrix)
 ```
 
+
+
 # NOT WORKING - help! 
+
+
 
 ```{r}
 # chisq <- chisq.test(race_matrix)
@@ -640,7 +748,11 @@ colnames(race_matrix)
 #                     "Not Determined")
 ```
 
+
+
 REORDERED THE CATEGORIES ALPHABETICALLY I thought...?
+
+
 
 ```{r}
 # rownames(chisq$residuals)
@@ -657,7 +769,11 @@ REORDERED THE CATEGORIES ALPHABETICALLY I thought...?
 #  "White" = 7)
 ```
 
+
+
 # AND HERE, I MADE THE residual_matrix but why 
+
+
 
 ```{r}
 residual_matrix <- as.matrix(chisq$residuals)
@@ -666,7 +782,11 @@ row_order <- order(rownames(residual_matrix))
 residual_matrix <- residual_matrix[row_order, col_order]
 ```
 
+
+
 # WHYYYYYY I just want to rename the rows and columns for corrplot 
+
+
 
 ```{r}
 rownames(residual_matrix) <- c(
@@ -722,3 +842,4 @@ library(ggplot2)
 
 # ggpreview(width = 3, height = 3, units = "in")
 ```
+

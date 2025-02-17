@@ -121,9 +121,7 @@ CAMERON, how do I round up to the 2 digits below decimal?
 # YAY I converted the character columns to NUMERIC and then reduced it to dicimals
 childcount1920USOR <- childcount1920USOR %>%
   mutate(across(where(is.character), as.numeric)) %>%  
-  # Convert character columns to numeric
   mutate(across(where(is.numeric), ~ round(.x, 2)))   
-# Round numeric columns to 2 decimals
 ```
 
 ```{r}
@@ -360,27 +358,14 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
 ```
 
 ```{r}
+plot.new()
+dev.off()
+corrplot(chisq$residuals, is.cor = FALSE, tl.cex = 0.7)
+
+```
+
+```{r}
 corrplot(chisq$residuals, is.cor = FALSE)
-```
-
-```{r}
-# this is race on Y (rows)
-# ggplot(residuals_df, aes(Var2, Var1, fill = Freq)) +  # Flip x and y
-#  geom_tile() +
-#  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-#  labs(title = "Chi-Square Standardized Residuals",
-#       x = "Race", y = "Exit Reason") +  # Adjust labels accordingly
-#  theme_minimal()
-
-```
-
-```{r}
-# viridis_d doesn't look good, doesn't make any sense. 
-# ggplot(residuals_df, aes(Var2, Var1, fill = Freq)) +  # Flip x and y
-#  geom_tile() +
-#  scale_fill_viridis_c(option = "magma") +  # Choose a viridis color #  labs(title = "Chi-Square Standardized Residuals",
-#       x = "Race", y = "Exit Reason") +  # Adjust labels accordingly
-#  theme_minimal()
 ```
 
 C. Oregon data by LANGUAGES
