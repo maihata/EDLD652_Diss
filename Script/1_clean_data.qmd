@@ -363,6 +363,10 @@ data_oregon <- byrace %>%
 # chisq.test(data_oregon[, 2:3])
 ```
 
+```{r}
+write.csv(data_oregon, file = "/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv", row.names = FALSE)
+```
+
 ### csv 13: data_national (exit vs withdrawn)
 
 --- national data comparing TOTAL EXITS vs WITHDRAWAL by RACE
@@ -411,7 +415,7 @@ write.csv(us_data_attempts_BLWH, file = "/Users/hata/Desktop/EDLD652_Diss/Data/u
           row.names = FALSE)
 ```
 
-### csv 15: 
+### csv 15: oregon_data_long & oregon_data_long
 
 ```{r}
 # Oregon data long and wide
@@ -423,7 +427,16 @@ oregon_data_long <- race_oregon %>%
  ) %>% 
   group_by(race) %>% 
   mutate(percentage = round(values/exit_total, digits = 4))
+```
 
+```{r}
+write.csv(oregon_data_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_long.csv", 
+          row.names = FALSE)
+```
+
+wide
+
+```{r}
 oregon_data_wide <- oregon_data_long %>% 
   select(-c(exit_total,values)) %>% 
   pivot_wider(
@@ -431,6 +444,13 @@ oregon_data_wide <- oregon_data_long %>%
     values_from = percentage
   )
 ```
+
+```{r}
+write.csv(oregon_data_wide, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide.csv", 
+          row.names = FALSE)
+```
+
+### csv 16: oregon_data_wide_DQ
 
 ```{r}
 # figure 2 for Oregon DQ data 
@@ -442,26 +462,12 @@ oregon_data_wide_DQ <- oregon_data_wide %>%
 ```
 
 ```{r}
-# figure 2 continues 
-# rotate x axis text labels - 1202
- ggplot(oregon_data_wide_DQ, 
-        aes(x = race, y = attempts_to_contact_unsuccessful)) +
-  geom_col(stat = "identity", fill = "gray24", position = 'dodge') +
-   geom_text(aes(label = attempts_to_contact_unsuccessful),
-             position = position_dodge(0.9),
-             hjust = -0.3,
-             size = 2.2) +
-  labs(
-    title = "Figure 2: Unsuccessful Contacts/DQ (Oregon)", 
-    x = "Race", 
-    y = "Percentage of Exit by Race"
-  ) +
-  theme_classic() +
-  scale_x_discrete(labels = c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic", "Multiracial", "Pacific Islander", "White"))+
-  coord_flip()
- 
- # print(oregon_data_wide_DQ) 
+write.csv(oregon_data_wide_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
 ```
+
+### csv 17: us_data_DQ 
+
+--- Very similar to us_data_attempts_BLWH which has more data, us_data_DQ only has BLACK/WHITE DQs, saved for chi-square —
 
 ```{r}
 # Did I just make the summary table of what we decided to look at for this project!?!? Okay I did the same work again but that's okay, GAH 
@@ -483,8 +489,15 @@ us_data_DQ <- byrace %>%
            attempts_to_contact_unsuccessful =
 sum(attempts_to_contact_unsuccessful))
 
-chisq_dq <- chisq.test(us_data_DQ[, -1])
 ```
+
+```{r}
+write.csv(us_data_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ.csv")
+```
+
+### csv 18: us_data_DQ_proportion 
+
+--- df for making the plot 2 —-
 
 ```{r}
 # Used this dataset for making the figure 2
@@ -496,10 +509,11 @@ us_data_DQ_proportion <- byrace %>%
   mutate(proportion = (attempts_to_contact_unsuccessful / exit_total) * 100) 
 ```
 
+# CLEAND UP TO HERE
+
 The chi-square indicated that there was a statistically significant association between children being Black/African American or White and them leaving EI due to being disqualified nationally. The chi-square test indicated, X-squared (222556.00, N = 2,088,058), *p* \< 2.2e-16 or 0.0000000000000002 (*p* \< .001).
 
 ```{r}
-# used wording from Morgan et al. (2020) and ChatGPT 
 # prepping the df to mutate a column to have non_dq and delete total 
 us_data_wide_DQ_BLWH <- us_data_attempts_BLWH %>% 
   mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
@@ -523,10 +537,6 @@ us_dq_BLWH_matrix <- matrix(
 ```{r}
 # ODDS RATIO SUCCESS 
 # oddsratio(us_dq_BLWH_matrix)
-```
-
-```{r}
-
 ```
 
 Cohen's *h* was calculated to evaluate the effect size of the analysis**.** The result indicated a small to medium effect size, *h* = 0.259. However, even though effect size shows the magnitude of the difference, it is not necessarily considered to be a direct indication of the importance of the findings (Morgan et al., 2020).

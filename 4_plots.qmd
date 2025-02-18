@@ -82,11 +82,37 @@ ggplot(us_data_wide, aes(x = race, y = attempts_to_contact_unsuccessful)) +
 ```
 
 ```{r}
+# need to reorder alphabetically the categories 
+```
 
+### plot 2: oregon_data_wide_DQ
+
+```{r}
+oregon_data_wide_DQ <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
 ```
 
 ```{r}
+ ggplot(oregon_data_wide_DQ, 
+        aes(x = race, y = attempts_to_contact_unsuccessful)) +
+  geom_col(stat = "identity", fill = "gray24", position = 'dodge') +
+   geom_text(aes(label = attempts_to_contact_unsuccessful),
+             position = position_dodge(0.9),
+             hjust = -0.3,
+             size = 2.2) +
+  labs(
+    title = "Figure 2: Unsuccessful Contacts/DQ (Oregon)", 
+    x = "Race", 
+    y = "Percentage of Exit by Race"
+  ) +
+  theme_classic() +
+  scale_x_discrete(labels = c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic", "Multiracial", "Pacific Islander", "White"))+
+  coord_flip()
+ 
+ # print(oregon_data_wide_DQ) 
+```
 
+```{r}
+# need to reorder alphabetically the categories 
 ```
 
 ```{r}

@@ -52,6 +52,9 @@ library(quarto)
 
 ```{r}
 race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+
+race_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv")
+
 ```
 
 ```{r}
@@ -69,7 +72,9 @@ chisq.test(race_oregon[, 3:8])
 --- US and Oregon entire table. Probably no need as I'll be running the chi-square with residuals anyway. —
 
 ```{r}
-byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/by_race.csv")
+byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
+
+data_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv")
 ```
 
 ```{r}
@@ -94,12 +99,15 @@ chisq.test(agg_by_area[, 2:3])
 
 ```{r}
 us_data_attempts <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+
+us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+
 ```
 
 ```{r}
-
+ 
+chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
+chi_dq_BLWH_result
 ```
 
-```{r}
-
-```
+### chi 4: 

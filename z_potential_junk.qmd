@@ -4,3 +4,24 @@ author: "Maiko Hata"
 format: pdf
 editor: visual
 ---
+
+```{r}
+
+```
+
+```{r}
+# now, divide the attempts_to_contact_unsuccessful by grand_total x 100 for % of each race represented in relation to the exit total between 2013-2022. 
+us_data_attempts <- us_data_attempts %>% 
+  mutate(
+    grand_total = sum(exit_total, na.rm = TRUE), 
+    portion = (exit_total / grand_total) * 100
+  )
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
