@@ -5,7 +5,7 @@ format:
   pdf:
     mainfont: "Times New Roman"
     sansfont: "Times New Roman"
-fig-width: 7
+fig-width: 6
 fig-height: 4
 csl: apa.csl
 execute: 
@@ -47,47 +47,59 @@ library(patchwork)
 library(corrplot)
 ```
 
-### National and Oregon CHILD COUNTS
+B. National and Oregon CHILD COUNTS
 
 NOTE TO SELF: ADD THE CENSUS NUMBER FOR FINAL PROJECT! BIND_ROWS!! WEEK 2? 3? Labs.
 
 B-1. Load data
 
 ```{r}
+#|label: load-OSEP-CHILDCOUNT-1920-data
 # Imported excel file with multiple pages but specified only the second sheet. Yay 
 
 childcount1920 <- read_excel("/Users/hata/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
 ```
 
 ```{r}
-childcount1920 <- clean_names(childcount1920)
+#|label: load-OSEP-CHILDCOUNT-1920-clean_names()
+# Decided against clean_names as it messed up the column names 
+# childcount1920 <- clean_names(childcount1920)
 ```
 
 ```{r}
-unique(childcount1920$state)
+# unique(childcount1920$state)
 ```
 
 ```{r}
+#|label: load-OSEP-CHILDCOUNT-1920-filter_US_OR
+
 childcount1920USOR <- childcount1920 %>% 
-  filter(state %in% c("US and Outlying Areas", "Oregon"))
+  filter(State %in% c("US and Outlying Areas", "Oregon"))
 ```
 
 ```{r}
 #deleting the "total 100%" column because it messes up with the visualization 
 
-# childcount1920USOR <- childcount1920 %>%
-#  filter(state == "US and Outlying Areas" | state == "Oregon") %>%
-#  select(-"race_ethnicity_total_3percent")
-
+childcount1920USOR <- childcount1920 %>%
+  filter(State %in% c("US and Outlying Areas", "Oregon")) %>%
+  select(-`Race/ethnicity Total3 (%)`)
 ```
 
 B-2: chart 1
 
 ```{r}
-# Gabrielle: "something about the syntax is not right" 
-#childcount1920USOR <- childcount1920USOR %>%   mutate_if(is.numeric, ~ round(.x, 2)) 
+#|label: Make_a_visualizaion_CHILDCOUNT-1920-US_OR 
+```
 
-# childcount1920USOR <- childcount1920USOR %>% mutate(percent = round(percent, 2))
+CAMERON, how do I round up to the 2 digits below decimal?
+
+```{r}
+# Gabrielle: "something about the syntax is not right" 
+#childcount1920USOR <- childcount1920USOR %>% 
+#  mutate_if(is.numeric, ~ round(.x, 2)) 
+
+# childcount1920USOR <- childcount1920USOR %>%
+#  mutate(percent = round(percent, 2))
 ```
 
 ```{r}
@@ -108,7 +120,7 @@ B-2: visualization 1
 ```{r}
 # making it longer yeah
 childcount1920USOR_long <- childcount1920USOR %>%
- gather(key = "race", value = "percent", -state)
+ gather(key = "race", value = "percent", -State)
 ```
 
 ```{r}
@@ -125,7 +137,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 
 ```{r}
 # Chart 1 without viridis_d 
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(title = "Percentage of Child Count by Race in US & Oregon",
@@ -137,7 +149,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
 
 ```{r}
 # v.1 with viridis_d 
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
   scale_fill_viridis_d() +  
   scale_y_continuous(labels = percent_format(scale = 1)) +
@@ -150,7 +162,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
 
 ```{r}
 # Change it to the bar chart 
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+ggplot(childcount1920USOR_long, aes(x = State, y = percent, fill = race)) +
   geom_bar(stat = "identity", position = "dodge") +  # "dodge" makes it a grouped bar chart
   scale_fill_viridis_d() +  # Apply Viridis discrete color palette
   scale_y_continuous(labels = percent_format(scale = 1)) +  # Format y-axis as percentages
@@ -238,6 +250,7 @@ race_us <- race_us %>%
 
 ```
 
+
 ```{r}
 # Made it LONGER for real! 
 us_data_long <- race_us %>% 
@@ -283,11 +296,13 @@ us_data_wide <- us_data_wide %>%
   select("Race", sort(setdiff(names(.), "Race")))
 ```
 
+
 ```{r}
 kable(us_data_wide, 
       caption = "Racial Representation in EI Services",
       align = "c",  
       format = "latex")  
+```
 ```
 
 I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
@@ -330,7 +345,8 @@ Chi-square with Residuals 4:
 residuals_df <- as.data.frame(as.table(chi_result$stdres))
 ```
 
-SOMEWHERE IN HERE I MIGHT HAVE DELETED OR MOVED THE CHUNK EALIER SO FIND CHUNKS MAYBE WITH residuals_df and find Var2 Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
+SOMEWHERE IN HERE I MIGHT HAVE DELETED OR MOVED THE CHUNK EALIER SO FIND CHUNKS MAYBE WITH residuals_df and find Var2 
+Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
 
 ```{r}
 # this is race on X (columns )
@@ -342,9 +358,10 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
   theme_minimal() 
 ```
 
+
 ```{r}
-# corrplot(chisq$residuals, 
-# is.cor = FALSE)
+corrplot(chisq$residuals, 
+is.cor = FALSE)
 ```
 
 C. Oregon data by LANGUAGES

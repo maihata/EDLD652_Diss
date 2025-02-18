@@ -399,7 +399,7 @@ us_data_attempts <- byrace %>%
 write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
 ```
 
-### csv 14: us_data_attempts_BLWH 
+### csv 14: us_data_attempts_BLWH
 
 --- DQ for BLACK and WHITE for chi-square and odds ratio
 
@@ -465,7 +465,7 @@ oregon_data_wide_DQ <- oregon_data_wide %>%
 write.csv(oregon_data_wide_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
 ```
 
-### csv 17: us_data_DQ 
+### csv 17: us_data_DQ
 
 --- Very similar to us_data_attempts_BLWH which has more data, us_data_DQ only has BLACK/WHITE DQs, saved for chi-square —
 
@@ -495,7 +495,7 @@ sum(attempts_to_contact_unsuccessful))
 write.csv(us_data_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ.csv")
 ```
 
-### csv 18: us_data_DQ_proportion 
+### csv 18: us_data_DQ_proportion
 
 --- df for making the plot 2 —-
 

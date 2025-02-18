@@ -553,7 +553,6 @@ str(residuals_df)
 residuals_df$Freq <- as.numeric(residuals_df$Freq)
 ```
 
-
 ```{r}
 str(residuals_df)
 ```
