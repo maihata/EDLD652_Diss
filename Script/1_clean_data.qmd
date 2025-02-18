@@ -65,7 +65,7 @@ exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
 
 ```{r}
 write.csv(exit_categories, 
-          file = "Data/exit_categories.csv", 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.csv", 
           row.names = FALSE)
 ```
 
@@ -89,7 +89,7 @@ byrace <- import(here("Data", "race v.2.xlsx")) %>%
 
 ```{r}
 write.csv(byrace, 
-          file = "Data/byrace.csv", 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv", 
           row.names = FALSE)
 ```
 
@@ -114,7 +114,7 @@ agg_by_race_and_state <- byrace %>%
 
 ```{r}
 write.csv(agg_by_race_and_state, 
-          file = "Data/agg_by_race_and_state.csv", 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_race_and_state.csv", 
           row.names = FALSE)
 ```
 
@@ -128,7 +128,8 @@ race_oregon <- agg_by_race_and_state %>%
 ```
 
 ```{r}
-write.csv(race_oregon, file = "Data/race_oregon.csv", 
+write.csv(race_oregon, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv", 
           row.names = FALSE)
 ```
 
@@ -141,7 +142,8 @@ race_us <- agg_by_race_and_state %>%
 ```
 
 ```{r}
-write.csv(race_us, file = "Data/race_us.csv", 
+write.csv(race_us, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv", 
           row.names = FALSE)
 ```
 
@@ -188,7 +190,8 @@ race_us_chart <- race_us_chart %>%
 ```
 
 ```{r}
-write.csv(race_us_chart, file = "Data/race_us_chart.csv", 
+write.csv(race_us_chart, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
           row.names = FALSE)
 ```
 
@@ -226,7 +229,8 @@ race_oregon_chart <- race_oregon_chart %>%
 ```
 
 ```{r}
-write.csv(race_oregon_chart, file = "Data/race_oregon_chart.csv", 
+write.csv(race_oregon_chart, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", 
           row.names = FALSE)
 ```
 
