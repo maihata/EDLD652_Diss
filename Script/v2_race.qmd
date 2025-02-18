@@ -457,7 +457,7 @@ I'm trying out to see if I can do the chi-square with residuals (per \# <https:/
 
 Chi-square with Residuals 1:
 
-# ABOVE THIS EVERYTHING RUNS. 
+# ABOVE THIS EVERYTHING RUNS.
 
 # SOMEHOW THE race_matrix LOST THE RACE CATEGORIES
 
@@ -496,7 +496,7 @@ rownames(race_matrix) <- c(
   ) 
 ```
 
-## I have to rename the categories, and then alphabetize them 
+## I have to rename the categories, and then alphabetize them
 
 ```{r}
 colnames(race_matrix) <- c(
@@ -540,8 +540,8 @@ Chi-square with Residuals 4:
 
 ```{r}
 # DON'T USE THIS ONE 
-residuals_df <- as.data.frame(
-  as.table(chi_result$stdres))
+# residuals_df <- as.data.frame(
+#  as.table(chi_result$stdres))
 ```
 
 # HELP: How can I visualize better? Names
@@ -553,18 +553,9 @@ str(residuals_df)
 residuals_df$Freq <- as.numeric(residuals_df$Freq)
 ```
 
-```{r}
-!if (!is.null(residuals_df)) {
-  print("Data is present")
-}
-```
 
 ```{r}
 str(residuals_df)
-```
-
-```{r}
-
 ```
 
 ```{r}
@@ -576,10 +567,9 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
   theme_minimal()
 ```
 
-
 Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/chi-square-test-of-independence-in-r#google_vignette)
 
-# DOES IT JUST NOT WORK ON DF because it's long? 
+# DOES IT JUST NOT WORK ON DF because it's long?
 
 ```{r}
 #drop total column from race_matrix. I learned that I CANNOT USE SELECT() ON MATRIX FILES SO I CONVERTED IT BACK TO DF THEN BACK TO MATRIX AGAIN 
@@ -626,7 +616,7 @@ dim(race_matrix)
 colnames(race_matrix)
 ```
 
-# NOT WORKING - help! 
+# NOT WORKING - help!
 
 ```{r}
 # chisq <- chisq.test(race_matrix)
@@ -657,7 +647,7 @@ REORDERED THE CATEGORIES ALPHABETICALLY I thought...?
 #  "White" = 7)
 ```
 
-# AND HERE, I MADE THE residual_matrix but why 
+# AND HERE, I MADE THE residual_matrix but why
 
 ```{r}
 residual_matrix <- as.matrix(chisq$residuals)
@@ -666,7 +656,7 @@ row_order <- order(rownames(residual_matrix))
 residual_matrix <- residual_matrix[row_order, col_order]
 ```
 
-# WHYYYYYY I just want to rename the rows and columns for corrplot 
+# WHYYYYYY I just want to rename the rows and columns for corrplot
 
 ```{r}
 rownames(residual_matrix) <- c(
