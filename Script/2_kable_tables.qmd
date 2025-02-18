@@ -46,7 +46,7 @@ library(ggplot2)
 library(quarto)
 ```
 
-### kable 1: Table of exit categories using 
+### kable 1: Table of exit categories using
 
 ```{r}
 # TABLE of exit categories
@@ -61,7 +61,7 @@ kable(exit_categories,
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-### kable 2: race_us_chart 
+### kable 2: race_us_chart
 
 ```{r}
 race_us_chart <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv")
@@ -77,17 +77,15 @@ kable(race_us_chart,
     position = "left")
 ```
 
-### kable 3: race_oregon_chart 
+### kable 3: race_oregon_chart
 
 ```{r}
 race_oregon_chart <- read_csv(
   "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv")
 ```
 
-
 ```{r}
 kable(race_oregon_chart, 
       caption = "Table of Exit Reasons") %>% 
       kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
-

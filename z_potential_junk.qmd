@@ -1,0 +1,6 @@
+---
+title: "z_potential_junk"
+author: "Maiko Hata"
+format: pdf
+editor: visual
+---

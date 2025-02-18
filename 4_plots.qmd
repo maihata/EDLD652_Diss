@@ -1,0 +1,98 @@
+---
+title: "4_plots"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+### plot 1: us_data_wide 
+
+--- DQ data in US —-
+
+```{r}
+us_data_wide <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv")
+```
+
+```{r}
+# figure 1 for DQ data in US   
+
+us_data_wide <- us_data_wide %>% 
+  select(race, attempts_to_contact_unsuccessful) %>% 
+    mutate(attempts_to_contact_unsuccessful = attempts_to_contact_unsuccessful * 100)
+```
+
+```{r}
+# figure 1 continues 
+
+ggplot(us_data_wide, aes(x = race, y = attempts_to_contact_unsuccessful)) +
+  geom_col(stat = "identity", fill = "gray43", position = 'dodge') +
+   geom_text(aes(label = attempts_to_contact_unsuccessful),
+             position = position_dodge(0.9),
+             hjust = -0.05,
+             size = 2)+
+  labs(
+    title = "Figure 1: Unsuccessful Contacts/DQ (U.S.)", 
+    x = "Race", 
+    y = "Percentage of Exit by Race (%)"
+  ) +
+  theme_classic()+
+  scale_x_discrete(labels = c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic", "Multiracial", "Pacific Islander", "White"))+
+  coord_flip()
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

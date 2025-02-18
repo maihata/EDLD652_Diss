@@ -1,0 +1,105 @@
+---
+title: "3_chi_sq"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+### chi 1: race_us 
+
+--- omnibus chi
+
+```{r}
+race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+```
+
+```{r}
+chi_omni <-chisq.test(race_us[, 3:8])
+omni_p_value <- chi_omni$p.value
+omni_statistic <- chi_omni$statistic 
+```
+
+```{r}
+chisq.test(race_oregon[, 3:8])
+```
+
+### chi 2: byrace
+
+--- US and Oregon entire table. Probably no need as I'll be running the chi-square with residuals anyway. —
+
+```{r}
+byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/by_race.csv")
+```
+
+```{r}
+chisq.test(data_oregon[, 2])
+```
+
+### chi 2: agg_by_area 
+
+--- withdrawn category —
+
+```{r}
+agg_by_area <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_area.csv")
+```
+
+```{r}
+chisq.test(agg_by_area[, 2:3])
+```
+
+### chi 3: us_data_attempts_BLWH 
+
+--- DQ for BLACK and WHITE for chi-square and odds ratio
+
+```{r}
+us_data_attempts <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
