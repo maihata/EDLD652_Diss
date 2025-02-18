@@ -1,0 +1,93 @@
+---
+title: "2_kable_tables"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+### kable 1: Table of exit categories using 
+
+```{r}
+# TABLE of exit categories
+exit_categories <- import(here("Data","exit_categories.csv")) %>%
+ clean_names() 
+```
+
+```{r}
+kable(exit_categories, 
+      caption = "Table of Exit Reasons",
+      col.names = c('Exit Reasons','Exit Category Codes')) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+### kable 2: race_us_chart 
+
+```{r}
+race_us_chart <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv")
+```
+
+```{r}
+kable(race_us_chart, 
+      caption = 
+        "Table of Exit Reasons (National)") %>% 
+  kable_styling(
+    bootstrap_options = "striped", 
+    full_width = F, 
+    position = "left")
+```
+
+### kable 3: race_oregon_chart 
+
+```{r}
+race_oregon_chart <- read_csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv")
+```
+
+
+```{r}
+kable(race_oregon_chart, 
+      caption = "Table of Exit Reasons") %>% 
+      kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+

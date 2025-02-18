@@ -15,11 +15,6 @@ execute:
   warning: false
 editor: visual
 engine: knitr
-
-# after I took out the following specifications, it rendered beautifully: 
-# bibliography: 
-# - references.bib
-# - grateful-refs.bib
 ---
 
 ```{r}
@@ -59,19 +54,13 @@ library(ggplot2)
 library(quarto)
 ```
 
-## 1) 10 exit categories for Kable
+### csv1: 10 exit categories
+
+(for Kable table)
 
 ```{r}
 exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
  clean_names() 
-```
-
-```{r}
-# TABLE of exit categories
-kable(exit_categories, 
-      caption = "Table of Exit Reasons",
-      col.names = c('Exit Reasons','Exit Category Codes')) %>% 
-  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
 ```{r}
@@ -80,7 +69,9 @@ write.csv(exit_categories,
           row.names = FALSE)
 ```
 
-## 2) byrace (2013-2022, US/OR, race/exits not cleaned up yet) 
+### csv2: byrace
+
+(imported OSEP excel, 2013-22, US/OR, deceased/continuing in Part C removed, mutated complete_or_not_eligible to combine 3 similar categories)
 
 ```{r include=FALSE}
 #|label: load-data
@@ -89,12 +80,22 @@ write.csv(exit_categories,
 byrace <- import(here("Data", "race v.2.xlsx")) %>% 
   clean_names() %>% 
   select(-7, -12) %>% 
-  mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
-
-# str(byrace) I think we can remove this because it is only for examining the structure
+  mutate(
+    complete_or_not_eligible = 
+      complete_prior_to_reaching_max_age_for_part_c + 
+      not_eligible_for_part_b_exit_with_no_referrals + 
+      not_eligible_for_part_b_exit_with_referrals_to_other_programs)
 ```
 
-I DID SOMETHING WRONG IN THE FOLLOWING agg_by\_\_race_and_state BECAUSE THERE ARE ONLY 5 CATEGORIES, NOT 6, for EXIT
+```{r}
+write.csv(byrace, 
+          file = "Data/byrace.csv", 
+          row.names = FALSE)
+```
+
+### csv3: agg_by_race_and_state
+
+based on "byrace", dropped the combined 3 categories, so just total + 6 exit categories
 
 ```{r}
 #| label: aggregated-by-race
@@ -109,17 +110,44 @@ agg_by_race_and_state <- byrace %>%
             part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
             complete_or_not_eligible = sum(complete_or_not_eligible), 
             part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
+```
 
-# aggregated by race for OR
+```{r}
+write.csv(agg_by_race_and_state, 
+          file = "Data/agg_by_race_and_state.csv", 
+          row.names = FALSE)
+```
+
+### csv 4: race_oregon
+
+based on agg_by_race_and_state but Oregon only
+
+```{r}
 race_oregon <- agg_by_race_and_state %>%
   filter(area == "Oregon")
+```
 
+```{r}
+write.csv(race_oregon, file = "Data/race_oregon.csv", 
+          row.names = FALSE)
+```
+
+### csv 5: race_us
+
+```{r}
 # aggregated by race for US
 race_us <- agg_by_race_and_state %>% 
   filter(area == "US and Outlying Areas")
 ```
 
-US Exit reasons by race chart
+```{r}
+write.csv(race_us, file = "Data/race_us.csv", 
+          row.names = FALSE)
+```
+
+### csv 6: race_us_chart
+
+US Exit reasons by race (deleted "area")
 
 ```{r}
 race_us_chart <-race_us %>% 
@@ -127,15 +155,9 @@ race_us_chart <-race_us %>%
 ```
 
 ```{r}
+# removed exit_total first, readding it, effectively moving exit total to the last column 
 race_us_chart <- race_us %>% 
   select(-area, everything(), -exit_total, exit_total)
-```
-
-```{r US Exit reasons by race chart}
-
-kable(race_us_chart, 
-      caption = "Table of Exit Reasons (National)") %>% 
-  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
 ```{r}
@@ -165,15 +187,12 @@ race_us_chart <- race_us_chart %>%
   select(-2, -4) 
 ```
 
-NOW I HAVE TO MAKE CHANGE THE NAMES OF THE RACE CATEGORIES
-
 ```{r}
-
+write.csv(race_us_chart, file = "Data/race_us_chart.csv", 
+          row.names = FALSE)
 ```
 
-```{r}
-
-```
+### csv 7: race_oregon_chart
 
 Oregon Exit reasons by race chart
 
@@ -183,10 +202,37 @@ race_oregon_chart <-race_oregon %>%
 ```
 
 ```{r}
-kable(race_oregon_chart, 
-      caption = "Table of Exit Reasons") %>% 
-      kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+# removed exit_total first, readding it, effectively moving exit total to the last column 
+race_oregon_chart <- race_oregon_chart %>% 
+  select(everything(), -exit_total, exit_total)
 ```
+
+```{r}
+race_oregon_chart <- race_oregon_chart %>% 
+  rename(
+    "Race" = race, 
+    "Withdrawn" = withdrawal_by_parent, 
+   "Disqualified" = attempts_to_contact_unsuccessful, 
+"Moved Out" = moved_out_of_state, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c, 
+    "Not Eligible" = complete_or_not_eligible, 
+    "Not Determined" = part_b_eligibility_not_determined, 
+  )
+```
+
+```{r}
+race_oregon_chart <- race_oregon_chart %>% 
+  select("Race", sort(setdiff(names(.), "Race")))
+```
+
+```{r}
+write.csv(race_oregon_chart, file = "Data/race_oregon_chart.csv", 
+          row.names = FALSE)
+```
+
+# cleaned up to here
+
+### csv 8:
 
 ```{r}
 #| label: chisq-test-trial-omnibus
@@ -233,18 +279,12 @@ oregon_by_race <- byrace %>%
   mutate(percentage = round(total_exit/sum(total_exit), digits = 3)*100)
 ```
 
-The initial exploration included exit data from 3,310,559 children who exited the EI services between 2013 and 2022 nationally. Approximately `r area_by_race %>% filter(race == "BL") %>% pull(percentage)`% of the children were Black/African American, while `r area_by_race %>% filter(race == "WH") %>% pull(percentage)`% of the children were reported as being White. This shows a possible disproportionate representation of children, as census showed that during these years, Black/African American and White children represented approximately 14% for Black/African American children under the age of 18 and between 52% to 49 % for White children nationally (The Annie E. Casey Foundation, 2024). When looking at children under the age of six in 2022, the disparities widen: White children represented only 46.5% nationally, while Black/African American children represented 12.7% of the children under the age of 6 (Schneider & Gibbs, 2023).
-
-The chi-square omnibus test indicated that there was a statistically significant association between children's race and their exit reasons, X-squared (30, N = 3,310,559) = `r format(round(omni_statistic, digits = 2), scientific = FALSE)`, with a p-value of `r ifelse(omni_p_value < 0.001, "< 0.001", round(omni_p_value, 3))`
-
 ```{r}
 # We were curious if PI's (Pacific Islanders) small numbers skewed the chi-square, so we took it out and ran it again. It doesn't seem to have impacted much as P value is still very small with or without PI data. 
 race_oregon_subset <- race_oregon %>% 
   filter(race != "PI")
 # chisq.test(race_oregon_subset[, 3:8])
 ```
-
-Looking specifically at the "Attempts to Contact Unsuccessful" category, approximately 13.5% of Black/African American infants and toddlers were disqualified from EI services nationally due to agencies losing contact with families, while only about 5.98% of White children were disqualified for the same reason (Figure 1).
 
 ```{r}
 # US long and wide  
@@ -366,8 +406,6 @@ us_data_attempts <- us_data_attempts %>%
 # chi_dq_BLWH_result
 ```
 
-When we look at the data at state level, the numbers change slightly. Approximately 9.85% of Black/African American infants and toddlers were disqualified from EI services in Oregon due to agencies losing contact with families, while only about 8.03% of White children were disqualified for the same reason in Oregon (Figure 2).
-
 ```{r}
 # Oregon data long and wide
 oregon_data_long <- race_oregon %>% 
@@ -453,10 +491,6 @@ us_data_DQ_proportion <- byrace %>%
 
 The chi-square indicated that there was a statistically significant association between children being Black/African American or White and them leaving EI due to being disqualified nationally. The chi-square test indicated, X-squared (222556.00, N = 2,088,058), *p* \< 2.2e-16 or 0.0000000000000002 (*p* \< .001).
 
-Because whether or not children were Black/African American or White and whether they were likely to be disqualified from EI services due to "Attempts to Contact Unsuccessful" were both binary variables, we computed an odds ratio as well.
-
-In order to calculate the odds ratio to determine the relative likelihood of the students being disqualified between the two groups, a 2x2 contingency table in a matrix format was created and analyzed. The odds of Black infants and toddlers being disqualified from EI services due to "attempts to contact unsuccessful" were significantly higher than those for White infants and toddlers, with an odds ratio of **2.46** (95% CI \[2.43, 2.48\]). This indicates that Black students were approximately 2.46 times more likely than White students to be disqualified from EI services for this reason.
-
 ```{r}
 # used wording from Morgan et al. (2020) and ChatGPT 
 # prepping the df to mutate a column to have non_dq and delete total 
@@ -533,18 +567,6 @@ Cohen's *h* was calculated to evaluate the effect size of the analysis**.** The 
 # CITE ALL THE PACKAGES I USE 
 # citation("rcompanion")
 ```
-
-# Discussion
-
-Our analysis revealed that the odds ratio for Black/African American infants and toddlers to be disqualified from EI services due to "Attempts to Contact Unsuccessful" was 2.46 times higher when compared to their White peers nationally. In addition, state-level data showed smaller disparities between disqiualification rates between Black/African American children and that of their White peers. However, there are many limitations to this descriptive analysis.
-
-First of all, we have to remember that race is not a predictive factor for outcomes. At a quick glance, race seems to be associated with inequity in EI service exit patterns. However, research following the completion of the Human Genome Project has shown that race, from a genetic standpoint, does not contribute to health inequities. Instead, it is the environments experienced by racially minoritized communities that play a significant role (Silverstein, 2015). Silverstein cited Kittles (2015) in order to clarify this: “the bulk of those disparities are not due to any biological difference. The vast majority of health disparities are due to social, behavioral, and environmental components”. Race is merely one of the many descriptors for individuals. 
-
-In addition, as Crenshaw (1989) established in her seminal work, we must take the framework of Intersectionality when conducting a research. This type of oversimplified statistical analysis can contribute to reinforce the status-quo where race is quickly to be blamed, rather than the complex environments and multiple layers of identities that members of marginalized communities live in.
-
-The smaller disparity between racial groups in Oregon in terms of disqualification rate could be due to the state's limited diversity, meaning we simply don't have enough data. This makes it challenging to conduct quantitative studies on marginalized populations, even though research is so urgently needed for that very reason.
-
-Last but not least, researchers have argued that quantitative methods are inequitable, as "the history of quant methods is inseparable from eugenics movement" (p. 4, Castillo & Strunk, 2024) and that it stems from and reinforces inequity. QuantCrit philosophy are based and expands on the centrality of racism and the lack of neutrality in numbers and categories. Going forward, it would be extremely important to remember these tenets and to approach data collection, categorization and analysis with equity and justice as the central philosophy.
 
 \newpage
 
