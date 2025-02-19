@@ -1,0 +1,226 @@
+---
+title: "4_plots"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+### kable/plot 3: cc_transposed.csv 
+
+--- Kable table of CHILDCOUNT in US/OR
+
+```{r}
+cc_transposed <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
+```
+
+```{r}
+kable(cc_transposed, 
+      col.names = NULL, 
+      caption = "Child Count (US \\& Oregon)") %>% 
+  column_spec(1, width = "8cm") %>% 
+  kable_styling(bootstrap_options = "striped", 
+                full_width = FALSE, 
+                position = "left", 
+                font_size = 10.5, 
+                latex_options = "scale_down")
+```
+
+### plot 4: childcount1920USOR_long 
+
+--- ggplots for US & OR Races in CHILDCOUNT
+
+```{r}
+childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+```
+
+```{r}
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity") + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) + 
+  # HERE"S THE CHANGES
+  scale_fill_discrete(labels = c("American Indian")) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  theme_minimal() 
+```
+
+```{r}
+# Trying to specify group_colors like Cameron taught me. I found this page where they talk about rcartocolor which has color combos https://stackoverflow.com/questions/57153428/r-plot-color-combinations-that-are-colorblind-accessible The Below codes DO NOT RUN
+
+# 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
+```
+
+```{r}
+# 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
+# group_colors <- c(
+#  "American Indian or Alaska Native" = "#E69F00",
+#  "Asian" = "#56B4E9",
+#  "Black or African American" = "#009E73",
+#  "Hispanic or Latino" = "#F0E442",
+#  "Native Hawaiian or Pacific Islander" = "#0072B2",
+#  "Two or More Races" = "#D55E00",
+#  "White" = "#CC79A7")
+```
+
+```{r}
+# ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+#  geom_bar(stat = "identity") + 
+#  scale_fill_manual(values = group_colors) +  
+#  scale_y_continuous(labels = percent_format(scale = 1)) +
+#  labs(title = "Percentage of Child Count by Race in US & Oregon",
+#       x = "State",
+#       y = "Percentage",
+#       fill = "Race") +
+#  theme_minimal()
+```
+
+```{r}
+# Example of HORRIBLE work 
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity") + 
+  scale_fill_viridis_d() +  
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  geom_text(aes(label = race), 
+            position = position_stack(vjust = 0.5), 
+            color = "black", 
+            size = 4) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity", position = "dodge") +  # "dodge" makes it a grouped bar chart
+  scale_fill_viridis_d() +  # Apply Viridis discrete color palette
+  scale_y_continuous(labels = percent_format(scale = 1)) +  # Format y-axis as percentages
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  theme_minimal() 
+```
+
+```{r}
+ggplot(childcount1920USOR_long, 
+       aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity", position = "dodge") +  
+  scale_fill_viridis_d() +  
+  scale_y_continuous(labels = percent_format(scale = 1)) +  
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  geom_text(aes(label = race), 
+            color = "black", 
+            size = 4) +
+  theme_minimal() 
+```
+
+```{r}
+# not good - OR vs US side by side 
+ggplot(childcount1920USOR_long, 
+       aes(x = state, y = percent, fill = race)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  
+  scale_fill_viridis_d() +  
+  scale_y_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +  
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "State",
+       y = "Percentage",
+       fill = "Race") +
+  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5,  # Moves text slightly above bars
+            color = "black", 
+            size = 4) +
+  theme_minimal(base_size = 14) +  
+  theme(legend.position = "bottom")  
+```
+
+```{r}
+ggplot(childcount1920USOR_long, aes(x = race, y = percent, fill = state)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  # Side-by-side bars
+  scale_fill_viridis_d() +  
+  scale_y_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "Race",
+       y = "Percentage",
+       fill = "State") +
+  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5,  
+            color = "black", 
+            size = 4) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom")  # Moves legend below for clarity
+```
+
+```{r}
+# cameron's favorite
+ggplot(childcount1920USOR_long, 
+       aes(x = percent, y = race, fill = state)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  # Side-by-side bars
+  scale_fill_viridis_d() +  
+  scale_x_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "Percentage",
+       y = "Race",
+       fill = "State") +
+  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
+            position = position_dodge(width = 0.7), 
+            hjust = -0.2,  
+            color = "black", 
+            size = 4) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom")  # Moves legend below for clarity
+
+```
+
+```{r}
+
+```

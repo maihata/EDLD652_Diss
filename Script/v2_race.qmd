@@ -52,72 +52,41 @@ library(ggplot2)
 library(quarto)
 ```
 
-A. Table of 10 exit reasons
-
-```{r Table of 10 exit reasons }
-exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
- clean_names() 
-```
-
-```{r Table of exit reasons original}
-# ORIGINAL VERSIONS
-kable(exit_categories, 
-      caption = "Table of Exit Reasons",
-      col.names = c('Exit Reasons','Exit Category Codes')) %>% 
-  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
-```
-
-B. National and Oregon CHILD COUNTS
-
-NOTE TO SELF: ADD THE CENSUS NUMBER FOR FINAL PROJECT! BIND_ROWS!! WEEK 2? 3? Labs.
-
-B-1. Load data
+## National and Oregon CHILD COUNTS
 
 ```{r}
-#|label: load-OSEP-CHILDCOUNT-1920-data
-# Imported excel file with multiple pages but specified only the second sheet. Yay 
+# NOTE TO SELF: ADD THE CENSUS NUMBER FOR FINAL PROJECT! BIND_ROWS!! WEEK 2? 3? Labs.
+```
 
+### cc csv 1: 
+
+-   childcount1920 (all states)
+
+-   childcount1920USOR (National and Oregon)
+
+-   cc_transposed (childcount1920USOR but X and Y flipped)
+
+```{r}
 childcount1920 <- read_excel("/Users/hata/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
 ```
 
 ```{r}
-#|label: load-OSEP-CHILDCOUNT-1920-clean_names()
-# I cleaned names, then decided against clean_names as it messed up the column names, but it might be necessary as the file is not rendering 
 childcount1920 <- clean_names(childcount1920)
 ```
 
 ```{r}
-# label: load-OSEP-CHILDCOUNT-1920-filter_US_OR
-
 childcount1920USOR <- childcount1920 %>% 
   filter(state %in% c("US and Outlying Areas", "Oregon"))
 ```
 
-where did the data go wrong? Did i combine it in below? But i think I just chose and selected the one i don't need? The one below is still correct. Where is the error?
-
-```{r B-1 delete "total 100% column"}
-
+```{r}
 childcount1920USOR <- childcount1920 %>%
   filter(state %in% c("US and Outlying Areas", "Oregon")) %>%
   select(- "race_ethnicity_total3_percent")
 ```
 
-B-2: chart 1:\
-THIS CHUNK TO ROUND TO 2 DIGITS CONVERTED THE COLUMN TOO the distinction between the OR/US somehow. I NEED TO FIX IT
-
 ```{r}
-# YAY I PREVIOUSLY converted the character columns to NUMERIC and then reduced it to dicimals BUT IT ALSO CONVERTED state COLUMN INTO NUMERICS 
-# childcount1920USOR <- childcount1920USOR %>%
-#   mutate(across(where(is.character) & !any_of("state"), as.numeric, .names = "converted_{.col}")) %>%  
-#   mutate(across(where(is.numeric), ~ round(.x, 2)))   
-
-# ERROR/WARNING: 
-# Warning message:
-# There was 1 warning in `.fun()`.
-# ℹ In argument: `across(where(is.character), as.numeric)`.
-# Caused by warning:
-# ! NAs introduced by coercion 
-# > # Round numeric columns to 2 decimal
+class(childcount1920USOR)
 ```
 
 ```{r}
@@ -125,14 +94,17 @@ childcount1920USOR[, 2:7] <- lapply(childcount1920USOR[, 2:7], function(x) round
 ```
 
 ```{r}
+# childcount1920 still has all the states. 
+
+write.csv(childcount1920USOR, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR.csv", row.names = FALSE)
+```
+
+```{r}
 cc_transposed <- as.data.frame(t(childcount1920USOR))
 cc_transposed <- rownames_to_column(cc_transposed, var = "Category")
 ```
 
-Cameron helped me (google: kable and don't put the category names on top)
-
 ```{r}
-
 cc_transposed$Category <- c("Race/Ethnicity", 
                             "American Indian or Alaska Native", 
                             "Asian", 
@@ -141,19 +113,13 @@ cc_transposed$Category <- c("Race/Ethnicity",
                             "Native Hawaiian or Pacific Islander", 
                             "Two or More Races", 
                             "White")
-
-kable(cc_transposed, 
-      col.names = NULL, 
-      caption = "Child Count (US \\& Oregon)") %>% 
-  column_spec(1, width = "8cm") %>% 
-  kable_styling(bootstrap_options = "striped", 
-                full_width = FALSE, 
-                position = "left", 
-                font_size = 10.5, 
-                latex_options = "scale_down")
 ```
 
-B-2: visualization 2 FIX IT!!! (OLD: SOMEWHERE ALONG THE LINE I LOST THE DATA ROWS IN DF)
+```{r}
+write.csv(cc_transposed, file = "/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
+```
+
+### cc csv 2: childcount1920USOR_long 
 
 ```{r}
 # making it longer yeah
@@ -171,164 +137,8 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
   mutate(percent = round(percent, 2))
 ```
 
-CAMERON helped - change the race category names back to what it should look like. Don't label them each.
-
 ```{r}
-
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity") + 
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) + 
-  # HERE"S THE CHANGES
-  scale_fill_discrete(labels = c("American Indian")) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  theme_minimal() 
-```
-
-```{r}
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity") + 
-  scale_fill_viridis_d() +  
-  scale_y_continuous(labels = percent_format(scale = 1)) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  theme_minimal()
-```
-
-Trying to specify group_colors like Cameron taught me. I found this page where they talk about rcartocolor which has color combos <https://stackoverflow.com/questions/57153428/r-plot-color-combinations-that-are-colorblind-accessible> The Below codes DO NOT RUN
-
-2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
-
-```{r}
-# 2/14/25DOES NOT RUN BECAUSE THE NAMES IN THE childcount1920USOR_long DOESN'T FIT THE NAMES OF THOSE RACES (below are the full spell, the DF still has clean names)
-group_colors <- c(
-  "American Indian or Alaska Native" = "#E69F00",
-  "Asian" = "#56B4E9",
-  "Black or African American" = "#009E73",
-  "Hispanic or Latino" = "#F0E442",
-  "Native Hawaiian or Pacific Islander" = "#0072B2",
-  "Two or More Races" = "#D55E00",
-  "White" = "#CC79A7")
-
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity") + 
-  scale_fill_manual(values = group_colors) +  
-  scale_y_continuous(labels = percent_format(scale = 1)) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  theme_minimal()
-```
-
-B2 Visualization 2 v.2 - it has labels on the bar but it's ugly
-
-```{r}
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity") + 
-  scale_fill_viridis_d() +  
-  scale_y_continuous(labels = percent_format(scale = 1)) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  geom_text(aes(label = race), 
-            position = position_stack(vjust = 0.5), 
-            color = "black", 
-            size = 4) +
-  theme_minimal()
-```
-
-```{r}
-ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity", position = "dodge") +  # "dodge" makes it a grouped bar chart
-  scale_fill_viridis_d() +  # Apply Viridis discrete color palette
-  scale_y_continuous(labels = percent_format(scale = 1)) +  # Format y-axis as percentages
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  theme_minimal() 
-```
-
-```{r}
-ggplot(childcount1920USOR_long, 
-       aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity", position = "dodge") +  
-  scale_fill_viridis_d() +  
-  scale_y_continuous(labels = percent_format(scale = 1)) +  
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  geom_text(aes(label = race), 
-            color = "black", 
-            size = 4) +
-  theme_minimal() 
-```
-
-```{r}
-ggplot(childcount1920USOR_long, 
-       aes(x = state, y = percent, fill = race)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  
-  scale_fill_viridis_d() +  
-  scale_y_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +  
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "State",
-       y = "Percentage",
-       fill = "Race") +
-  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
-            position = position_dodge(width = 0.7), 
-            vjust = -0.5,  # Moves text slightly above bars
-            color = "black", 
-            size = 4) +
-  theme_minimal(base_size = 14) +  
-  theme(legend.position = "bottom")  
-```
-
-```{r}
-ggplot(childcount1920USOR_long, aes(x = race, y = percent, fill = state)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  # Side-by-side bars
-  scale_fill_viridis_d() +  
-  scale_y_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "Race",
-       y = "Percentage",
-       fill = "State") +
-  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
-            position = position_dodge(width = 0.7), 
-            vjust = -0.5,  
-            color = "black", 
-            size = 4) +
-  theme_minimal(base_size = 14) +
-  theme(legend.position = "bottom")  # Moves legend below for clarity
-
-```
-
-Cameron might go with this one. Look into the feature within ggplot for "greatest to least percentage"
-
-```{r}
-ggplot(childcount1920USOR_long, 
-       aes(x = percent, y = race, fill = state)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.7)) +  # Side-by-side bars
-  scale_fill_viridis_d() +  
-  scale_x_continuous(labels = percent_format(scale = 1), expand = expansion(mult = c(0, 0.05))) +
-  labs(title = "Percentage of Child Count by Race in US & Oregon",
-       x = "Percentage",
-       y = "Race",
-       fill = "State") +
-  geom_text(aes(label = scales::percent(percent / 100, accuracy = 0.1)), 
-            position = position_dodge(width = 0.7), 
-            hjust = -0.2,  
-            color = "black", 
-            size = 4) +
-  theme_minimal(base_size = 14) +
-  theme(legend.position = "bottom")  # Moves legend below for clarity
-
+write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
 C. National and Oregon EXIT data by RACE
@@ -604,8 +414,6 @@ corrplot(chisq$residuals,
 
 corrplot trial 2:
 
-Cameron: If I am presenting to researchers, they probably want something like the table with numbers rather than bubbles. I can change the ways that categories and such are named in the source source data, but that might make some codes not run/make some complications. So! Just "Run Current Chunk")try to rename them within each visualization chunks.
-
 Cameron helping me with the change labels on google.
 
 RENAMED THE CATEGORIES
@@ -630,21 +438,6 @@ colnames(race_matrix)
 ```
 
 REORDERED THE CATEGORIES ALPHABETICALLY I thought...?
-
-```{r}
-# rownames(chisq$residuals)
-```
-
-```{r}
-# rownames(chisq$residuals) <- c(
-#  "Alaska Native/American Indian" = 1, 
-#  "Asian" = 2, 
-#  "Black/African American" = 3, 
-#  "Hispanic/Latino" = 4, 
-#  "More than Two Races" = 5, 
-#  "Pacific Islander" = 6, 
-#  "White" = 7)
-```
 
 # AND HERE, I MADE THE residual_matrix but why
 
@@ -694,20 +487,5 @@ corrplot(residual_matrix,
          is.corr = FALSE)
 ```
 
-```{r}
-library(ggplot2)
-
-# Week 5 slide 13
-# preview a file that would be created by ggsave()
-# ggpreview <- function(...) {
-#  fname <- tempfile(fileext = ".png")
-#  ggsave(filename = fname, ...)
-#  system2("open", fname)
-#  invisible(NULL)}
-
-# ggplot(mtcars) + 
-#  aes(x = wt, y = mpg) + 
-#  geom_point() 
-
-# ggpreview(width = 3, height = 3, units = "in")
+```         
 ```

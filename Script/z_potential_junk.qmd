@@ -1,0 +1,68 @@
+---
+title: "z_potential_junk"
+author: "Maiko Hata"
+format: pdf
+editor: visual
+---
+
+```{r}
+# YAY I PREVIOUSLY converted the character columns to NUMERIC and then reduced it to dicimals BUT IT ALSO CONVERTED state COLUMN INTO NUMERICS 
+# childcount1920USOR <- childcount1920USOR %>%
+#   mutate(across(where(is.character) & !any_of("state"), as.numeric, .names = "converted_{.col}")) %>%  
+#   mutate(across(where(is.numeric), ~ round(.x, 2)))   
+
+# ERROR/WARNING: 
+# Warning message:
+# There was 1 warning in `.fun()`.
+# ℹ In argument: `across(where(is.character), as.numeric)`.
+# Caused by warning:
+# ! NAs introduced by coercion 
+# > # Round numeric columns to 2 decimal
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+library(ggplot2)
+
+# Week 5 slide 13
+# preview a file that would be created by ggsave()
+# ggpreview <- function(...) {
+#  fname <- tempfile(fileext = ".png")
+#  ggsave(filename = fname, ...)
+#  system2("open", fname)
+#  invisible(NULL)}
+
+# ggplot(mtcars) + 
+#  aes(x = wt, y = mpg) + 
+#  geom_point() 
+
+# ggpreview(width = 3, height = 3, units = "in")
+```
+
+```{r}
+# now, divide the attempts_to_contact_unsuccessful by grand_total x 100 for % of each race represented in relation to the exit total between 2013-2022. 
+us_data_attempts <- us_data_attempts %>% 
+  mutate(
+    grand_total = sum(exit_total, na.rm = TRUE), 
+    portion = (exit_total / grand_total) * 100
+  )
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
