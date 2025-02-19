@@ -141,9 +141,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
-I'm trying out to see if I can do the chi-square with residuals (per \# <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
-
-# HELP: How can I visualize better? 
+# HELP: DOESN'T RUN ANYMOER! WHERE DID VAR2 go for residuals_df? 
 
 ```{r}
 ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +

@@ -114,23 +114,37 @@ chi_dq_BLWH_result
 
 --- I shouldn't need to "call" race_matrix.csv because it's a df but that means I have to recreate it ---
 
+
 ```{r}
-race_matrix <- as.matrix(race_us[, -1, drop = FALSE])  
+# DROPPED AREA but kept the RACE 
+race_matrix <- as.matrix(race_us[, -2, drop = FALSE])  
 ```
 
 ```{r}
-race_matrix <- as.matrix(race_us[ , -1, -2])
+race_matrix <- as.matrix(race_matrix)
+```
+
+# GAH WTH 
+
+```{r}
+# Check for NAs
+anyNA(race_matrix)  
+
+# Check for negative values
+any(race_matrix < 0)  
+
+# Check for infinite values
+any(!is.finite(race_matrix))  
+
 ```
 
 ```{r}
-race_matrix <- apply(race_matrix, 2, as.numeric)
-```
-
-```{r}
+# Error in stats::chisq.test(x, y, ...) :  -- all entries of 'x' must be nonnegative and finite BUT THERE IS NO NEGATIVE OR NA 
 chisq <- chisq.test(race_matrix)
 ```
 
 # this doesn't run, it says Error in corrplot(chisq$residuals, is.cor = FALSE) : Need a matrix or data frame!
+
 ```{r}
 # corrplot(chisq$residuals, 
 #         is.cor = FALSE) 
