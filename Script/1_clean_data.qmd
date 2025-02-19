@@ -142,6 +142,19 @@ race_us <- agg_by_race_and_state %>%
 ```
 
 ```{r}
+race_us <- race_us %>%
+  mutate(race = recode(race,
+    "AM" = "Alaska Native or American Indian",
+    "AS" = "Asian",
+    "BL" = "Black or African American",
+    "HI" = "Hispanic or Latino",
+    "WH" = "White",
+    "MU" = "Two or More Races",
+    "PI" = "Pacific Islander"
+  ))
+```
+
+```{r}
 write.csv(race_us, 
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv", 
           row.names = FALSE)
@@ -328,6 +341,32 @@ us_data_wide <- us_data_long %>%
     names_from = names,
     values_from = percentage
   )
+```
+
+```{r}
+# MORE RECENTLY UPDATED in this - don't look at v2.qmd
+us_data_wide <- us_data_wide %>% 
+  rename(
+    "Race" = race, 
+    "Disqualified" = attempts_to_contact_unsuccessful, 
+    "Moved Out" = moved_out_of_state, 
+    "Not Determined" = part_b_eligibility_not_determined, 
+    "Not Eligible" = complete_or_not_eligible, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c,
+    "Withdrawal" = withdrawal_by_parent
+  ) %>% 
+  select("Race", 
+         "Disqualified", 
+         "Moved Out", 
+         "Not Determined", 
+         "Not Eligible", 
+         "Part B Eligible", 
+         "Withdrawal", 
+         everything()) 
+```
+
+```{r}
+# us_data_wide <- us_data_wide %>%
 ```
 
 ```{r}

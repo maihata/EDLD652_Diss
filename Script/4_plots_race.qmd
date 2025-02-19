@@ -115,7 +115,7 @@ oregon_data_wide_DQ <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/oregon_da
 # need to reorder alphabetically the categories 
 ```
 
-### kable/plot 3: cc_transposed.csv 
+### kable/plot 3: cc_transposed.csv
 
 --- Kable table of CHILDCOUNT in US/OR
 
@@ -135,7 +135,7 @@ kable(cc_transposed,
                 latex_options = "scale_down")
 ```
 
-### plot 4: childcount1920USOR_long 
+### plot 4: childcount1920USOR_long
 
 --- ggplots for US & OR Races in CHILDCOUNT
 
@@ -205,12 +205,30 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   theme_minimal()
 ```
 
-```{r}
+## plot 5: residuals_df 
 
+--- Chi-square with Residuals —
+
+```{r}
+residuals_df <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv
 ```
 
-```{r}
+## Caused by error: ! object 'Var2' not found Run `rlang::last_trace()` to see where the error occurred. \>
 
+```{r}
+# because of Caused by error:! object 'Var2' not found Run `rlang::last_trace()` to see where the error occurred., I deleted Var2, after Var1, 
+
+ggplot(residuals_df, aes(Var1, fill = Freq)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "blue", 
+    mid = "white", 
+    high = "red") +
+  labs(
+    title = "Chi-Square Standardized Residuals",
+    x = "Race", 
+    y = "Exit Reasons") +
+  theme_minimal()
 ```
 
 ```{r}

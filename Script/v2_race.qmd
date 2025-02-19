@@ -58,7 +58,7 @@ library(quarto)
 # NOTE TO SELF: ADD THE CENSUS NUMBER FOR FINAL PROJECT! BIND_ROWS!! WEEK 2? 3? Labs.
 ```
 
-### cc csv 1: 
+### cc csv 1:
 
 -   childcount1920 (all states)
 
@@ -119,7 +119,7 @@ cc_transposed$Category <- c("Race/Ethnicity",
 write.csv(cc_transposed, file = "/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
 ```
 
-### cc csv 2: childcount1920USOR_long 
+### cc csv 2: childcount1920USOR_long
 
 ```{r}
 # making it longer yeah
@@ -141,231 +141,9 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
-C. National and Oregon EXIT data by RACE
-
-```{r}
-#|label: load-OSEP-EXIT-data
-# importing the data and cleaning it up: 
-# This is the year 2013-2022. 
-# 1. REMOVED DECEASED and NOT IN USE IN OREGON CATEGORY
-# 2. CREATED THE complete_or_not_eligible combining three categories 
-
-byrace <- import(here("Data", "race v.2.xlsx")) %>% 
-  clean_names() %>% 
-  select(-7, -12) %>% 
-  mutate(complete_or_not_eligible = complete_prior_to_reaching_max_age_for_part_c + not_eligible_for_part_b_exit_with_no_referrals + not_eligible_for_part_b_exit_with_referrals_to_other_programs)
-```
-
-I FIXED THE MISSING COLUMN by adding back part_b_eligibility_not_determined. I think this is what I can use for CHI-SQUARE WITH RESIDUALS?
-
-```{r}
-
-agg_by_race_and_state <- byrace %>% 
-  group_by(race, area) %>% 
-  summarize(exit_total = sum(exiting_total2), 
-            withdrawal_by_parent = sum(withdrawal_by_parent),
-            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
-            moved_out_of_state = sum(moved_out_of_state),
-            part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
-            complete_or_not_eligible = sum(complete_or_not_eligible), 
-            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
-```
-
-I should be able to export df to excel this way but haven't tried it yet.
-
-```{r}
-# library(writexl)
-# df <- tibble::tibble(A = 1:5, B = 6:10, C = 11:15)  # Example tibble
-# write_xlsx(df, "my_data.xlsx")  # Saves to an Excel file 
-```
-
-agg_by_race_and_state
-
-```{r}
-# aggregated by race for OR
-race_oregon <- agg_by_race_and_state %>%
-  filter(area == "Oregon")
-```
-
-```{r}
-race_us <- agg_by_race_and_state %>% 
-  filter(area == "US and Outlying Areas") 
-```
-
-```{r}
-race_us <- race_us %>% 
-  select(-area)
-```
-
-```{r}
-race_us <- race_us %>%
-  mutate(race = recode(race,
-    "AM" = "Alaska Native or American Indian",
-    "AS" = "Asian",
-    "BL" = "Black or African American",
-    "HI" = "Hispanic or Latino",
-    "WH" = "White",
-    "MU" = "Two or More Races",
-    "PI" = "Pacific Islander"
-  ))
-
-```
-
-```{r}
-race_us
-```
-
-```{r}
-us_data_long <- race_us %>% 
-  pivot_longer(
-    cols = 3:7, 
-    values_to = "values",
-    names_to = "names"
-  ) %>% 
-  group_by(race) %>% 
-  mutate(percentage = round(values/exit_total, digits = 4))
-```
-
-```{r}
-us_data_long
-```
-
-```{r}
-us_data_wide <- us_data_long %>% 
-  select(-c(exit_total,values)) %>% 
-  pivot_wider(
-    names_from = names,
-    values_from = percentage
-  ) 
-```
-
-OH NO where did Part B eligibility not determined go?!?!?
-
-```{r}
-# MORE RECENTLY UPDATED in this - don't look at v2.qmd
-us_data_wide <- us_data_wide %>% 
-  rename(
-    "Race" = race, 
-    "Disqualified" = attempts_to_contact_unsuccessful, 
-    "Moved Out" = moved_out_of_state, 
-    "Not Determined" = part_b_eligibility_not_determined, 
-    "Not Eligible" = complete_or_not_eligible, 
-    "Part B Eligible" = part_b_eligible_exiting_part_c,
-    "Withdrawal" = withdrawal_by_parent
-  ) %>% 
-  select("Race", 
-         "Disqualified", 
-         "Moved Out", 
-         "Not Determined", 
-         "Not Eligible", 
-         "Part B Eligible", 
-         "Withdrawal", 
-         everything())
-```
-
 I'm trying out to see if I can do the chi-square with residuals (per \# <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
 
-Chi-square with Residuals 1:
-
-# ABOVE THIS EVERYTHING RUNS.
-
-# SOMEHOW THE race_matrix LOST THE RACE CATEGORIES
-
-# \* I want to remove the total exit column
-
-# \* do i need to make it numeric
-
-```{r}
-race_matrix <- as.matrix(race_us[, -1, drop = FALSE])  
-```
-
-```{r}
-race_matrix <- apply(race_matrix, 2, as.numeric)
-```
-
-```{r}
-# race_matrix <- as.matrix(race_us[ , -1, -2])
-# race_matrix <- apply(race_matrix, 2, as.numeric)
-```
-
-R doesn't like spaces or dashes / - that's why we did clean names, it could work but it can be tricky later
-
-```{r}
-rownames(race_matrix)
-```
-
-```{r}
-rownames(race_matrix) <- c(
-  "Alaska Native/American Indian", 
-  "Asian", 
-  "Black/African American", 
-  "Hispanic/Latino", 
-  "More than Two Races", 
-  "Pacific Islander", 
-  "White"
-  ) 
-```
-
-## I have to rename the categories, and then alphabetize them
-
-```{r}
-colnames(race_matrix) <- c(
-  "Not Determined", 
-  "Not Eligible", 
-  "Part B Eligible", 
-  "Moved Out", 
-  "Disqualified", 
-  "Withdrawn", 
-  "Exit Total"
-  )
-```
-
-```{r}
-colnames(race_matrix)
-```
-
-```{r}
-race_matrix <- race_matrix[
-  order(colnames(race_matrix))
-]
-```
-
-Chi-square with Residuals 2:
-
-```{r}
-chi_result <- chisq.test(race_matrix)
-```
-
-Chi-square with Residuals 3:
-
-Cameron: Residuals are what we are measuring anyway. If nothing was happening, what would be the expected values in the cells in the matrix (so the residuals = differences between expected and what we see) so it's a raw differences
-
-# **LINA: IS THIS CORRECTLY RUN??**
-
-```{r}
-print(chi_result$stdres)
-```
-
-Chi-square with Residuals 4:
-
-```{r}
-# DON'T USE THIS ONE 
-# residuals_df <- as.data.frame(
-#  as.table(chi_result$stdres))
-```
-
-# HELP: How can I visualize better? Names
-
-Chi-square with Residuals: Viz 1 (HEATMAP)
-
-```{r}
-str(residuals_df)
-residuals_df$Freq <- as.numeric(residuals_df$Freq)
-```
-
-```{r}
-str(residuals_df)
-```
+# HELP: How can I visualize better? 
 
 ```{r}
 ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
@@ -413,8 +191,6 @@ corrplot(chisq$residuals,
 ```
 
 corrplot trial 2:
-
-Cameron helping me with the change labels on google.
 
 RENAMED THE CATEGORIES
 
@@ -485,7 +261,4 @@ corrplot(residual_matrix,
 corrplot(residual_matrix, 
          method = 'circle', 
          is.corr = FALSE)
-```
-
-```         
 ```

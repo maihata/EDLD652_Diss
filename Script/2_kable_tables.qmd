@@ -89,3 +89,16 @@ kable(race_oregon_chart,
       caption = "Table of Exit Reasons") %>% 
       kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
+
+### kable 4: us_data_wide 
+
+```{r}
+us_data_wide <- read_csv(us_data_wide) 
+```
+
+```{r}
+kable(us_data_wide, 
+      caption = "Racial Representation in EI Services",
+      align = "c",  
+      format = "latex") 
+```

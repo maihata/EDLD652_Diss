@@ -46,7 +46,7 @@ library(ggplot2)
 library(quarto)
 ```
 
-### chi 1: race_us 
+### chi 1: race_us
 
 --- omnibus chi
 
@@ -81,7 +81,7 @@ data_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv")
 chisq.test(data_oregon[, 2])
 ```
 
-### chi 2: agg_by_area 
+### chi 2: agg_by_area
 
 --- withdrawn category —
 
@@ -93,7 +93,7 @@ agg_by_area <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_area.csv")
 chisq.test(agg_by_area[, 2:3])
 ```
 
-### chi 3: us_data_attempts_BLWH 
+### chi 3: us_data_attempts_BLWH
 
 --- DQ for BLACK and WHITE for chi-square and odds ratio
 
@@ -110,4 +110,155 @@ chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
 chi_dq_BLWH_result
 ```
 
-### chi 4: 
+### chi 4: race_matrix
+
+--- I shouldn't need to "call" race_matrix.csv because it's a df but that means I have to recreate it ---
+
+```{r}
+race_matrix <- as.matrix(race_us[, -1, drop = FALSE])  
+```
+
+```{r}
+race_matrix <- as.matrix(race_us[ , -1, -2])
+```
+
+```{r}
+race_matrix <- apply(race_matrix, 2, as.numeric)
+```
+
+```{r}
+chisq <- chisq.test(race_matrix)
+```
+
+# this doesn't run, it says Error in corrplot(chisq$residuals, is.cor = FALSE) : Need a matrix or data frame!
+```{r}
+# corrplot(chisq$residuals, 
+#         is.cor = FALSE) 
+```
+
+```{r}
+chi_result <- chisq.test(race_matrix)
+print(chi_result)
+```
+
+# Do I need to save somehow chi_results$stdres as a df...? 
+
+```{r}
+print(chi_result$stdres)
+# Residual > +2 → Observed count is higher than expected.
+# Residual < -2 → Observ
+```
+
+# There used to be a Var1 and Var2 now there's only Var1 
+```{r}
+colnames(residual_matrix)
+rownames(residual_matrix)
+```
+
+it's NULL so I need to assign names first it says 
+
+```{r}
+```
+
+```{r}
+residual_matrix <- as.matrix(chisq$residuals)
+col_order <- order(colnames(residual_matrix))
+row_order <- order(rownames(residual_matrix))
+residual_matrix <- residual_matrix[row_order, col_order]
+```
+
+
+```{r}
+residuals <- chi_result$stdres
+
+```
+
+
+```{r}
+print(residuals)
+```
+
+
+```{r}
+corrplot(residuals,
+         is.corr = FALSE)
+```
+
+```{ed count is lower than expected.}
+```
+
+### chi 5: residuals_df
+
+```{r}
+# I'm trying out to see if I can do the chi-square with residuals (per https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687)
+```
+
+```{r}
+residuals 
+```
+
+```{r}
+residuals_df <- as.data.frame(as.table(chi_result$stdres))
+```
+
+```{r}
+write.csv(residuals_df, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv", 
+          row.names = FALSE)
+```
+
+```{r}
+# Maybe I shouldn't rename them here? 
+# rownames(race_matrix) <- c(
+#  "Alaska Native/American Indian", 
+#  "Asian", 
+#  "Black/African American", 
+#  "Hispanic/Latino", 
+#  "More than Two Races", 
+#  "Pacific Islander", 
+#  "White" ) 
+```
+
+```{r}
+colnames(race_matrix)
+```
+
+```{r}
+# dropping the "area" column 
+race_matrix <- race_matrix[, -1]
+```
+
+# DOES NOT WORK WHY
+
+```{r}
+# ncol(race_matrix)
+```
+
+```{r}
+race_matrix <- race_matrix[, 1:6]
+colnames(race_matrix) <- c(
+  "Not Determined", 
+  "Disqualified", 
+  "Moved Out", 
+  "Part B Eligible", 
+  "Not Eligible", 
+  "Withdrawn")
+```
+
+## Idoesn't render but it almost does - it's rendering pdf and stops. What's wrong with the following chunk?
+
+```{r}
+# race_matrix <- race_matrix[, order(colnames(race_matrix))]
+```
+
+```{r}
+chi_result <- chisq.test(race_matrix)
+```
+
+```{r}
+print(chi_result$stdres)
+```
+
+```{r}
+
+```

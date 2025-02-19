@@ -251,88 +251,6 @@ us_data_long <- race_us %>%
 ```
 
 ```{r}
-# made it WIDER
-us_data_wide <- us_data_long %>% 
-  select(-c(exit_total,values)) %>% 
-  pivot_wider(
-    names_from = names,
-    values_from = percentage
-  ) 
-```
-
-OH NO where did Part B eligibility not determined go?!?!?
-
-```{r}
-# Changing category names in us_data_wide to clearner names 
-us_data_wide <- us_data_wide %>% 
-  rename(
-    "Race" = race,  # Rename race to Race
-    "Withdrawn" = withdrawal_by_parent, 
-    "Disqualified" = attempts_to_contact_unsuccessful, 
-    "Moved Out" = moved_out_of_state, 
-    "Not Determined" = part_b_eligibility_not_determined, 
-    "Part B Eligible" = part_b_eligible_exiting_part_c, 
-    "Not Eligible" = complete_or_not_eligible
-  ) %>% 
-  select("Race", everything())  
-
-```
-
-```{r}
-us_data_wide <- us_data_wide %>%
-  select("Race", sort(setdiff(names(.), "Race")))
-```
-
-```{r}
-kable(us_data_wide, 
-      caption = "Racial Representation in EI Services",
-      align = "c",  
-      format = "latex")  
-```
-
-I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
-
-Chi-square with Residuals 1:
-
-CAMERON - This doesn't run :(
-
-```{r}
-race_matrix <- as.matrix(race_us[ , -1])
-race_matrix <- apply(race_matrix, 2, as.numeric)
-```
-
-R doesn't like spaces or dashes / - that's why we did clean names, it could work but it can be tricky later
-
-```{r}
-rownames(race_matrix) <- c("Alaska Native/American Indian", "Asian", "Black/African American", "Hispanic/Latino", "More than Two Races", "Pacific Islander", "White")
-```
-
-Chi-square with Residuals 2:
-
-```{r}
-chi_result <- chisq.test(race_matrix)
-print(chi_result)
-```
-
-Chi-square with Residuals 3:
-
-Cameron: Residuals are what we are measuring anyway. If nothing was happening, what would be the expected values in the cells in the matrix (so the residuals = differences between expected and what we see) so it's a raw differences
-
-```{r}
-print(chi_result$stdres)
-# Residual > +2 → Observed count is higher than expected.
-# Residual < -2 → Observed count is lower than expected.
-```
-
-Chi-square with Residuals 4:
-
-```{r}
-residuals_df <- as.data.frame(as.table(chi_result$stdres))
-```
-
-SOMEWHERE IN HERE I MIGHT HAVE DELETED OR MOVED THE CHUNK EALIER SO FIND CHUNKS MAYBE WITH residuals_df and find Var2 Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
-
-```{r}
 # this is race on X (columns )
 ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
   geom_tile() +
@@ -422,5 +340,3 @@ kable(agg_by_lang,
       caption = "Initial Oregon Data by Home Languages") %>%
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
-
--   trying to change font to TIMES NEW ROMAN
