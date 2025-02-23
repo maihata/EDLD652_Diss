@@ -59,7 +59,7 @@ library(quarto)
 (for Kable table)
 
 ```{r}
-exit_categories <- import(here("Data","exit_categories.xlsx")) %>%
+exit_categories <- import("/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.xlsx") %>%
  clean_names() 
 ```
 
@@ -77,7 +77,7 @@ write.csv(exit_categories,
 #|label: load-data
 # importing the data and cleaning it up
 
-byrace <- import(here("Data", "race v.2.xlsx")) %>% 
+byrace <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
   clean_names() %>% 
   select(-7, -12) %>% 
   mutate(

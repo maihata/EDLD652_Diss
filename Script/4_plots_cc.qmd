@@ -93,7 +93,18 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 
 ```
 
+Rewrite CSV with the race names corrected!!
+```{r}
+write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv",           row.names = FALSE)
 
+```
+
+```{r}
+childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+
+```
+
+## CAMERON, Why does this one NOT show the race titles somehow? 
 ```{r}
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
@@ -241,6 +252,3 @@ ggplot(childcount1920USOR_long,
 
 ```
 
-```{r}
-
-```

@@ -47,7 +47,7 @@ library(quarto)
 library(descr)
 ```
 
-## chi 1: race_us 
+## chi 1: race_us
 
 --- to make the plot using corrplot of national race/exit patterns —
 
@@ -111,7 +111,9 @@ chisq.test(agg_by_area[, 2:3])
 
 ```{r}
 us_data_attempts <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+```
 
+```{r}
 us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 
 ```
@@ -153,7 +155,7 @@ chi_results <- chisq.test(race_matrix)
 chi_results
 ```
 
-# LINA: Does this number from the next chunk look right? LINA: "It's not adjusted" 
+# LINA: Does this number from the next chunk look right? LINA: "It's not adjusted"
 
 ```{r}
 #LINA: DOESN'T RUN CORRECTLY --- SO I NEED THE ADJUSTED STANDARDIZED RESIDUALS 
@@ -186,7 +188,7 @@ plot.new()
 dev.off()
 ```
 
-### corrplot race/exit categories for race:  renaming columns/rows for chi_results
+### corrplot race/exit categories for race: renaming columns/rows for chi_results
 
 ```{r}
 corrplot(chi_results$residuals, 
@@ -325,7 +327,6 @@ it's NULL so I need to assign names first it says
 ```{r}
 # row_order <- order(rownames(residual_matrix))
 ```
-
 
 ```{r}
 # residual_matrix <- residual_matrix[row_order, col_order]

@@ -1,0 +1,82 @@
+---
+title: "4_plots_or"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+### odd ratio 1: us_data_attempts_BLWH
+
+--- OR for black vs white DQ —
+
+```{r}
+us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+
+```
+
+```{r}
+chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
+```
+
+```{r}
+print(chi_dq_BLWH_result)
+# data:  us_data_attempts_BLWH[, 2:3]
+# X-squared = 22556, df = 1, p-value < 2.2e-16
+```
+
+### odd ratio 2:
+
+--- OR for Native American/Hispanic vs White NOT DETERMINED —
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

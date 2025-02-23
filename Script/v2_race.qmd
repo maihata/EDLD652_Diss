@@ -222,8 +222,6 @@ row_order <- order(rownames(residual_matrix))
 residual_matrix <- residual_matrix[row_order, col_order]
 ```
 
-# WHYYYYYY I just want to rename the rows and columns for corrplot
-
 ```{r}
 rownames(residual_matrix) <- c(
   "Alaska Native/American Indian" = 1, 
