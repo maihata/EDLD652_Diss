@@ -70,9 +70,29 @@ kable(cc_transposed,
 
 --- ggplots for US & OR Races in CHILDCOUNT
 
+
 ```{r}
 childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
+
+```{r}
+print(childcount1920USOR_long)
+```
+
+### CAMERON, I need to change the row names to race names 
+```{r}
+childcount1920USOR_long <- childcount1920USOR_long %>%
+  mutate(race = recode(race,
+         "white_percent" = "White",
+         "black_or_african_american_percent" = "Black/African American",
+         "asian_percent" = "Asian",
+         "hispanic_latino_percent" = "Hispanic/Latino",
+         "american_indian_or_alaska_native_percent" = "American Indian/Alaska Native",
+         "native_hawaiian_or_pacific_islander_percent" = "Native Hawaiian/Other Pacific Islander",
+         "two_or_more_races_percent" = "Two or More Races"))
+
+```
+
 
 ```{r}
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +

@@ -44,11 +44,12 @@ library(tibble)
 library(rcartocolor)
 library(ggplot2)
 library(quarto)
+library(descr)
 ```
 
-### chi 1: race_us
+## chi 1: race_us 
 
---- omnibus chi
+--- to make the plot using corrplot of national race/exit patterns —
 
 ```{r}
 race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
@@ -58,7 +59,18 @@ race_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv")
 ```
 
 ```{r}
+print(race_us)
+```
+
+```{r}
 chi_omni <-chisq.test(race_us[, 3:8])
+```
+
+```{r}
+print(chi_omni)
+```
+
+```{r}
 omni_p_value <- chi_omni$p.value
 omni_statistic <- chi_omni$statistic 
 ```
@@ -67,7 +79,7 @@ omni_statistic <- chi_omni$statistic
 chisq.test(race_oregon[, 3:8])
 ```
 
-### chi 2: byrace
+### step 2: byrace
 
 --- US and Oregon entire table. Probably no need as I'll be running the chi-square with residuals anyway. —
 
@@ -81,7 +93,7 @@ data_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv")
 chisq.test(data_oregon[, 2])
 ```
 
-### chi 2: agg_by_area
+### chi 3: agg_by_area
 
 --- withdrawn category —
 
@@ -93,7 +105,7 @@ agg_by_area <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_area.csv")
 chisq.test(agg_by_area[, 2:3])
 ```
 
-### chi 3: us_data_attempts_BLWH
+### chi 4: us_data_attempts_BLWH
 
 --- DQ for BLACK and WHITE for chi-square and odds ratio
 
@@ -105,26 +117,25 @@ us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data
 ```
 
 ```{r}
- 
 chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
 chi_dq_BLWH_result
 ```
 
-### chi 4: race_matrix
+# All above runs.
 
---- I shouldn't need to "call" race_matrix.csv because it's a df but that means I have to recreate it ---
+### chi 5: race_matrix
 
+--- I shouldn't need to "call" race_matrix.csv because it's a df but that means I have to recreate it --- I HAVE TO READ IT
+
+```{r}
+race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+```
 
 ```{r}
 # DROPPED AREA but kept the RACE 
-race_matrix <- as.matrix(race_us[, -2, drop = FALSE])  
+race_matrix <- as.matrix(race_us[, 4:9])
+race_matrix
 ```
-
-```{r}
-race_matrix <- as.matrix(race_matrix)
-```
-
-# GAH WTH 
 
 ```{r}
 # Check for NAs
@@ -135,90 +146,216 @@ any(race_matrix < 0)
 
 # Check for infinite values
 any(!is.finite(race_matrix))  
-
 ```
 
 ```{r}
-# Error in stats::chisq.test(x, y, ...) :  -- all entries of 'x' must be nonnegative and finite BUT THERE IS NO NEGATIVE OR NA 
-chisq <- chisq.test(race_matrix)
+chi_results <- chisq.test(race_matrix)
+chi_results
 ```
 
-# this doesn't run, it says Error in corrplot(chisq$residuals, is.cor = FALSE) : Need a matrix or data frame!
+# LINA: Does this number from the next chunk look right? LINA: "It's not adjusted" 
 
 ```{r}
-# corrplot(chisq$residuals, 
-#         is.cor = FALSE) 
-```
-
-```{r}
-chi_result <- chisq.test(race_matrix)
-print(chi_result)
-```
-
-# Do I need to save somehow chi_results$stdres as a df...? 
-
-```{r}
-print(chi_result$stdres)
-# Residual > +2 → Observed count is higher than expected.
-# Residual < -2 → Observ
-```
-
-# There used to be a Var1 and Var2 now there's only Var1 
-```{r}
-colnames(residual_matrix)
-rownames(residual_matrix)
-```
-
-it's NULL so I need to assign names first it says 
-
-```{r}
+#LINA: DOESN'T RUN CORRECTLY --- SO I NEED THE ADJUSTED STANDARDIZED RESIDUALS 
+chisq.test(race_matrix, correct = FALSE)$stdres
 ```
 
 ```{r}
-residual_matrix <- as.matrix(chisq$residuals)
-col_order <- order(colnames(residual_matrix))
-row_order <- order(rownames(residual_matrix))
-residual_matrix <- residual_matrix[row_order, col_order]
+# chisq.test(race_matrix)$expected
+```
+
+Open res_race_matrix as a df so I can show Lina the numbers.
+
+```{r}
+residuals_df <- chisq.test(race_matrix, correct = FALSE)$stdres
+```
+
+## Trying to get ADJUSTED standardized residuals
+
+```{r}
+#https://www.google.com/search?q=R+package+and+function+for+chi+square+standardized+adjusted+residual&rlz=1C5GCCM_en&oq=R+package+and+function+for+chi+square+standardized+adjusted+residual&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIGCAEQRRhA0gEJMTYwNzVqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8
+adj_std_res <- chisq.test(race_matrix)
+```
+
+```{r}
+print(adj_std_res)
+```
+
+```{r}
+plot.new()
+dev.off()
+```
+
+### corrplot race/exit categories for race:  renaming columns/rows for chi_results
+
+```{r}
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.7)
+
+# corrplot(chi_results$residuals, is.cor = FALSE) 
+```
+
+```{r}
+# i wanted to rename categories but the number of columns didn't match because I still have exit total. checking the colnames 
+colnames(chi_results$residuals)
+```
+
+```{r}
+colnames(chi_results$residuals) <- c(
+  "Withdrawal", 
+  "Disqualification", 
+  "Moved Out", 
+  "Part B Eligible", 
+  "Not Eligible", 
+  "Not Determined")
+```
+
+```{r}
+rownames(chi_results$residuals) <- c(
+  "Alaska Native/American Indian", 
+  "Asian", 
+  "Black/African American", 
+  "Hispanic/Latino", 
+  "Two or More Races", 
+  "Pacific Islander", 
+  "White"
+)
+```
+
+```{r}
+#| fig-align: center
+chi_results$residuals <- chi_results$residuals[, order(colnames(chi_results$residuals))]
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.7) 
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.3)
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.6)
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         method = 'number', 
+         is.cor = FALSE, 
+         tl.cex = 0.6)
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         method = 'square', 
+         is.cor = FALSE, 
+         tl.cex = 0.6)
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         method = 'ellipse', 
+         is.cor = FALSE, 
+         tl.cex = 0.6)
+```
+
+## CAMERON: I still would like to get the letters off of the color code bar on the right (what are they?)
+
+```{r}
+#FINAL PLOT? 
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.8, 
+         cl.cex = 0.7, 
+         cl.offset = 0.5) 
+```
+
+```{r}
+# this is UNADJUSTED 
+```
+
+```{r}
+# Next steps - but have to change the df names 
+# residuals_df <- as.matrix(chi_results$residuals)#
+# col_order <- order(colnames(residuals_df))
+# row_order <- order(rownames(residuals_df))
+# residual_df <- residual_df[row_order, col_order]
+```
+
+```{r}
+print(chi_results)
+```
+
+```{r}
+corrplot(chi_results$residuals, 
+         is.cor = FALSE, 
+         tl.cex = 0.7)
+```
+
+### IGNORE THESE CHUNKS — I DON'T THINK I NEED THIS There used to be a Var1 and Var2 now there's only Var1. WHERE DID I MAKE residuals_matrix
+
+```{r}
+# colnames(residual_matrix)
+# rownames(residual_matrix)
+```
+
+```{r}
+# colnames(residuals_df)
+# rownames(residuals_df) 
+```
+
+it's NULL so I need to assign names first it says
+
+```{r}
+# residual_matrix <- as.matrix(chi_results$residuals)
+```
+
+```{r}
+# col_order <- order(colnames(residual_matrix))
+```
+
+```{r}
+# row_order <- order(rownames(residual_matrix))
 ```
 
 
 ```{r}
-residuals <- chi_result$stdres
-
+# residual_matrix <- residual_matrix[row_order, col_order]
 ```
-
 
 ```{r}
-print(residuals)
+# residuals <- chi_result$stdres
 ```
-
 
 ```{r}
-corrplot(residuals,
-         is.corr = FALSE)
+# print(residuals)
 ```
 
-```{ed count is lower than expected.}
+```{r}
+# corrplot(residuals,
+#         is.corr = FALSE)
 ```
 
-### chi 5: residuals_df
+### IGNORE: chi 5: residuals_df
 
 ```{r}
 # I'm trying out to see if I can do the chi-square with residuals (per https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687)
 ```
 
 ```{r}
-residuals 
+# residuals_df <- as.data.frame(as.table(chi_result$stdres))
 ```
 
 ```{r}
-residuals_df <- as.data.frame(as.table(chi_result$stdres))
-```
-
-```{r}
-write.csv(residuals_df, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv", 
-          row.names = FALSE)
+# write.csv(residuals_df,         file = "/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv",   row.names = FALSE)
 ```
 
 ```{r}
@@ -233,46 +370,4 @@ write.csv(residuals_df,
 #  "White" ) 
 ```
 
-```{r}
-colnames(race_matrix)
-```
-
-```{r}
-# dropping the "area" column 
-race_matrix <- race_matrix[, -1]
-```
-
-# DOES NOT WORK WHY
-
-```{r}
-# ncol(race_matrix)
-```
-
-```{r}
-race_matrix <- race_matrix[, 1:6]
-colnames(race_matrix) <- c(
-  "Not Determined", 
-  "Disqualified", 
-  "Moved Out", 
-  "Part B Eligible", 
-  "Not Eligible", 
-  "Withdrawn")
-```
-
 ## Idoesn't render but it almost does - it's rendering pdf and stops. What's wrong with the following chunk?
-
-```{r}
-# race_matrix <- race_matrix[, order(colnames(race_matrix))]
-```
-
-```{r}
-chi_result <- chisq.test(race_matrix)
-```
-
-```{r}
-print(chi_result$stdres)
-```
-
-```{r}
-
-```

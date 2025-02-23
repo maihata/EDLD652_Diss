@@ -141,7 +141,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
-# HELP: DOESN'T RUN ANYMOER! WHERE DID VAR2 go for residuals_df? 
+# OLD - don't use, use the codes freom 3_chi_sq.qmd HELP: DOESN'T RUN ANYMOER! WHERE DID VAR2 go for residuals_df?
 
 ```{r}
 ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
@@ -197,7 +197,7 @@ dim(race_matrix)
 colnames(race_matrix)
 ```
 
-# NOT WORKING - help!
+# WORKING in 3_chi_dq.qmd so GO THERE, don't look here anymore NOT WORKING - help!
 
 ```{r}
 # chisq <- chisq.test(race_matrix)

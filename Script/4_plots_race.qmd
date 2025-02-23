@@ -54,18 +54,20 @@ library(quarto)
 us_data_wide <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv")
 ```
 
+# category names changed already to cleaner names - check the DF so it runs
+
 ```{r}
 # figure 1 for DQ data in US   
 
 us_data_wide <- us_data_wide %>% 
-  select(race, attempts_to_contact_unsuccessful) %>% 
+  select(Race, attempts_to_contact_unsuccessful) %>% 
     mutate(attempts_to_contact_unsuccessful = attempts_to_contact_unsuccessful * 100)
 ```
 
 ```{r}
 # figure 1 continues 
 
-ggplot(us_data_wide, aes(x = race, y = attempts_to_contact_unsuccessful)) +
+ggplot(us_data_wide, aes(x = Race, y = attempts_to_contact_unsuccessful)) +
   geom_col(stat = "identity", fill = "gray43", position = 'dodge') +
    geom_text(aes(label = attempts_to_contact_unsuccessful),
              position = position_dodge(0.9),
@@ -205,7 +207,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   theme_minimal()
 ```
 
-## plot 5: residuals_df 
+## plot 5: residuals_df
 
 --- Chi-square with Residuals —
 

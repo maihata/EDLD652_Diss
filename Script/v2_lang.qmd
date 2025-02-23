@@ -54,7 +54,7 @@ C. Oregon data by LANGUAGES
 # 1. REMOVED DECEASED 
 # 2. CREATED THE complete_or_not_eligible combining three categories 
 
-bylang <- import(here("Data", "ODE data v2.xlsx")) %>% 
+bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
   clean_names() %>% 
   select(-6) %>%
   mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
@@ -71,7 +71,8 @@ agg_by_lang <- bylang %>%
             attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
             moved_out_of_state = sum(moved_out_of_state),
             part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
-            complete_or_not_eligible = sum(complete_or_not_eligible))
+            complete_or_not_eligible = sum(complete_or_not_eligible), 
+            part_b_eligibility_not_determined = sum(part_b_eligible_exiting_part_c))
 
 # FROM v1: 
 # aggregated by race for OR
@@ -87,6 +88,38 @@ agg_by_lang <- bylang %>%
 
 agg_by_lang_no_SL <- agg_by_lang %>% 
   filter(primary_language != "Sign languages")
+```
+
+```{r}
+# removed exit_total 
+agg_by_lang <- agg_by_lang %>% 
+  select(-exit_total)
+```
+
+```{r}
+# renaming the category names 
+agg_by_lang <- agg_by_lang %>% 
+  rename(
+    "Primary Language" = primary_language, 
+    "Withdrawn" = withdrawal_by_parent, 
+   "Disqualified" = attempts_to_contact_unsuccessful, 
+"Moved Out" = moved_out_of_state, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c, 
+    "Not Eligible" = complete_or_not_eligible, 
+    "Not Determined" = part_b_eligibility_not_determined, 
+  )
+```
+
+```{r}
+# reorganizing columns alphabetically 
+agg_by_lang <- agg_by_lang %>% 
+  select("Primary Language", sort(setdiff(names(.), "Primary Language")))
+```
+
+```{r}
+write.csv(agg_by_lang, 
+          file =  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
+          row.names = FALSE)
 ```
 
 ```{r}

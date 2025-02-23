@@ -90,10 +90,10 @@ kable(race_oregon_chart,
       kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-### kable 4: us_data_wide 
+### kable 4: us_data_wide
 
 ```{r}
-us_data_wide <- read_csv(us_data_wide) 
+us_data_wide <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv") 
 ```
 
 ```{r}
@@ -101,4 +101,18 @@ kable(us_data_wide,
       caption = "Racial Representation in EI Services",
       align = "c",  
       format = "latex") 
+```
+
+### kable 5: agg_by_lang 
+
+--- table of ODE 2012-2024 data by language —
+
+```{r}
+agg_by_lang <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
+```
+
+```{r}
+kable(agg_by_lang, 
+      caption = "Initial Oregon Data by Home Languages") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
