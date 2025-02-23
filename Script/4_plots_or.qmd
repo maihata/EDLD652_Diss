@@ -70,7 +70,47 @@ print(chi_dq_BLWH_result)
 --- OR for Native American/Hispanic vs White NOT DETERMINED —
 
 ```{r}
+# remaking a df with exit total and DQ 12/1
+us_data_attempts <- byrace %>% 
+  filter(area == "US and Outlying Areas") %>% 
+  group_by(race) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful)) %>% 
+  mutate(proportion = attempts_to_contact_unsuccessful / exit_total)
+```
 
+```{r}
+write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
+```
+
+### odds ratio 3: dq_native 
+
+```{r}
+dq_native_us <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "AM" | race == "WH") 
+```
+
+```{r}
+write.csv(dq_native, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", 
+          row.names = FALSE)
+```
+
+```{r}
+
+```
+
+### odds ratio 4: dq_hispanic
+
+```{r}
+dq_hispanic_us <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "HI" | race == "WH") 
+```
+
+```{r}
+write.csv(dq_hispanic_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_hispanic_us.csv", 
+          row.names = FALSE)
 ```
 
 ```{r}

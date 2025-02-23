@@ -72,7 +72,7 @@ agg_by_lang <- bylang %>%
             moved_out_of_state = sum(moved_out_of_state),
             part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
             complete_or_not_eligible = sum(complete_or_not_eligible), 
-            part_b_eligibility_not_determined = sum(part_b_eligible_exiting_part_c))
+            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
 
 # FROM v1: 
 # aggregated by race for OR
