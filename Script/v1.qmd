@@ -485,7 +485,9 @@ In order to calculate the odds ratio to determine the relative likelihood of the
 # prepping the df to mutate a column to have non_dq and delete total 
 us_data_wide_DQ_BLWH <- us_data_attempts_BLWH %>% 
   mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
 
+```{r}
 us_data_wide_DQ_BLWH_nototal <- us_data_wide_DQ_BLWH %>% 
   select(-exit_total)
 ```

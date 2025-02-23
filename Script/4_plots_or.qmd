@@ -44,6 +44,7 @@ library(tibble)
 library(rcartocolor)
 library(ggplot2)
 library(quarto)
+library(epitools)
 ```
 
 ### odd ratio 1: us_data_attempts_BLWH
@@ -51,23 +52,47 @@ library(quarto)
 --- OR for black vs white DQ —
 
 ```{r}
-us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+# us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 
 ```
 
 ```{r}
-chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
+# chi_dq_BLWH_result <- chisq.test(us_data_attempts_BLWH[, 2:3])
 ```
 
 ```{r}
-print(chi_dq_BLWH_result)
+# print(chi_dq_BLWH_result)
 # data:  us_data_attempts_BLWH[, 2:3]
 # X-squared = 22556, df = 1, p-value < 2.2e-16
 ```
 
-### odd ratio 2:
+```{r}
+# used wording from Morgan et al. (2020) and ChatGPT 
+# prepping the df to mutate a column to have non_dq and delete total 
+us_data_wide_DQ_BLWH <- us_data_attempts_BLWH %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
 
---- OR for Native American/Hispanic vs White NOT DETERMINED —
+us_data_wide_DQ_BLWH_nototal <- us_data_wide_DQ_BLWH %>% 
+  select(-exit_total)
+```
+
+```{r}
+#Per chatGPT. The columns and rows switched...? 
+us_dq_BLWH_matrix <- matrix( 
+  c(56155, 359718, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Black", "White")
+  ))
+```
+
+```{r}
+# ODDS RATIO SUCCESS 
+oddsratio(us_dq_BLWH_matrix)
+```
+
+### odd ratio 2: 
 
 ```{r}
 # remaking a df with exit total and DQ 12/1
@@ -85,6 +110,9 @@ write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_dat
 
 ### odds ratio 3: dq_native 
 
+--- Odds Ratio for Native American vs White NOT DETERMINED —-\
+see EDLD652 Data Visualization notes google doc for interpretations
+
 ```{r}
 dq_native_us <- us_data_attempts %>% 
   select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
@@ -92,15 +120,62 @@ filter(race == "AM" | race == "WH")
 ```
 
 ```{r}
-write.csv(dq_native, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", 
+dq_native_us_nototal <- dq_native_us %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
+
+```{r}
+dq_native_us_nototal <- dq_native_us_nototal %>% 
+  select(-exit_total)
+```
+
+```{r}
+dq_native_us_matrix <- matrix( 
+  c(3262, 20521, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Alaska Native", "White")
+  ))
+```
+
+```{r}
+  oddsratio(dq_native_us_matrix)
+```
+
+```{r}
+write.csv(dq_native, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", 
           row.names = FALSE)
 ```
 
 ```{r}
+chi_dq_native <- chisq.test(dq_native[, 2:3])
+```
 
+```{r}
+print(chi_dq_native)
+# data:  us_data_attempts_BLWH[, 2:3]
+# X-squared = 22556, df = 1, p-value < 2.2e-16
+```
+
+```{r}
+dq_native_table  <- as.matrix(dq_native[, 2:3])
+```
+
+```{r}
+dq_native_or <- oddsratio(dq_native_table)
+```
+
+```{r}
+print(dq_native_or)
+# 
 ```
 
 ### odds ratio 4: dq_hispanic
+
+--- Odds Ratio for Hispanic vs White NOT DETERMINED —-\
+see EDLD652 Data Visualization notes google doc for interpretations
 
 ```{r}
 dq_hispanic_us <- us_data_attempts %>% 
@@ -111,12 +186,4 @@ filter(race == "HI" | race == "WH")
 ```{r}
 write.csv(dq_hispanic_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_hispanic_us.csv", 
           row.names = FALSE)
-```
-
-```{r}
-
-```
-
-```{r}
-
 ```
