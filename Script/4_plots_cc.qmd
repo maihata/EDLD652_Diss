@@ -70,7 +70,6 @@ kable(cc_transposed,
 
 --- ggplots for US & OR Races in CHILDCOUNT
 
-
 ```{r}
 childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
@@ -79,7 +78,8 @@ childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/child
 print(childcount1920USOR_long)
 ```
 
-### CAMERON, I need to change the row names to race names 
+### CAMERON, I need to change the row names to race names
+
 ```{r}
 childcount1920USOR_long <- childcount1920USOR_long %>%
   mutate(race = recode(race,
@@ -94,6 +94,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 ```
 
 Rewrite CSV with the race names corrected!!
+
 ```{r}
 write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv",           row.names = FALSE)
 
@@ -104,7 +105,8 @@ childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/child
 
 ```
 
-## CAMERON, Why does this one NOT show the race titles somehow? 
+## CAMERON, Why does this one NOT show the race titles somehow?
+
 ```{r}
 ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
   geom_bar(stat = "identity") + 
@@ -252,3 +254,127 @@ ggplot(childcount1920USOR_long,
 
 ```
 
+trying to show in times new roman
+
+```{r}
+ggplot(childcount1920USOR_long, 
+       aes(x = percent, 
+           y = race, 
+           fill = state)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge(width = 0.7)) +  
+  scale_fill_viridis_d() +  
+  scale_x_continuous(
+    labels = percent_format(scale = 1), 
+    expand = expansion(mult = c(0, 0.05))) +
+  labs(title = "Percentage of Child Count by Race in US & Oregon",
+       x = "Percentage",
+       y = "Race",
+       fill = "State") +
+  geom_text(aes(
+    label = scales::percent(percent / 100, accuracy = 0.1)), 
+            position = position_dodge(width = 0.7), 
+            hjust = -0.2,  
+            color = "black", 
+            size = 4, 
+            family = "Times New Roman") +  
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    text = element_text(family = "Times New Roman")  
+  )
+```
+
+trying to change the colors to okabe ito
+
+```{r}
+# Load ggsci for the Okabe-Ito color palette
+library(ggsci)
+
+ggplot(childcount1920USOR_long, 
+       aes(x = percent, 
+           y = race, 
+           fill = state)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge(width = 0.7)) +  
+  scale_fill_aaas() +  # Use Okabe-Ito colors directly
+  scale_x_continuous(
+    labels = percent_format(scale = 1),   labs(
+    title = "Percentage of Child Count by Race in US & Oregon",
+    x = "Percentage",
+    y = "Race",
+    fill = "State"
+  ) +
+  geom_text(aes(
+    label = scales::percent(percent / 100, accuracy = 0.1)), 
+            position = position_dodge(width = 0.7), 
+            hjust = -0.2,  
+            color = "black", 
+            size = 4, 
+            family = "Times New Roman"  # Keep Times New Roman for labels
+  ) +  
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    text = element_text(family = "Times New Roman")  # Set Times New Roman globally
+  )
+```
+
+trying to change the color of the labels but it LOSES the state label for the US below somehow. WHY!?!?
+
+```{r}
+palette.colors(palette = "Okabe-Ito")
+##         black        orange       skyblue   bluishgreen        yellow 
+##     "#000000"     "#E69F00"     "#56B4E9"     "#009E73"     "#F0E442" 
+##          blue    vermillion reddishpurple          gray 
+##     "#0072B2"     "#D55E00"     "#CC79A7"     "#999999" 
+```
+
+```{r}
+# Load the ggsci package for Okabe-Ito palette
+library(ggsci) 
+```
+
+```{r}
+# Assign colors from Okabe-Ito palette by name
+okabe_ito_colors <- c("US" = pal_aaas("default")(10)[6],      
+                      # Yellow (#F0E442)
+                      "Oregon" = pal_aaas("default")(10)[3])  
+                      # Bluish green (#009E73)
+
+# Plot with Okabe-Ito colors
+ggplot(childcount1920USOR_long, 
+       aes(x = percent, 
+           y = race, 
+           fill = state)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge(
+          width = 0.7)) +  
+  scale_fill_manual(
+    values = okabe_ito_colors, 
+    breaks = c("US", "Oregon"),         
+    labels = c("US", "Oregon")          
+  ) +
+  scale_x_continuous(
+    labels = percent_format(scale = 1), 
+    expand = expansion(mult = c(0, 0.05))) +
+  labs(
+    title = "Percentage of Child Count by Race in US & Oregon",
+    x = "Percentage",
+    y = "Race",
+    fill = "State"
+  ) +
+  geom_text(aes(
+    label = scales::percent(percent / 100, accuracy = 0.1)), 
+    position = position_dodge(width = 0.7), 
+    hjust = -0.2,  
+    color = "black", 
+    size = 4, 
+    family = "Times New Roman"  
+  ) +  
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    text = element_text(family = "Times New Roman")  
+  )
+```
