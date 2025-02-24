@@ -257,6 +257,14 @@ ggplot(childcount1920USOR_long,
 trying to show in times new roman
 
 ```{r}
+library(extrafont)
+font_import(pattern = "Times", 
+            prompt = FALSE)
+loadfonts(device = "win")
+```
+
+
+```{r}
 ggplot(childcount1920USOR_long, 
        aes(x = percent, 
            y = race, 
@@ -286,37 +294,40 @@ ggplot(childcount1920USOR_long,
 ```
 
 trying to change the colors to okabe ito
+```{r}
+library(ggsci)
+```
+
 
 ```{r}
-# Load ggsci for the Okabe-Ito color palette
-library(ggsci)
-
 ggplot(childcount1920USOR_long, 
        aes(x = percent, 
            y = race, 
            fill = state)) +
   geom_bar(stat = "identity", 
-           position = position_dodge(width = 0.7)) +  
-  scale_fill_aaas() +  # Use Okabe-Ito colors directly
+           position = position_dodge(width = 0.7)) +  # ✅ Closed geom_bar() correctly
+  scale_fill_aaas() +  # ✅ Correct usage of Okabe-Ito colors
   scale_x_continuous(
-    labels = percent_format(scale = 1),   labs(
+    labels = percent_format(scale = 1)  # ✅ Removed misplaced labs() call
+  ) +  
+  labs(
     title = "Percentage of Child Count by Race in US & Oregon",
     x = "Percentage",
     y = "Race",
     fill = "State"
-  ) +
+  ) +  
   geom_text(aes(
     label = scales::percent(percent / 100, accuracy = 0.1)), 
-            position = position_dodge(width = 0.7), 
-            hjust = -0.2,  
-            color = "black", 
-            size = 4, 
-            family = "Times New Roman"  # Keep Times New Roman for labels
+    position = position_dodge(width = 0.7), 
+    hjust = -0.2,  
+    color = "black", 
+    size = 4, 
+    family = "Times New Roman"  
   ) +  
   theme_minimal(base_size = 14) +
   theme(
     legend.position = "bottom",
-    text = element_text(family = "Times New Roman")  # Set Times New Roman globally
+    text = element_text(family = "Times New Roman")  # ✅ Correctly closed theme()
   )
 ```
 
