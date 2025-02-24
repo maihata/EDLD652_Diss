@@ -52,8 +52,7 @@ library(epitools)
 --- OR for black vs white DQ —
 
 ```{r}
-# us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
-
+us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 ```
 
 ```{r}
@@ -69,6 +68,7 @@ library(epitools)
 ```{r}
 # used wording from Morgan et al. (2020) and ChatGPT 
 # prepping the df to mutate a column to have non_dq and delete total 
+
 us_data_wide_DQ_BLWH <- us_data_attempts_BLWH %>% 
   mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
 
@@ -92,7 +92,14 @@ us_dq_BLWH_matrix <- matrix(
 oddsratio(us_dq_BLWH_matrix)
 ```
 
+```{r}
+dq_black_OR <- oddsratio(us_dq_BLWH_matrix)
+```
+
 ### odd ratio 2: 
+```{r}
+byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
+```
 
 ```{r}
 # remaking a df with exit total and DQ 12/1
@@ -110,7 +117,7 @@ write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_dat
 
 ### odds ratio 3: dq_native 
 
---- Odds Ratio for Native American vs White NOT DETERMINED —-\
+--- Odds Ratio for Native American vs White DQ —-\
 see EDLD652 Data Visualization notes google doc for interpretations
 
 ```{r}
@@ -144,13 +151,15 @@ dq_native_us_matrix <- matrix(
 ```
 
 ```{r}
-write.csv(dq_native, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", 
-          row.names = FALSE)
+dq_native_us_OR <- oddsratio(dq_native_us_matrix)
 ```
 
 ```{r}
-chi_dq_native <- chisq.test(dq_native[, 2:3])
+write.csv(dq_native_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", row.names = FALSE)
+```
+
+```{r}
+chi_dq_native <- chisq.test(dq_native_us[, 2:3])
 ```
 
 ```{r}
@@ -159,22 +168,9 @@ print(chi_dq_native)
 # X-squared = 22556, df = 1, p-value < 2.2e-16
 ```
 
-```{r}
-dq_native_table  <- as.matrix(dq_native[, 2:3])
-```
-
-```{r}
-dq_native_or <- oddsratio(dq_native_table)
-```
-
-```{r}
-print(dq_native_or)
-# 
-```
-
 ### odds ratio 4: dq_hispanic
 
---- Odds Ratio for Hispanic vs White NOT DETERMINED —-\
+--- Odds Ratio for Hispanic vs White DQ —-\
 see EDLD652 Data Visualization notes google doc for interpretations
 
 ```{r}
@@ -187,3 +183,366 @@ filter(race == "HI" | race == "WH")
 write.csv(dq_hispanic_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_hispanic_us.csv", 
           row.names = FALSE)
 ```
+
+```{r}
+dq_hispanic_us_nototal <- dq_hispanic_us %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
+
+```{r}
+dq_hispanic_us_nototal <- dq_hispanic_us_nototal %>% 
+  select(-exit_total)
+```
+
+```{r}
+dq_hispanic_us_matrix <- matrix( 
+  c(79951, 826020, 99922, 1672263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Hispanic/Latino", "White")
+  ))
+```
+
+```{r}
+  oddsratio(dq_hispanic_us_matrix)
+```
+
+```{r}
+ dq_hispanic_us_OR <- oddsratio(dq_hispanic_us_matrix)
+```
+
+### odds ratio 5: dq_asian
+
+--- Odds Ratio for Asian vs White DQ —-\
+see EDLD652 Data Visualization notes google doc for interpretations
+
+```{r}
+dq_asian_us <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "AS" | race == "WH") 
+```
+
+```{r}
+dq_asian_us_nototal <- dq_asian_us %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
+
+```{r}
+dq_asian_us_nototal <- dq_asian_us_nototal %>% 
+  select(-exit_total)
+```
+
+```{r}
+dq_asian_us_matrix <- matrix( 
+  c(6559, 139693, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Asian", "White")
+  ))
+```
+
+```{r}
+oddsratio(dq_asian_us_matrix)
+```
+
+```{r}
+dq_asian_us_OR <- oddsratio(dq_asian_us_matrix)
+```
+
+### Odds ratio 6: dq_multi
+
+--- Odds Ratio for \_\_\_ vs White DQ —-\
+see EDLD652 Data Visualization notes google doc for interpretations
+
+```{r}
+dq_multi_us <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "MU" | race == "WH") 
+```
+
+```{r}
+dq_multi_us_nototal <- dq_multi_us %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
+
+```{r}
+dq_multi_us_nototal <- dq_multi_us_nototal %>% 
+  select(-exit_total)
+```
+
+```{r}
+dq_multi_us_matrix <- matrix( 
+  c(11676, 124165, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("More than Two Races", "White")
+  ))
+```
+
+```{r}
+oddsratio(dq_multi_us_matrix)
+```
+
+```{r}
+dq_multi_us_OR <- oddsratio(dq_multi_us_matrix)
+```
+
+### odds ratio 5: dq_pi
+
+--- Odds Ratio for Pacific Islaner vs White DQ —-\
+see EDLD652 Data Visualization notes google doc for interpretations
+
+```{r}
+dq_pi_us <- us_data_attempts %>% 
+  select(race, exit_total, attempts_to_contact_unsuccessful) %>% 
+filter(race == "PI" | race == "WH") 
+```
+
+```{r}
+dq_pi_us_nototal <- dq_pi_us %>% 
+  mutate(non_dq = exit_total - attempts_to_contact_unsuccessful)
+```
+
+```{r}
+dq_pi_us_nototal <- dq_pi_us_nototal %>% 
+  select(-exit_total)
+```
+
+```{r}
+dq_pi_us_matrix <- matrix(
+  c(977, 9677, 99922, 1572263), 
+  nrow = 2, 
+  dimnames = list(
+    c("attempts_to_contact_unsuccessful", "Other"), 
+    c("Alaska Native", "White")
+  ))
+```
+
+```{r}
+oddsratio(dq_pi_us_matrix)
+```
+
+```{r}
+dq_pi_us_OR <- oddsratio(dq_pi_us_matrix)
+```
+
+### Odds ratio plot 1: 
+
+```{r}
+or_us_white <- data.frame(
+  group = c(
+    "American Indian/Alaska Native", 
+    "Asian", 
+    "Black/African American", 
+    "Hispanic/Latino", 
+    "More than Two Races", 
+    "Pacific Islander", 
+    "White (Reference)"),
+  odds_ratio = c(
+    2.501309, 
+    0.7388185, 
+    2.456352, 
+    1.619882, 
+    1.479668, 
+    1.588854, 
+    1)
+)
+```
+
+v1
+
+```{r}
+ggplot(or_us_white, 
+       aes(x = factor(group, 
+                      levels = sort(unique(group))), 
+           y = odds_ratio)) +
+  geom_col(fill = "skyblue") +
+  geom_hline(
+    yintercept = 1, 
+    linetype = "dashed", 
+    color = "red") +  
+  labs(title = "Odds Ratios Compared to White (Reference)", 
+       x = "Race", 
+       y = "Odds Ratio") +
+  theme_minimal()
+```
+
+v2: flipped coord
+
+```{r}
+# with flipped coordinates
+  ggplot(or_us_white, 
+         aes(
+           x = factor(
+             group, 
+             levels = sort(unique(group))), 
+           y = odds_ratio)) +
+  geom_col(
+    fill = "skyblue") +
+  geom_hline(
+    yintercept = 1, 
+    linetype = "dashed", 
+    color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Odds Ratios Compared to White (Reference)", 
+    x = "Group", 
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+# I need to alphabetize 'group' along the y-axis
+
+```
+
+```{r}
+or_us_white_ci <- data.frame(
+  group = c(
+    "American Indian/Alaska Native", 
+    "Asian", 
+    "Black/African American", 
+    "Hispanic/Latino", 
+    "More than Two Races", 
+    "Pacific Islander", 
+    "White (Reference)"),
+  odds_ratio = c(
+    2.501309, 
+    0.7388185, 
+    2.456352, 
+    1.619882, 
+    1.479668, 
+    1.588854, 
+    1), 
+  ci_lower = c(
+    2.408865, 
+    0.7200855, 
+    2.429572, 
+   1.60425, 
+   1.450269, 
+   1.486348, 
+   0.950000), 
+  ci_upper = c(
+   2.596393, 
+  0.7578737, 
+  2.483474, 
+  1.635544, 
+  1.50953, 
+  1.696447, 
+  1.050000)
+)
+```
+Forrest Plot 1
+```{r}
+ggplot(or_us_white_ci, 
+       aes(x = group, 
+           y = odds_ratio)) +
+  geom_point(size = 3, 
+             color = "skyblue") +  
+  geom_errorbar(aes(
+    ymin = ci_lower, 
+    ymax = ci_upper), 
+    width = 0.2) +  
+  geom_hline(
+    yintercept = 1, 
+    linetype = "dashed", 
+    color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Forest Plot of Odds Ratios",
+    x = "Race",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+trying to reverse alphaetize the Y axis 
+```{r}
+or_us_white_ci$group <- factor(or_us_white_ci$group, levels = rev(sort(unique(or_us_white_ci$group))))
+
+```
+
+```{r}
+ggplot(or_us_white_ci, 
+       aes(x = group, y = odds_ratio)) +
+  geom_point(size = 3, color = "skyblue") +  
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2) +  
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Forest Plot of Odds Ratios",
+    x = "Race",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+made the dots bigger 
+```{r}
+ggplot(or_us_white_ci, 
+       aes(x = group, y = odds_ratio)) +
+  geom_point(size = 5, color = "skyblue") +  # Increased size from 3 to 5
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2) +  
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Forest Plot of Odds Ratios",
+    x = "Race",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+added the data label yeaaaah 
+```{r}
+ggplot(or_us_white_ci, 
+       aes(x = group, 
+           y = odds_ratio)) +
+  geom_point(size = 4, 
+             color = "skyblue") +  
+  geom_errorbar(aes(
+    ymin = ci_lower, 
+    ymax = ci_upper), 
+    width = 0.2) +  
+  geom_text(aes(
+    label = round(odds_ratio, 2)), 
+    vjust = -0.2, size = 3.5) +  
+  geom_hline(yintercept = 1, 
+             linetype = "dashed", 
+             color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Forest Plot of Odds Ratios",
+    x = "Group",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+
+```
+moved the labels above the dots 
+```{r}
+ggplot(or_us_white_ci, 
+       aes(x = group, 
+           y = odds_ratio)) +
+  geom_point(size = 4, 
+             color = "skyblue") +  
+  geom_errorbar(aes(
+    ymin = ci_lower, 
+    ymax = ci_upper), 
+    width = 0.2) +  
+  geom_text(aes(
+    label = round(odds_ratio, 2)), 
+    vjust = -0.8, size = 3.5) +  
+  geom_hline(yintercept = 1, 
+             linetype = "dashed", 
+             color = "red") +  
+  coord_flip() +  
+  labs(
+    title = "Forest Plot of Odds Ratios",
+    x = "Group",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+
