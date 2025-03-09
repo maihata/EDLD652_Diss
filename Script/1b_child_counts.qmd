@@ -250,7 +250,6 @@ race_us <- race_us %>%
 
 ```
 
-
 ```{r}
 # Made it LONGER for real! 
 us_data_long <- race_us %>% 
@@ -296,13 +295,11 @@ us_data_wide <- us_data_wide %>%
   select("Race", sort(setdiff(names(.), "Race")))
 ```
 
-
 ```{r}
 kable(us_data_wide, 
       caption = "Racial Representation in EI Services",
       align = "c",  
       format = "latex")  
-```
 ```
 
 I'm trying out to see if I can do the chi-square with residuals (per <https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687>)
@@ -345,8 +342,7 @@ Chi-square with Residuals 4:
 residuals_df <- as.data.frame(as.table(chi_result$stdres))
 ```
 
-SOMEWHERE IN HERE I MIGHT HAVE DELETED OR MOVED THE CHUNK EALIER SO FIND CHUNKS MAYBE WITH residuals_df and find Var2 
-Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
+SOMEWHERE IN HERE I MIGHT HAVE DELETED OR MOVED THE CHUNK EALIER SO FIND CHUNKS MAYBE WITH residuals_df and find Var2 Cameron: How can I reverse the order of Y axis (and I should delete the exit total row too)
 
 ```{r}
 # this is race on X (columns )
@@ -357,7 +353,6 @@ ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
        x = "Exit Reason", y = "Race") +
   theme_minimal() 
 ```
-
 
 ```{r}
 corrplot(chisq$residuals, 

@@ -102,7 +102,8 @@ oddsratio(us_dq_BLWH_matrix)
 dq_black_OR <- oddsratio(us_dq_BLWH_matrix)
 ```
 
-### odd ratio 2: 
+### odd ratio 2:
+
 ```{r}
 byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
 ```
@@ -121,7 +122,7 @@ us_data_attempts <- byrace %>%
 write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
 ```
 
-### odds ratio 3: dq_native 
+### odds ratio 3: dq_native
 
 --- Odds Ratio for Native American vs White DQ —-\
 see EDLD652 Data Visualization notes google doc for interpretations
@@ -335,7 +336,7 @@ oddsratio(dq_pi_us_matrix)
 dq_pi_us_OR <- oddsratio(dq_pi_us_matrix)
 ```
 
-### Odds ratio plot 1: 
+### Odds ratio plot 1:
 
 ```{r}
 or_us_white <- data.frame(
@@ -442,7 +443,9 @@ or_us_white_ci <- data.frame(
   1.050000)
 )
 ```
+
 Forrest Plot 1
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, 
@@ -465,7 +468,9 @@ ggplot(or_us_white_ci,
   ) +
   theme_minimal()
 ```
-trying to reverse alphaetize the Y axis 
+
+trying to reverse alphaetize the Y axis
+
 ```{r}
 or_us_white_ci$group <- factor(or_us_white_ci$group, levels = rev(sort(unique(or_us_white_ci$group))))
 
@@ -485,7 +490,9 @@ ggplot(or_us_white_ci,
   ) +
   theme_minimal()
 ```
-made the dots bigger 
+
+made the dots bigger
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, y = odds_ratio)) +
@@ -500,7 +507,9 @@ ggplot(or_us_white_ci,
   ) +
   theme_minimal()
 ```
-added the data label yeaaaah 
+
+added the data label yeaaaah
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, 
@@ -526,7 +535,9 @@ ggplot(or_us_white_ci,
   theme_minimal()
 
 ```
-moved the labels above the dots 
+
+moved the labels above the dots
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, 
@@ -550,7 +561,9 @@ ggplot(or_us_white_ci,
     y = "Odds Ratio") +
   theme_minimal() 
 ```
-made the labels for axises bigger 
+
+made the labels for axises bigger
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, 
@@ -578,7 +591,9 @@ theme(
     axis.text.y = element_text(size = 10)   
   )
 ```
-trying to see if I can make it in times new roman 
+
+trying to see if I can make it in times new roman
+
 ```{r}
 ggplot(or_us_white_ci, 
        aes(x = group, 
@@ -609,4 +624,3 @@ theme(
     plot.title = element_text(size = 12, face = "bold") 
   )
 ```
-

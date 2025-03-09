@@ -1,0 +1,187 @@
+---
+title: "Child Count and Census"
+author: "Maiko Hata"
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 6
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(tidyr)
+library(readr)
+```
+
+1.  Import the excel sheet of racial groups represented in census 2020 and EI childcount 19-20
+
+```{r}
+child_count_vs_census <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use this racial group representation in general population and in EI NATIONAL.xlsx", sheet = 2)
+```
+
+```{r}
+print(child_count_vs_census)
+```
+
+```{r}
+colnames(child_count_vs_census)
+```
+
+```{r}
+child_count_vs_census_long <- child_count_vs_census %>% 
+  pivot_longer(
+    cols = -...1, 
+    names_to = "Race", 
+    values_to = "Percentage"
+  )
+```
+
+```{r}
+ggplot(child_count_vs_census_long, 
+       aes(x = Race, 
+           y = Percentage, 
+           fill = `...1`)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Child Count vs Census by Race",
+       x = "Race",
+       y = "Percentage",
+       fill = "Location") +  
+  theme_minimal()
+```
+
+```{r}
+# stacked bar - added "dodge" 
+
+library(ggplot2)
+
+ggplot(child_count_vs_census_long, 
+       aes(x = Race, 
+           y = Percentage, 
+           fill = `...1`)) +  
+  geom_bar(stat = "identity", position = "dodge") +  
+  labs(title = "Child Count vs Census by Race",
+       x = "Race",
+       y = "Percentage",
+       fill = "Location") +
+  theme_minimal()
+```
+
+```{r}
+colnames(child_count_vs_census)
+```
+
+```{r}
+# realphabetizing the X axis 
+child_count_vs_census_long <- child_count_vs_census_long %>%
+  mutate(Race = factor(Race, levels = c(
+    "American Indian or Alaska Native", 
+    "Asian", 
+    "Black or African American", 
+    "Hispanic/Latino", 
+    "Native Hawaiian or Pacific Islander", 
+    "Two or More Races", 
+    "White"))) 
+```
+
+```{r}
+child_count_vs_census_long <- child_count_vs_census_long %>%
+  mutate(Race = fct_rev(Race))
+```
+
+```{r}
+library(readr)
+
+write_csv(child_count_vs_census_long, "/Users/hata/Desktop/EDLD652_Diss/Data/child_count_vs_census_long.csv")
+```
+
+```{r}
+# flipping x and y 
+ggplot(child_count_vs_census_long, 
+       aes(x = Percentage, 
+           y = Race, 
+           fill = `...1`)) +  
+  geom_bar(stat = "identity", position = "dodge") +  
+  labs(title = "Child Count vs Census by Race",
+       x = "Percentage",
+       y = "Race",
+       fill = "Location") +
+  theme_minimal(base_family = "Times New Roman")
+```
+
+```{r}
+library(ggplot2)
+library(viridis)
+
+ggplot(child_count_vs_census_long, 
+       aes(x = Percentage, 
+           y = Race, 
+           fill = `...1`)) +  
+  geom_bar(stat = "identity", position = "dodge") +  
+  geom_text(aes(label = Percentage),  # Add data labels
+            position = position_dodge(width = 0.9),  # Align labels with bars
+            vjust = -0.3,  # Position labels above bars
+            size = 3,       # Adjust text size if needed
+            family = "Times New Roman") +  # Font for labels
+  
+  labs(title = "Child Count vs Census by Race",
+       x = "Percentage",
+       y = "Race",
+       fill = "Location") +
+  theme_minimal(base_family = "Times New Roman")
+
+```
+
+```{r}
+ggplot(child_count_vs_census_long, 
+       aes(x = Percentage, 
+           y = Race, 
+           fill = `...1`)) +  
+  geom_bar(stat = "identity", position = "dodge") +  
+  geom_text(aes(label = Percentage),  
+            position = position_dodge(width = 0.9),  
+            hjust = -0.2,  # Move labels slightly to the right of bars
+            size = 3,       
+            family = "Times New Roman") +  
+
+  labs(title = "Child Count vs Census by Race",
+       x = "Percentage",
+       y = "Race",
+       fill = "Location") +
+  theme_minimal(base_family = "Times New Roman")
+```

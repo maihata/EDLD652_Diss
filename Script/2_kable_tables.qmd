@@ -103,7 +103,7 @@ kable(us_data_wide,
       format = "latex") 
 ```
 
-### kable 5: agg_by_lang 
+### kable 5: agg_by_lang
 
 --- table of ODE 2012-2024 data by language —
 

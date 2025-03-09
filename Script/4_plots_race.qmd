@@ -1,7 +1,13 @@
 ---
 title: "4_plots"
 author: "Maiko Hata"
-format: pdf
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 7
+fig-height: 4
+csl: apa.csl
 execute: 
   eval: true 
   echo: false

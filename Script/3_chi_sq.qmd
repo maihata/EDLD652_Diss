@@ -81,7 +81,7 @@ chisq.test(race_oregon[, 3:8])
 
 ### step 2: byrace
 
---- US and Oregon entire table. Probably no need as I'll be running the chi-square with residuals anyway. —
+--- US and Oregon entire table. Probably no need as I'll be running the chi-square with stdres anyway. —
 
 ```{r}
 byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
@@ -158,7 +158,7 @@ chi_results
 # LINA: Does this number from the next chunk look right? LINA: "It's not adjusted"
 
 ```{r}
-#LINA: DOESN'T RUN CORRECTLY --- SO I NEED THE ADJUSTED STANDARDIZED RESIDUALS 
+#LINA: DOESN'T RUN CORRECTLY --- SO I NEED THE ADJUSTED STANDARDIZED stdres 
 chisq.test(race_matrix, correct = FALSE)$stdres
 ```
 
@@ -169,10 +169,10 @@ chisq.test(race_matrix, correct = FALSE)$stdres
 Open res_race_matrix as a df so I can show Lina the numbers.
 
 ```{r}
-residuals_df <- chisq.test(race_matrix, correct = FALSE)$stdres
+stdres_df <- chisq.test(race_matrix, correct = FALSE)$stdres
 ```
 
-## Trying to get ADJUSTED standardized residuals
+## Trying to get ADJUSTED standardized stdres
 
 ```{r}
 #https://www.google.com/search?q=R+package+and+function+for+chi+square+standardized+adjusted+residual&rlz=1C5GCCM_en&oq=R+package+and+function+for+chi+square+standardized+adjusted+residual&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIGCAEQRRhA0gEJMTYwNzVqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8
@@ -190,21 +190,24 @@ dev.off()
 
 ### corrplot race/exit categories for race: renaming columns/rows for chi_results
 
+## Cameron: This is \$stdres = runs the standardized stdres and it takes degree of freedom into consideration
+
 ```{r}
-corrplot(chi_results$residuals, 
+
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.7)
 
-# corrplot(chi_results$residuals, is.cor = FALSE) 
+# corrplot(chi_results$stdres, is.cor = FALSE) 
 ```
 
 ```{r}
 # i wanted to rename categories but the number of columns didn't match because I still have exit total. checking the colnames 
-colnames(chi_results$residuals)
+colnames(chi_results$stdres)
 ```
 
 ```{r}
-colnames(chi_results$residuals) <- c(
+colnames(chi_results$stdres) <- c(
   "Withdrawal", 
   "Disqualification", 
   "Moved Out", 
@@ -214,7 +217,7 @@ colnames(chi_results$residuals) <- c(
 ```
 
 ```{r}
-rownames(chi_results$residuals) <- c(
+rownames(chi_results$stdres) <- c(
   "Alaska Native/American Indian", 
   "Asian", 
   "Black/African American", 
@@ -227,43 +230,43 @@ rownames(chi_results$residuals) <- c(
 
 ```{r}
 #| fig-align: center
-chi_results$residuals <- chi_results$residuals[, order(colnames(chi_results$residuals))]
+chi_results$stdres <- chi_results$stdres[, order(colnames(chi_results$stdres))]
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.7) 
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.3)
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.6)
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          method = 'number', 
          is.cor = FALSE, 
          tl.cex = 0.6)
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          method = 'square', 
          is.cor = FALSE, 
          tl.cex = 0.6)
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          method = 'ellipse', 
          is.cor = FALSE, 
          tl.cex = 0.6)
@@ -273,11 +276,22 @@ corrplot(chi_results$residuals,
 
 ```{r}
 #FINAL PLOT? 
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.8, 
          cl.cex = 0.7, 
          cl.offset = 0.5) 
+```
+
+```{r}
+# Maybe this one is the FINAL PLOT? Saved 
+corrplot(chi_results$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.8, # Size of text labels in the plot
+         # tl.pos = 0.5, 
+         cl.cex = 0.7,      # Size of color legend text
+         cl.offset = 1,     # Increase offset to move labels away from the bar
+         cl.ratio = 0.2)    
 ```
 
 ```{r}
@@ -286,9 +300,9 @@ corrplot(chi_results$residuals,
 
 ```{r}
 # Next steps - but have to change the df names 
-# residuals_df <- as.matrix(chi_results$residuals)#
-# col_order <- order(colnames(residuals_df))
-# row_order <- order(rownames(residuals_df))
+# stdres_df <- as.matrix(chi_results$stdres)#
+# col_order <- order(colnames(stdres_df))
+# row_order <- order(rownames(stdres_df))
 # residual_df <- residual_df[row_order, col_order]
 ```
 
@@ -297,12 +311,21 @@ print(chi_results)
 ```
 
 ```{r}
-corrplot(chi_results$residuals, 
+corrplot(chi_results$stdres, 
          is.cor = FALSE, 
          tl.cex = 0.7)
 ```
 
-### IGNORE THESE CHUNKS — I DON'T THINK I NEED THIS There used to be a Var1 and Var2 now there's only Var1. WHERE DID I MAKE residuals_matrix
+trying to make it in times new roman
+
+```{r}
+par(family = "Times")
+corrplot(chi_results$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.7)
+```
+
+### IGNORE THESE CHUNKS — I DON'T THINK I NEED THIS There used to be a Var1 and Var2 now there's only Var1. WHERE DID I MAKE stdres_matrix
 
 ```{r}
 # colnames(residual_matrix)
@@ -310,14 +333,14 @@ corrplot(chi_results$residuals,
 ```
 
 ```{r}
-# colnames(residuals_df)
-# rownames(residuals_df) 
+# colnames(stdres_df)
+# rownames(stdres_df) 
 ```
 
 it's NULL so I need to assign names first it says
 
 ```{r}
-# residual_matrix <- as.matrix(chi_results$residuals)
+# residual_matrix <- as.matrix(chi_results$stdres)
 ```
 
 ```{r}
@@ -333,30 +356,30 @@ it's NULL so I need to assign names first it says
 ```
 
 ```{r}
-# residuals <- chi_result$stdres
+# stdres <- chi_result$stdres
 ```
 
 ```{r}
-# print(residuals)
+# print(stdres)
 ```
 
 ```{r}
-# corrplot(residuals,
+# corrplot(stdres,
 #         is.corr = FALSE)
 ```
 
-### IGNORE: chi 5: residuals_df
+### IGNORE: chi 5: stdres_df
 
 ```{r}
-# I'm trying out to see if I can do the chi-square with residuals (per https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687)
+# I'm trying out to see if I can do the chi-square with stdres (per https://chatgpt.com/share/67a1833d-9fc4-8012-8193-b6fc358a9687)
 ```
 
 ```{r}
-# residuals_df <- as.data.frame(as.table(chi_result$stdres))
+# stdres_df <- as.data.frame(as.table(chi_result$stdres))
 ```
 
 ```{r}
-# write.csv(residuals_df,         file = "/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv",   row.names = FALSE)
+# write.csv(stdres_df,         file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_df.csv",   row.names = FALSE)
 ```
 
 ```{r}
