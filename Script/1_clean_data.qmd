@@ -93,6 +93,39 @@ write.csv(byrace,
           row.names = FALSE)
 ```
 
+### csv2-b: by_race_with_all_categories 
+
+So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning in has a mention of total exit numbers and it sounds like it includes the removed categories (like Deceased and Continuing in Part C still.
+
+```{r}
+byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
+  clean_names() %>% 
+  mutate(
+    complete_or_not_eligible = 
+      complete_prior_to_reaching_max_age_for_part_c + 
+      not_eligible_for_part_b_exit_with_no_referrals + 
+      not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+```
+
+```{r}
+agg_by_race_and_state_w_deceased_continuePartC <- 
+  byrace_w_deceased_continuePartC %>% 
+ group_by(race, area) %>% 
+  summarize(exit_total = sum(exiting_total2), 
+            withdrawal_by_parent = sum(withdrawal_by_parent),
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
+            moved_out_of_state = sum(moved_out_of_state),
+            part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
+            complete_or_not_eligible = sum(complete_or_not_eligible), 
+            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
+```
+
+```{r}
+write.csv(byrace_w_deceased_continuePartC, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
+          row.names = FALSE)
+```
+
 ### csv3: agg_by_race_and_state
 
 based on "byrace", dropped the combined 3 categories, so just total + 6 exit categories
@@ -118,7 +151,7 @@ write.csv(agg_by_race_and_state,
           row.names = FALSE)
 ```
 
-### csv 4: race_oregon
+### csv 4: race_oregon USE THIS FOR TOTAL EXIT COUNTS for 2013-2022 or whatever the years 
 
 based on agg_by_race_and_state but Oregon only
 
