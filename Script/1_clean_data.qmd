@@ -52,6 +52,7 @@ library(tibble)
 library(rcartocolor)
 library(ggplot2)
 library(quarto)
+library(gt)
 ```
 
 ### csv1: 10 exit categories
@@ -93,9 +94,15 @@ write.csv(byrace,
           row.names = FALSE)
 ```
 
-### csv2-b: by_race_with_all_categories 
+```{r}
+head(agg_by_race_and_state_w_deceased_continuePartC)
+```
 
-So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning in has a mention of total exit numbers and it sounds like it includes the removed categories (like Deceased and Continuing in Part C still.
+### csv2-b: by_race_with_all_categories
+
+So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning in has a mention of total exit numbers and it sounds like it includes the removed categories (like Deceased and Continuing in Part C still. DIdn't remove like byrace df -7 and -12.
+
+I had trouble doing this to collapse years, but somehow writing the first chunk as csv first with row.names = FALSE had to happen BEFORE i can collapse the years?
 
 ```{r}
 byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
@@ -105,6 +112,12 @@ byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data
       complete_prior_to_reaching_max_age_for_part_c + 
       not_eligible_for_part_b_exit_with_no_referrals + 
       not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+```
+
+```{r}
+write.csv(byrace_w_deceased_continuePartC, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
+          row.names = FALSE)
 ```
 
 ```{r}
@@ -121,9 +134,42 @@ agg_by_race_and_state_w_deceased_continuePartC <-
 ```
 
 ```{r}
-write.csv(byrace_w_deceased_continuePartC, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
-          row.names = FALSE)
+gt(byrace_w_deceased_continuePartC) 
+```
+
+```{r}
+agg_by_race_and_state_w_deceased_continuePartC <- 
+  agg_by_race_and_state_w_deceased_continuePartC %>%
+  group_by(race, area) %>% 
+  summarize(
+    exit_total = sum(exit_total, na.rm = TRUE), 
+    withdrawal_by_parent = sum(withdrawal_by_parent, na.rm = TRUE),
+    attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful, na.rm = TRUE),
+    moved_out_of_state = sum(moved_out_of_state, na.rm = TRUE),
+    part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c, na.rm = TRUE),
+    complete_or_not_eligible = sum(complete_or_not_eligible, na.rm = TRUE), 
+    part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined, na.rm = TRUE)
+  )
+```
+
+```{r}
+# flipped group_by to area first then race, looks better for kable 
+agg_by_race_and_state_w_deceased_continuePartC <- 
+  agg_by_race_and_state_w_deceased_continuePartC %>%
+  group_by(area, race) %>% 
+  summarize(
+    exit_total = sum(exit_total, na.rm = TRUE), 
+    withdrawal_by_parent = sum(withdrawal_by_parent, na.rm = TRUE),
+    attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful, na.rm = TRUE),
+    moved_out_of_state = sum(moved_out_of_state, na.rm = TRUE),
+    part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c, na.rm = TRUE),
+    complete_or_not_eligible = sum(complete_or_not_eligible, na.rm = TRUE), 
+    part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined, na.rm = TRUE)
+  )
+```
+
+```{r}
+gt(agg_by_race_and_state_w_deceased_continuePartC)
 ```
 
 ### csv3: agg_by_race_and_state
@@ -151,7 +197,7 @@ write.csv(agg_by_race_and_state,
           row.names = FALSE)
 ```
 
-### csv 4: race_oregon USE THIS FOR TOTAL EXIT COUNTS for 2013-2022 or whatever the years 
+### csv 4: race_oregon USE THIS FOR TOTAL EXIT COUNTS for 2013-2022 or whatever the years
 
 based on agg_by_race_and_state but Oregon only
 
