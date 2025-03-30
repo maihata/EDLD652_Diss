@@ -44,7 +44,7 @@ library(knitr)
 
 ```{r}
 us_data_DQ_proportion_w_average <- 
-  read.csv("Data/us_data_DQ_proportion_w_average.csv")
+  read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
 ```
 
 ```{r}
@@ -241,8 +241,6 @@ write.csv(us_race_odds_ratio_vs_average,
           file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_odds_ratio_vs_average.csv")
 ```
 
-write.csv(us_race_3cols_8rows, file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_3cols_8rows.csv")
-
 ```{r}
 kable(us_race_odds_ratio_vs_average, 
       caption = "Odds Ratio: National Average")
@@ -267,6 +265,8 @@ ggplot(us_race_odds_ratio_vs_average,
   theme_minimal()
 
 ```
+
+### Final Forrest Plot for US RACE against national average!!! Congratulations, Maiko 🎉㊗🥳
 
 ```{r}
 ggplot(us_race_odds_ratio_vs_average, 
