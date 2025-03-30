@@ -44,34 +44,395 @@ library(knitr)
 ```
 
 ```{r}
+race_oregon <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv")
+```
+
+```{r}
+race_oregon <- race_oregon %>% 
+  select(-2, -4, -6, -7, -8, -9)
 
 ```
 
 ```{r}
+race_oregon_w_average <- race_oregon 
+```
+
+```{r}
+# modifying the df so it has the average row 
+
+race_oregon_w_average <- race_oregon %>% 
+  bind_rows(
+    race_oregon[1, ] %>%
+      mutate(
+        across(everything(), ~NA), 
+        !!names(.)[1] := "All Race Average",
+        !!names(.)[2] := mean(pull(race_oregon, 2), na.rm = TRUE),
+        !!names(.)[3] := mean(pull(race_oregon, 3), na.rm = TRUE)
+      )
+  )
 
 ```
 
 ```{r}
-
+# Calculate averages first
+race_oregon_w_average <- race_oregon %>% 
+  bind_rows(
+    race_oregon[1, ] %>% 
+      mutate(
+        across(everything(), ~NA), 
+        !!names(.)[1] := "All Race Average", 
+        !!names(.)[2] := mean(pull(race_oregon, 2), na.rm = TRUE), 
+        !!names(.)[3] := mean(pull(race_oregon, 3), na.rm = TRUE)
+      )
+  )
 ```
 
 ```{r}
-
+race_oregon_w_average <- race_oregon_w_average %>% 
+  rename(Dismissed = attempts_to_contact_unsuccessful)
 ```
 
 ```{r}
+# Modigying the df to create OtherExits for odds ratio 
+# The $ operator in R is used to access a specific column of a data frame (or a named list). It's one of the most common and useful operators in R.
 
+race_oregon_w_average$OtherExits <- 
+  race_oregon_w_average$exit_total -
+  race_oregon_w_average$Dismissed
 ```
 
 ```{r}
-
+race_oregon_w_average <- race_oregon_w_average %>% 
+  select(-2)
 ```
 
 ```{r}
-
+write.csv(race_oregon_w_average, 
+            file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_average.csv")
 ```
 
 ```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    1, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+# "wald" is the default method for odds ratio with confidence intervals. 
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 1 AM: odds ratio with 95% C.I. estimate lower upper 1.490971 1.014694 2.190805
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    2, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 2 AS: odds ratio with 95% C.I. estimate lower upper 0.6137758 0.459224 0.8203419
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    3, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 3 BL: odds ratio with 95% C.I. estimate lower upper 1.196284 0.9166426 1.561236
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    4, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 4 HI: odds ratio with 95% C.I. estimate lower upper 1.211377 1.059952 1.384436
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    5, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 5 MU: odds ratio with 95% C.I. estimate lower upper 0.6823019 0.5337505 0.8721976
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    6, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 6 PI: odds ratio with 95% C.I. estimate lower upper 1.270903 0.7084633 2.279858
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 7 WH: odds ratio with 95% C.I. estimate lower upper 0.9554339 0.8473886 1.077255
+
+```{r}
+race_oregon_w_average_full <- data.frame(
+  Race = c("American Indian/Alaska Native", 
+           "Asian", 
+           "Black/African American", 
+           "Hispanic", 
+           "Native Hawaiian and Other Pacific Islander", 
+           "Two or More Races", 
+           "White"), 
+  Odds_Ratio = c(
+    1.490971, 
+0.6137758, 
+1.196284, 
+1.211377, 
+1.270903, 
+0.6823019, 
+0.9554339
+), 
+  ci_lower = c(
+1.014694, 
+0.459224, 
+0.9166426, 
+1.059952, 
+0.7084633, 
+0.5337505, 
+0.8473886
+), 
+  ci_upper = c(
+    2.190805, 
+0.8203419, 
+1.561236, 
+1.384436, 
+2.279858, 
+0.8721976, 
+1.077255
+    )
+)
+```
+
+race_oregon_w_average_full.csv - all the OREGON races' odds ratio against average
+
+```{r}
+write.csv(race_oregon_w_average_full, 
+          file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_average_full.csv")
+```
+
+```{r}
+kable(race_oregon_w_average_full, 
+      caption = "Odds Ratio: Oregon Average")
+```
+
+```{r}
+ggplot(race_oregon_w_average_full, 
+       aes(x = reorder(Race, Odds_Ratio), 
+           y = Odds_Ratio)) + 
+  geom_point(size = 4, color = "skyblue") + 
+  geom_errorbar(aes(ymin = ci_lower, 
+                    ymax = ci_upper), 
+                width = 0.2) +  
+  geom_text(aes(label = round(Odds_Ratio, 2)), 
+            vjust = -0.8, 
+            size = 3.5, 
+            family = "Times New Roman") +
+  geom_hline(yintercept = 1, 
+             linetype = "dashed", 
+             color = "green") +  
+  coord_flip() +  # Flip axes
+  scale_x_discrete(limits = rev(sort(unique(
+    race_oregon_w_average_full$Race)))) + 
+  labs(
+    title = "Odds Ratio for Dismissal (Oregon)", 
+    x = "Group", 
+    y = "Odds Ratio"
+  ) + 
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Times New Roman"),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(size = 12, face = "bold")
+  )
+
+```
+
+## BELOW are DQ ODDS RATIO against WHITE in Oregon 
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    1, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 1 AM: 1.560518 1.07474 2.265865
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    2, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 2 AS: 0.6424053 0.4883897 0.8449903
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    3, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 3 BL: 0.6424053 0.4883897 0.8449903
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    4, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 4 HI: 1.267882 1.154276 1.392668
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    5, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 5 MU: 0.7141278 0.5694253 0.8956023
+
+```{r}
+temp_table <- as.matrix(rbind(
+  race_oregon_w_average[
+    6, c("Dismissed", "OtherExits")],
+  race_oregon_w_average[
+    7, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 6 PI: 1.330185 0.7472923 2.367736
+
+```{r}
+race_oregon_w_WHITE <- data.frame(
+  Race = c("American Indian/Alaska Native", 
+           "Asian", 
+           "Black/African American", 
+           "Hispanic", 
+           "Native Hawaiian and Other Pacific Islander", 
+           "Two or More Races", 
+           "White"), 
+  Odds_Ratio = c(
+1.560518, 
+0.6424053, 
+1.252085, 
+1.267882, 
+1.330185, 
+0.7141278, 
+1
+), 
+  ci_lower = c(
+1.07474, 
+0.4883897, 
+0.9763492, 
+1.154276, 
+0.7472923, 
+0.5694253, 
+1
+), 
+  ci_upper = c(
+    2.265865, 
+0.8449903, 
+1.605692, 
+1.392668, 
+2.367736, 
+0.8956023, 
+1
+    )
+)
+```
+
+```{r}
+write.csv(race_oregon_w_WHITE, 
+          file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_WHITE.csv")
+```
+
+```{r}
+kable(race_oregon_w_WHITE, 
+      caption = "Odds Ratio Compared to White Group")
+```
+
+```{r}
+ggplot(race_oregon_w_WHITE, 
+       aes(x = reorder(Race, Odds_Ratio), 
+           y = Odds_Ratio)) + 
+  geom_point(size = 4, color = "skyblue") + 
+  geom_errorbar(aes(ymin = ci_lower, 
+                    ymax = ci_upper), 
+                width = 0.2) +  
+  geom_text(aes(label = round(Odds_Ratio, 2)), 
+            vjust = -0.8, 
+            size = 3.5, 
+            family = "Times New Roman") +
+  geom_hline(yintercept = 1, 
+             linetype = "dashed", 
+             color = "green") +  
+  coord_flip() +  # Flip axes
+  scale_x_discrete(limits = rev(sort(unique(
+    race_oregon_w_WHITE$Race)))) + 
+  labs(
+    title = "Odds Ratio for Dismissal (Oregon)", 
+    x = "Group", 
+    y = "Odds Ratio"
+  ) + 
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Times New Roman"),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(size = 12, face = "bold")
+  )
 
 ```
 
