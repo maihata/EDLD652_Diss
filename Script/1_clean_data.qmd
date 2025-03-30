@@ -94,10 +94,6 @@ write.csv(byrace,
           row.names = FALSE)
 ```
 
-```{r}
-head(agg_by_race_and_state_w_deceased_continuePartC)
-```
-
 ### csv2-b: by_race_with_all_categories
 
 So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning in has a mention of total exit numbers and it sounds like it includes the removed categories (like Deceased and Continuing in Part C still. DIdn't remove like byrace df -7 and -12.
@@ -625,6 +621,59 @@ us_data_DQ_proportion <- byrace %>%
   summarize(exit_total = sum(exiting_total2), 
             attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful)) %>% 
   mutate(proportion = (attempts_to_contact_unsuccessful / exit_total) * 100) 
+```
+
+```{r}
+#added a new row for the sum of all 
+us_data_DQ_proportion_w_average <- us_data_DQ_proportion %>% 
+  bind_rows(
+    us_data_DQ_proportion[1, ] %>% 
+      mutate(
+        across(everything(), ~NA),  # start with a blank row
+        !!names(.)[1] := "All Race Average",  # set column 1
+        !!names(.)[2] := sum(pull(us_data_DQ_proportion, 2), na.rm = TRUE),
+        !!names(.)[3] := sum(pull(us_data_DQ_proportion, 3), na.rm = TRUE)
+      )
+  )
+
+```
+
+```{r}
+us_data_DQ_proportion_w_average <- us_data_DQ_proportion %>% 
+  bind_rows(
+    us_data_DQ_proportion[1, ] %>% 
+      mutate(
+        across(everything(), ~NA),  # start with a blank row
+        !!names(.)[1] := "All Race Average",  # label in column 1
+        !!names(.)[2] := mean(pull(us_data_DQ_proportion, 2), na.rm = TRUE),  
+        !!names(.)[3] := mean(pull(us_data_DQ_proportion, 3), na.rm = TRUE)
+      )
+  )
+```
+
+```{r}
+# Calculate averages first
+avg_exit_total <- mean(us_data_DQ_proportion[[2]], na.rm = TRUE)
+avg_unsuccessful <- mean(us_data_DQ_proportion[[3]], na.rm = TRUE)
+avg_proportion <- (avg_unsuccessful / avg_exit_total) * 100
+
+# Add new row
+us_data_DQ_proportion_w_average <- us_data_DQ_proportion %>%
+  bind_rows(
+    us_data_DQ_proportion[1, ] %>%
+      mutate(
+        across(everything(), ~NA),
+        !!names(.)[1] := "All Race Average",
+        !!names(.)[2] := avg_exit_total,
+        !!names(.)[3] := avg_unsuccessful,
+        !!names(.)[4] := avg_proportion
+      )
+  )
+
+```
+
+```{r}
+write.csv(us_data_DQ_proportion_w_average, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
 ```
 
 # CLEAND UP TO HERE

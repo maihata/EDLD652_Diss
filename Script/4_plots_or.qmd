@@ -51,6 +51,7 @@ library(rcartocolor)
 library(ggplot2)
 library(quarto)
 library(epitools)
+library(vcd)
 ```
 
 ### odd ratio 1: us_data_attempts_BLWH

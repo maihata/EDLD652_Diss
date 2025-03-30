@@ -1,0 +1,294 @@
+---
+title: "4_plots_or_USRACE_average"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(epitools)
+library(vcd)
+library(knitr)
+```
+
+```{r}
+us_data_DQ_proportion_w_average <- 
+  read.csv("Data/us_data_DQ_proportion_w_average.csv")
+```
+
+```{r}
+us_data_DQ_proportion_w_average
+```
+
+3/29/25: This following chunks don't run (ChatGPT fail), but could be a great one for functional programming class ideas?
+
+```{r}
+# ChatGPT: 
+# 1) library(vcd) 
+# 2) Define function to compare row i with the Average row (row 8) 
+# compare_to_average <- function(i) {
+# 3) extract the two rows (as a 2x2 matrix)
+# temp_table <- rbind(us_data_DQ_proportion_w_average[i, 2:3], 
+#                    us_data_DQ_proportion_w_average[8, 2:3])
+# compute odds ratio 
+# or <- oddsratio(as.matrix(temp_table), log = FALSE)
+
+#return as data frame 
+# data.frame(race = us_data_DQ_proportion_w_average[i, "race"], 
+#           OddsRatio = or$measure[1])}
+```
+
+```{r}
+# us_oddsratio_results <- do.call(rbind, lapply(1:7, compare_to_average))
+# print(results)
+```
+
+Modifying df us_data_DQ_w_average
+
+```{r}
+#The $ operator in R is used to access a specific column of a data frame (or a named list). It's one of the most common and useful operators in R.
+us_data_DQ_proportion_w_average$OtherExits <- 
+  us_data_DQ_proportion_w_average$exit_total - 
+  us_data_DQ_proportion_w_average$attempts_to_contact_unsuccessful
+```
+
+Trying to run each of the Odds Ratio combo by hand using us_data_DQ_proportion_w_average df, but learned that for Odds Ratio, I have to use contingency table of Dismissal vs OTHER EXITS. Oops. See above for a new df of dismissal but with a new column.
+
+```{r}
+library(vcd)
+
+# Row 1 = Group 1, Row 8 = Average
+# a <- us_data_DQ_proportion_w_average[1, "attempts_to_contact_unsuccessful"]
+# b <- us_data_DQ_proportion_w_average[1, "OtherExits"]
+# c <- us_data_DQ_proportion_w_average[8, "attempts_to_contact_unsuccessful"]
+# d <- us_data_DQ_proportion_w_average[8, "OtherExits"]
+
+# 2x2 table
+# temp_table <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+
+# Check table
+# print(temp_table)
+
+# Calculate odds ratio
+# oddsratio(temp_table, log = FALSE)
+```
+
+```{r}
+us_race_3cols_8rows <- us_data_DQ_proportion_w_average %>% 
+  rename(Dismissed = attempts_to_contact_unsuccessful)
+
+```
+
+```{r}
+us_race_3cols_8rows <- us_race_3cols_8rows %>% 
+  select(2, 4, 6)
+```
+
+```{r}
+write.csv(us_race_3cols_8rows, 
+          file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_3cols_8rows.csv")
+```
+
+Calculating one Odds Ratio by one but using the us_race_3cols_8rows to minimize my pain time
+
+```{r}
+library(vcd)
+
+# Example: Group 1 vs Average (row 1 vs row 8)
+# temp_table <- as.matrix(rbind(us_race_3cols_8rows[1, c("Dismissed", "OtherExits")],
+#                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+
+#oddsratio(temp_table, log = TRUE)
+# THIS ONLY RETURNS THE ODDS RATIO SO I"M SWTICHING TO EPITOOLS WITH WALD METHOD
+```
+
+```{r}
+library(epitools)
+
+# Example: Group 1 vs Average (row 1 vs row 8)
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[1, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+
+# "wald" is the default method for odds ratio with confidence intervals. 
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Results from above - Row 1 AM vs Average:
+
+odds ratio with 95% C.I. estimate lower upper 1.876783 1.806008 1.950332
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[2, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 2: AS vs Average: odds ratio with 95% C.I. estimate lower upper 0.5543598 0.5396222 0.5694998
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[3, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 3: BL vs Average: odds ratio with 95% C.I. estimate lower upper 1.843126 1.817768 1.868837
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[4, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 4: HI vs Average: odds ratio with 95% C.I. estimate lower upper 1.142779 1.12817 1.157576
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[5, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 5: MU vs Average: odds ratio with 95% C.I. estimate lower upper 1.110257 1.086377 1.134662
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[6, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 6: PI vs Average: odds ratio with 95% C.I. estimate lower upper 1.192017 1.115164 1.274168
+
+```{r}
+temp_table <- as.matrix(rbind(us_race_3cols_8rows[7, c("Dismissed", "OtherExits")],
+                              us_race_3cols_8rows[8, c("Dismissed", "OtherExits")]))
+epitools::oddsratio(temp_table, method = "wald")
+```
+
+Row 7: WH vs Average: odds ratio with 95% C.I. estimate lower upper 0.7503513 0.7411056 0.7597124
+
+```{r}
+us_race_odds_ratio_vs_average <- data.frame(
+  Race = c("American Indian/Alaska Native", 
+           "Asian", 
+           "Black/African American", 
+           "Hispanic", 
+           "Native Hawaiian and Other Pacific Islander", 
+           "Two or More Races", 
+           "White"), 
+  Odds_Ratio = c(
+    1.876783, 
+    0.5543598, 
+    1.843126, 
+    1.142779, 
+    1.192017, 
+    1.110257, 
+    0.7503513
+  ), 
+  ci_lower = c(
+    1.806008, 
+0.5396222, 
+1.817768, 
+1.12817, 
+1.115164, 
+1.086377, 
+0.7411056
+     ), 
+  ci_upper = c(
+    1.950332, 
+0.5694998, 
+1.868837, 
+1.157576, 
+1.274168, 
+1.134662, 
+0.7597124
+    )
+)
+```
+
+```{r}
+write.csv(us_race_odds_ratio_vs_average, 
+          file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_odds_ratio_vs_average.csv")
+```
+
+write.csv(us_race_3cols_8rows, file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_3cols_8rows.csv")
+
+```{r}
+kable(us_race_odds_ratio_vs_average, 
+      caption = "Odds Ratio: National Average")
+```
+
+```{r}
+# Flipped the order on X axis AND added the line for "1" 
+ggplot(us_race_odds_ratio_vs_average, 
+       aes(x = reorder(Race, Odds_Ratio), y = Odds_Ratio)) + 
+  geom_col(fill = "lightgray") +  # this is now fixed
+  coord_flip() +
+  geom_hline(
+    yintercept = 1, 
+    linetype = "dashed", 
+    color = "green") +  
+  scale_x_discrete(limits = rev(sort(unique(us_race_odds_ratio_vs_average$Race)))) + 
+  labs(
+    title = "Odds Ratio for Dismissal (Compared to Average)", 
+    x = "Race", 
+    y = "Odds Ratio"
+  ) + 
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(us_race_odds_ratio_vs_average, 
+       aes(x = reorder(Race, Odds_Ratio), y = Odds_Ratio)) + 
+  geom_point(size = 4, color = "skyblue") +  # OR point
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2) +  # CI bars
+  geom_text(aes(label = round(Odds_Ratio, 2)), 
+            vjust = -0.8, size = 3.5, family = "Times New Roman") +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "green") +  # Reference line
+  coord_flip() +  # Flip axes
+  scale_x_discrete(limits = rev(sort(unique(us_race_odds_ratio_vs_average$Race)))) + 
+  labs(
+    title = "Odds Ratio for Dismissal", 
+    x = "Group", 
+    y = "Odds Ratio"
+  ) + 
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Times New Roman"),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(size = 12, face = "bold")
+  )
+
+```
