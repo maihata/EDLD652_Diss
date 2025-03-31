@@ -144,12 +144,12 @@ write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data
 # OLD - don't use, use the codes freom 3_chi_sq.qmd HELP: DOESN'T RUN ANYMOER! WHERE DID VAR2 go for residuals_df?
 
 ```{r}
-ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
-  geom_tile() +
-  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-  labs(title = "Chi-Square Standardized Residuals",
-       x = "Race", y = "Exit Reasons") +
-  theme_minimal()
+# ggplot(residuals_df, aes(Var1, Var2, fill = Freq)) +
+#  geom_tile() +
+#  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+#  labs(title = "Chi-Square Standardized Residuals",
+#       x = "Race", y = "Exit Reasons") +
+#  theme_minimal()
 ```
 
 Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/chi-square-test-of-independence-in-r#google_vignette)

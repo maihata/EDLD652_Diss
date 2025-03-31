@@ -41,6 +41,7 @@ library(quarto)
 library(epitools)
 library(vcd)
 library(knitr)
+library(corrplot)
 ```
 
 ```{r}
@@ -280,7 +281,7 @@ ggplot(race_oregon_w_average_full,
 
 ```
 
-## BELOW are DQ ODDS RATIO against WHITE in Oregon 
+## BELOW are DQ ODDS RATIO against WHITE in Oregon
 
 ```{r}
 temp_table <- as.matrix(rbind(
@@ -422,7 +423,7 @@ ggplot(race_oregon_w_WHITE,
   scale_x_discrete(limits = rev(sort(unique(
     race_oregon_w_WHITE$Race)))) + 
   labs(
-    title = "Odds Ratio for Dismissal (Oregon)", 
+    title = "Odds Ratio for Dismissal (Oregon, compared to White group)", 
     x = "Group", 
     y = "Odds Ratio"
   ) + 
@@ -436,6 +437,86 @@ ggplot(race_oregon_w_WHITE,
 
 ```
 
-```{r}
+### corrplot() for Oregon race and exits 
 
+```{r}
+race_oregon_all_exits <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv"
+)
+```
+
+```{r}
+race_oregon_all_exits <- race_oregon_all_exits %>% 
+  select(-2, -3)
+```
+
+### corrplot() prep 
+
+```{r}
+# making matrix for race_oregon_all_exits so I can run corrplot
+race_oregon_matrix <- as.matrix(race_oregon_all_exits[, 2:7])
+```
+
+```{r}
+# Run chi-squre so that I can run corrplot() 
+
+chi_results_race_oregon <- chisq.test(race_oregon_matrix)
+chi_results_race_oregon
+```
+
+Pearson's Chi-squared test — data: race_oregon_matrix X-squared = 376.19, df = 30, p-value \< 2.2e-16
+
+```{r}
+chisq.test(race_oregon_matrix, correct = FALSE)$stdres
+```
+
+```{r}
+adj_std_res_race_oregon <- chisq.test(race_oregon_matrix)
+```
+
+```{r}
+plot.new()
+dev.off()
+```
+
+```{r}
+corrplot(chi_results_race_oregon$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.7)
+```
+
+```{r}
+colnames(chi_results_race_oregon$stdres) <- c(
+  "Withdrawal", 
+  "Dismissed", 
+  "Moved Out", 
+  "Part B Eligible", 
+  "Not Eligible", 
+  "Not Determined")
+```
+
+```{r}
+rownames(chi_results_race_oregon$stdres) <- c(
+  "Alaska Native/American Indian", 
+  "Asian", 
+  "Black/African American", 
+  "Hispanic/Latino", 
+  "Two or More Races", 
+  "Pacific Islander", 
+  "White"
+)
+```
+
+```{r}
+chi_results_race_oregon$stdres <- chi_results_race_oregon$stdres[, order(colnames(chi_results_race_oregon$stdres))]
+```
+
+```{r}
+corrplot(chi_results_race_oregon$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.8, 
+         tl.col = "black", 
+         cl.cex = 0.7,     
+         cl.offset = 1,    
+         cl.ratio = 0.2)  
 ```
