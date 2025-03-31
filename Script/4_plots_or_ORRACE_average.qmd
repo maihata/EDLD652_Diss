@@ -437,7 +437,7 @@ ggplot(race_oregon_w_WHITE,
 
 ```
 
-### corrplot() for Oregon race and exits 
+### corrplot() for Oregon race and exits
 
 ```{r}
 race_oregon_all_exits <- read.csv(
@@ -450,7 +450,7 @@ race_oregon_all_exits <- race_oregon_all_exits %>%
   select(-2, -3)
 ```
 
-### corrplot() prep 
+### corrplot() prep
 
 ```{r}
 # making matrix for race_oregon_all_exits so I can run corrplot
