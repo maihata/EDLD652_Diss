@@ -183,9 +183,9 @@ Chi-square with Residuals: Viz 2 (CORRPLOT: https://www.sthda.com/english/wiki/c
 corrplot :) Trial 1: <https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html>
 
 ```{r}
-chisq <- chisq.test(race_matrix)
-corrplot(chisq$residuals, 
-         is.cor = FALSE) 
+# chisq <- chisq.test(race_matrix)
+# corrplot(chisq$residuals, 
+#         is.cor = FALSE) 
 ```
 
 corrplot trial 2:
@@ -193,8 +193,8 @@ corrplot trial 2:
 RENAMED THE CATEGORIES
 
 ```{r}
-dim(race_matrix)
-colnames(race_matrix)
+# dim(race_matrix)
+#colnames(race_matrix)
 ```
 
 # WORKING in 3_chi_dq.qmd so GO THERE, don't look here anymore NOT WORKING - help!
@@ -216,45 +216,45 @@ REORDERED THE CATEGORIES ALPHABETICALLY I thought...?
 # AND HERE, I MADE THE residual_matrix but why
 
 ```{r}
-residual_matrix <- as.matrix(chisq$residuals)
-col_order <- order(colnames(residual_matrix))
-row_order <- order(rownames(residual_matrix))
-residual_matrix <- residual_matrix[row_order, col_order]
+# residual_matrix <- as.matrix(chisq$residuals)
+# col_order <- order(colnames(residual_matrix))
+#row_order <- order(rownames(residual_matrix))
+#residual_matrix <- residual_matrix[row_order, col_order]
 ```
 
 ```{r}
-rownames(residual_matrix) <- c(
-  "Alaska Native/American Indian" = 1, 
-  "Asian" = 2, 
-  "Black/African American" = 3, 
-  "Hispanic/Latino" = 4, 
-  "More than Two Races" = 5, 
-  "Pacific Islander" = 6, 
-  "White" = 7) 
+#rownames(residual_matrix) <- c(
+#  "Alaska Native/American Indian" = 1, 
+#  "Asian" = 2, 
+#  "Black/African American" = 3, 
+#  "Hispanic/Latino" = 4, 
+#  "More than Two Races" = 5, 
+#  "Pacific Islander" = 6, 
+# "White" = 7) 
 ```
 
 ```{r}
-corrplot(residual_matrix, 
-         method = 'shade', 
-         is.corr = FALSE) 
+# corrplot(residual_matrix, 
+#         method = 'shade', 
+#         is.corr = FALSE) 
 ```
 
 ```{r}
 # maybe use this for dissertation? (FOR RESEARCHER AUDIENCE)
-corrplot(residual_matrix, 
-         method = 'number', 
-         is.corr = FALSE) 
+# corrplot(residual_matrix, 
+#         method = 'number', 
+#         is.corr = FALSE) 
 ```
 
 ```{r}
-corrplot(residual_matrix, 
-         method = 'pie', 
-         is.corr = FALSE)
+#corrplot(residual_matrix, 
+#         method = 'pie', 
+#         is.corr = FALSE)
 ```
 
 ```{r}
 # USE THIS AS THE FINAL PROJECT VISUALIZATION 
-corrplot(residual_matrix, 
-         method = 'circle', 
-         is.corr = FALSE)
+#corrplot(residual_matrix, 
+#         method = 'circle', 
+#         is.corr = FALSE)
 ```

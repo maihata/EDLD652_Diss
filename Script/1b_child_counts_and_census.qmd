@@ -60,13 +60,14 @@ print(child_count_vs_census)
 ```
 
 ```{r}
-colnames(child_count_vs_census)
+# colnames(child_count_vs_census)
 ```
 
 ```{r}
+# I ACCIDENTALLY DELETED THE "-" IN cols = -`...1`!!! Good job, me, figuring it out with ChatGPT!!
 child_count_vs_census_long <- child_count_vs_census %>% 
   pivot_longer(
-    cols = -...1, 
+    cols = -`...1`, 
     names_to = "Race", 
     values_to = "Percentage"
   )
@@ -185,3 +186,68 @@ ggplot(child_count_vs_census_long,
        fill = "Location") +
   theme_minimal(base_family = "Times New Roman")
 ```
+
+## Child count vs census (2020) BUT BY NUMBERS not % so I can run chi-square
+
+```{r}
+child_count_vs_census_number <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use this racial group representation in general population and in EI NATIONAL.xlsx", sheet = 3)
+```
+
+```{r}
+head(child_count_vs_census_number)
+```
+
+```{r}
+write.csv(child_count_vs_census_number, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount_vs_census_number.csv", row.names = FALSE)
+```
+
+### Making child_count_vs_census_number into matrix so I can run corrplot(). 
+
+-   Save it as matrix
+
+-   Drop the total, not needed for chi-square
+
+```{r}
+child_count_vs_census_number <- child_count_vs_census_number %>% 
+  select(-2)
+```
+
+-   Set the row names from first column, because for a chi-square test, you want this stored as a **matrix with named rows**. So, rownames(df_chi) \<- df_chi\[\[1\]\] Takes the first column (e.g., `c("General Population", "EI Population")`) and assigns those as **row names** of the data frame to prepare the structure for conversion to a matrix.
+
+```{r}
+rownames(child_count_vs_census_number) <- child_count_vs_census_number[[1]]
+```
+
+-   Drop the first column now that it's row names
+
+```{r}
+child_count_vs_census_number <- child_count_vs_census_number %>% 
+  select(-1)
+```
+
+-   Convert to a matrix
+
+```{r}
+child_count_vs_census_number_matrix <- as.matrix(child_count_vs_census_number)
+```
+
+-   Run chi-square and see the results
+
+```{r}
+chi_results_cc_vs_census_number <- chisq.test(child_count_vs_census_number_matrix)
+
+chi_results_cc_vs_census_number
+```
+
+Pearson's Chi-squared test
+
+data: child_count_vs_census_number_matrix X-squared = 26956, df = 6, p-value \< 2.2e-16
+
+-   View standardized residues
+
+```{r}
+chi_results_cc_vs_census_number$stdres
+```
+
+-   

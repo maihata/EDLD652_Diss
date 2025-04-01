@@ -1,4 +1,4 @@
-"","Primary Language","exit_total","Withdrawn","Disqualified","Moved Out","Part B Eligible","Not Eligible","Not Determined"
-"1","English",27697,4808,2337,1582,16230,3427,248
-"2","Spanish",3895,508,318,120,2651,388,40
-"3","Other Languages and Ch/Ru/SL/Vi",4497,807,320,347,2660,438,47
+"","Primary Language","Disqualified","exit_total","Moved Out","Not Determined","Not Eligible","Part B Eligible","Withdrawn"
+"1","English",2337,27697,1582,248,3427,16230,4808
+"2","Spanish",318,3895,120,40,388,2651,508
+"3","Other Languages and Ch/Ru/SL/Vi",320,4497,347,47,438,2660,807

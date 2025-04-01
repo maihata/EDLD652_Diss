@@ -122,7 +122,7 @@ kable(agg_by_lang,
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-### I first tried to to make a new version of agg_by_lang with combined Chinese, Russian, ASL, and Vietnamese. But chi-square didn't run as it still had a cell with "0" for "Not Determined". 
+### I first tried to to make a new version of agg_by_lang with combined Chinese, Russian, ASL, and Vietnamese. But chi-square didn't run as it still had a cell with "0" for "Not Determined".
 
 ```{r}
 # Step 1: Define languages to combine
@@ -155,7 +155,7 @@ agg_by_lang_2 <- rbind(df_keep, combined_df)
 
 ### So, I had to combine Chinese, Russian, SL, Vietnamese, AND OTHER LANGUAGES which included any combinations of 2 or more or any other languages :( — definitely a limitation!!!
 
-## Did I COMBINE IT RIGHT? IS SPANISH STAYING IN THERE? I THINK SO, but WHY IT'S NOT ALPHABETICAL?? 
+## Did I COMBINE IT RIGHT? IS SPANISH STAYING IN THERE? I THINK SO, but WHY IT'S NOT ALPHABETICAL??
 
 ```{r}
 # Step 1: Define languages to combine
@@ -197,7 +197,7 @@ write.csv(agg_by_lang_3,
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3.csv")
 ```
 
-Now, I have to make the agg_by_lang_2 into corrplot()
+## Now, I have to make the agg_by_lang_2 into corrplot()
 
 ```{r}
 agg_by_lang_3_matrix <- as.matrix(
