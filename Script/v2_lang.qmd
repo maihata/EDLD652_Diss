@@ -45,13 +45,14 @@ library(scales)
 library(tidyr)
 library(patchwork)
 library(corrplot)
+library(ggplot2)
 ```
 
 C. Oregon data by LANGUAGES
 
 ```{r}
 # importing the data and clinining up: 
-# 1. REMOVED DECEASED 
+# 1. REMOVED DECEASED (the 6th column)
 # 2. CREATED THE complete_or_not_eligible combining three categories 
 
 bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
@@ -64,6 +65,16 @@ view(bylang)
 ```
 
 ```{r}
+# 6/2/25: Looks like I followed what I did with the race qmd (see below)
+# FROM v1: 
+# aggregated by race for OR
+# race_oregon <- agg_by_race_and_state %>%
+# filter(area == "Oregon")
+
+# aggregated by race for US
+#race_us <- agg_by_race_and_state %>% 
+ # filter(area == "US and Outlying Areas")
+
 agg_by_lang <- bylang %>% 
   group_by(primary_language) %>% 
   summarize(exit_total = sum(total), 
@@ -74,14 +85,7 @@ agg_by_lang <- bylang %>%
             complete_or_not_eligible = sum(complete_or_not_eligible), 
             part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
 
-# FROM v1: 
-# aggregated by race for OR
-#race_oregon <- agg_by_race_and_state %>%
- # filter(area == "Oregon")
 
-# aggregated by race for US
-#race_us <- agg_by_race_and_state %>% 
- # filter(area == "US and Outlying Areas")
 ```
 
 ```{r agg_by_lang_no_SL  take out Sign Language and NA rows}
@@ -92,11 +96,11 @@ agg_by_lang_no_SL <- agg_by_lang %>%
 
 ```{r}
 # renaming the category names 
-agg_by_lang <- agg_by_lang %>% 
+agg_by_lang_no_SL <- agg_by_lang_no_SL %>% 
   rename(
     "Primary Language" = primary_language, 
     "Withdrawn" = withdrawal_by_parent, 
-   "Disqualified" = attempts_to_contact_unsuccessful, 
+   "Dismissed" = attempts_to_contact_unsuccessful, 
 "Moved Out" = moved_out_of_state, 
     "Part B Eligible" = part_b_eligible_exiting_part_c, 
     "Not Eligible" = complete_or_not_eligible, 
@@ -106,7 +110,7 @@ agg_by_lang <- agg_by_lang %>%
 
 ```{r}
 # reorganizing columns alphabetically 
-agg_by_lang <- agg_by_lang %>% 
+agg_by_lang_no_SL <- agg_by_lang_no_SL %>% 
   select("Primary Language", sort(setdiff(names(.), "Primary Language")))
 ```
 
@@ -120,6 +124,34 @@ write.csv(agg_by_lang,
 kable(agg_by_lang, 
       caption = "Initial Oregon Data by Home Languages") %>%
   kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+```{r}
+# 6/2/25 Made a simple stacked bar chart  
+library(tidyverse)
+library(viridis)
+
+# Pivot to long format
+long_data <- agg_by_lang_no_SL |>
+  pivot_longer(
+    cols = -`Primary Language`,  # Use the exact column name here
+    names_to = "Exit Reason",
+    values_to = "Count"
+  )
+
+ggplot(long_data, aes(x = `Primary Language`, y = Count, fill = `Exit Reason`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_viridis_d() +
+  theme_minimal() +
+  labs(
+    title = "Exit Reasons by Primary Language",
+    x = "Primary Language",
+    y = "Number of Children",
+    fill = "Exit Reason"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(family = "Times New Roman"))
+
 ```
 
 ### I first tried to to make a new version of agg_by_lang with combined Chinese, Russian, ASL, and Vietnamese. But chi-square didn't run as it still had a cell with "0" for "Not Determined".
