@@ -262,30 +262,6 @@ corrplot(chi_results_lang_3_oregon$stdres,
 Then, I have to make the agg_by_lang_2 for DQ vs other exits by making calcurltions that shows that the DQ vs OtherExits
 
 ```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
 # combined_C_R_SL_V <- c(
 #  "Chinese", 
 #  "Russian", 
@@ -308,24 +284,4 @@ Then, I have to make the agg_by_lang_2 for DQ vs other exits by making calcurlti
 ```{r}
 # agg_by_lang_w_combined_languages <-
 #  rbind(agg_by_lang, combined_C_R_SL_V)
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
 ```

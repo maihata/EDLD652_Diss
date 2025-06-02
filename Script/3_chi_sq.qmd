@@ -208,8 +208,8 @@ colnames(chi_results$stdres)
 
 ```{r}
 colnames(chi_results$stdres) <- c(
-  "Withdrawal", 
-  "Disqualification", 
+  "Withdrawn", 
+  "Dismissed", 
   "Moved Out", 
   "Part B Eligible", 
   "Not Eligible", 
@@ -234,63 +234,65 @@ chi_results$stdres <- chi_results$stdres[, order(colnames(chi_results$stdres))]
 ```
 
 ```{r}
-corrplot(chi_results$stdres, 
-         is.cor = FALSE, 
-         tl.cex = 0.7) 
+#corrplot(chi_results$stdres, 
+#         is.cor = FALSE, 
+#         tl.cex = 0.7) 
 ```
 
 ```{r}
-corrplot(chi_results$stdres, 
-         is.cor = FALSE, 
-         tl.cex = 0.3)
+#corrplot(chi_results$stdres, 
+#         is.cor = FALSE, 
+#         tl.cex = 0.3)
 ```
 
 ```{r}
-corrplot(chi_results$stdres, 
-         is.cor = FALSE, 
-         tl.cex = 0.6)
+# corrplot(chi_results$stdres, 
+#         is.cor = FALSE, 
+#         tl.cex = 0.6)
 ```
 
 ```{r}
 corrplot(chi_results$stdres, 
          method = 'number', 
          is.cor = FALSE, 
-         tl.cex = 0.6)
+         tl.col = "black", 
+         number.cex = 0.8, 
+         cl.offset = 1)
 ```
 
 ```{r}
-corrplot(chi_results$stdres, 
-         method = 'square', 
-         is.cor = FALSE, 
-         tl.cex = 0.6)
+# corrplot(chi_results$stdres, 
+#         method = 'square', 
+#         is.cor = FALSE, 
+#         tl.cex = 0.6)
 ```
 
 ```{r}
-corrplot(chi_results$stdres, 
-         method = 'ellipse', 
-         is.cor = FALSE, 
-         tl.cex = 0.6)
+#corrplot(chi_results$stdres, 
+#         method = 'ellipse', 
+#         is.cor = FALSE, 
+#         tl.cex = 0.6)
 ```
 
 ## CAMERON: I still would like to get the letters off of the color code bar on the right (what are they?)
 
 ```{r}
 #FINAL PLOT? 
-corrplot(chi_results$stdres, 
-         is.cor = FALSE, 
-         tl.cex = 0.8, 
-         cl.cex = 0.7, 
-         cl.offset = 0.5) 
+# corrplot(chi_results$stdres, 
+#         is.cor = FALSE, 
+#         tl.cex = 0.8, 
+#         cl.cex = 0.7, 
+#         cl.offset = 0.5) 
 ```
 
 ```{r}
 # Maybe this one is the FINAL PLOT? Saved 
 corrplot(chi_results$stdres, 
          is.cor = FALSE, 
-         tl.cex = 0.8, # Size of text labels in the plot
-         # tl.pos = 0.5, 
-         cl.cex = 0.7,      # Size of color legend text
-         cl.offset = 1,     # Increase offset to move labels away from the bar
+         tl.cex = 0.8,  
+         tl.col = "black", 
+         cl.cex = 0.7,      
+         cl.offset = 1,    
          cl.ratio = 0.2)    
 ```
 

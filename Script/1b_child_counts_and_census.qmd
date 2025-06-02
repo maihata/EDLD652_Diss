@@ -202,7 +202,7 @@ write.csv(child_count_vs_census_number,
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount_vs_census_number.csv", row.names = FALSE)
 ```
 
-### Making child_count_vs_census_number into matrix so I can run corrplot(). 
+### Making child_count_vs_census_number into matrix so I can run corrplot().
 
 -   Save it as matrix
 
@@ -250,4 +250,80 @@ data: child_count_vs_census_number_matrix X-squared = 26956, df = 6, p-value \< 
 chi_results_cc_vs_census_number$stdres
 ```
 
--   
+-   Save the results with standardized residues
+
+```{r}
+chisq.test(child_count_vs_census_number_matrix, 
+           correct = FALSE)$stdres
+```
+
+```{r}
+adj_std_res_race_us_representation <- 
+  chisq.test(child_count_vs_census_number_matrix)
+```
+
+```{r}
+plot.new()
+dev.off()
+```
+
+```{r}
+print(chi_results_cc_vs_census_number$stdres)
+```
+
+-   The below didn't run first because it had "/" in "Hispanic/Latino" so I changed it to "... or ..."
+
+```{r}
+colnames(chi_results_cc_vs_census_number$stdres) <- c(
+  "American Indian or Alaska Native", 
+"Asian", 
+  "Black or African American", 
+  "Hispanic or Latino", 
+  "Native Hawaiian or Pacific Islander", 
+  "Two or More Races", 
+  "White")
+```
+
+```{r}
+rownames(chi_results_cc_vs_census_number$stdres) <- c(
+  "General Population", 
+  "EI Population"
+)
+```
+
+```{r}
+chi_results_cc_vs_census_number$stdres <- chi_results_cc_vs_census_number$stdres[, order(colnames(chi_results_cc_vs_census_number$stdres))]
+```
+
+```{r}
+corrplot(chi_results_cc_vs_census_number$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.8, 
+         tl.col = "black", 
+         cl.cex = 0.7,     
+         cl.offset = 1,    
+         cl.ratio = 0.2)  
+```
+
+```{r}
+corrplot(
+  t(chi_results_cc_vs_census_number$stdres),  # transpose the matrix
+  is.cor = FALSE, 
+  tl.cex = 0.8, 
+  tl.col = "black", 
+  cl.cex = 0.7,     
+  cl.offset = 1,    
+  cl.ratio = 0.2
+)
+
+```
+
+## Odds ratio for representation by race
+
+```{r}
+
+```
+
+```{r}
+
+```
