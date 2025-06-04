@@ -51,12 +51,16 @@ library(readr)
 
 1.  Import the excel sheet of racial groups represented in census 2020 and EI childcount 19-20
 
+    ### DON'T USE THESE CHUNKS for VIZ - see Excel "use_this_replacement_racial_group_representation" - "2020 national CC vs census char" sheet for the representation chart.
+
 ```{r}
-child_count_vs_census <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use this racial group representation in general population and in EI NATIONAL.xlsx", sheet = 2)
+# child_count_vs_census <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national CC vs census")
+
+## I used to use the file in "Old_dont_use" excel and it worked 
 ```
 
 ```{r}
-print(child_count_vs_census)
+# print(child_count_vs_census)
 ```
 
 ```{r}
@@ -64,133 +68,120 @@ print(child_count_vs_census)
 ```
 
 ```{r}
+# child_count_vs_census <- child_count_vs_census %>% 
+#  rename(Group = `...1`)
+```
+
+```{r}
 # I ACCIDENTALLY DELETED THE "-" IN cols = -`...1`!!! Good job, me, figuring it out with ChatGPT!!
-child_count_vs_census_long <- child_count_vs_census %>% 
-  pivot_longer(
-    cols = -`...1`, 
-    names_to = "Race", 
-    values_to = "Percentage"
+# child_count_vs_census_long <- child_count_vs_census %>% 
+#   pivot_longer(
+#    cols = - Group, 
+#     names_to = "Race", 
+#     values_to = "Percentage"
   )
 ```
 
 ```{r}
-ggplot(child_count_vs_census_long, 
-       aes(x = Race, 
-           y = Percentage, 
-           fill = `...1`)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Child Count vs Census by Race",
-       x = "Race",
-       y = "Percentage",
-       fill = "Location") +  
-  theme_minimal()
+# ggplot(child_count_vs_census_long, 
+#        aes(x = Race, 
+#           y = Percentage, 
+#           fill = "Group")) +
+#  geom_bar(stat = "identity") +
+#  labs(title = "Child Count vs Census by Race",
+#       x = "Race",
+#       y = "Percentage",
+#       fill = "Location") +  
+#  theme_minimal()
 ```
 
 ```{r}
 # stacked bar - added "dodge" 
 
-library(ggplot2)
+# library(ggplot2)
 
-ggplot(child_count_vs_census_long, 
-       aes(x = Race, 
-           y = Percentage, 
-           fill = `...1`)) +  
-  geom_bar(stat = "identity", position = "dodge") +  
-  labs(title = "Child Count vs Census by Race",
-       x = "Race",
-       y = "Percentage",
-       fill = "Location") +
-  theme_minimal()
+# ggplot(child_count_vs_census_long, 
+#       aes(x = Race, 
+#           y = Percentage, 
+#          fill = "Group")) +  
+#  geom_bar(stat = "identity", position = "dodge") +  
+#  labs(title = "Child Count vs Census by Race",
+#       x = "Race",
+#       y = "Percentage",
+#       fill = "Location") +
+#  theme_minimal()
 ```
 
 ```{r}
-colnames(child_count_vs_census)
+# colnames(child_count_vs_census)
 ```
 
 ```{r}
 # realphabetizing the X axis 
-child_count_vs_census_long <- child_count_vs_census_long %>%
-  mutate(Race = factor(Race, levels = c(
-    "American Indian or Alaska Native", 
-    "Asian", 
-    "Black or African American", 
-    "Hispanic/Latino", 
-    "Native Hawaiian or Pacific Islander", 
-    "Two or More Races", 
-    "White"))) 
+# child_count_vs_census_long <- child_count_vs_census_long %>%
+#  mutate(Race = factor(Race, levels = c(
+#   "American Indian or Alaska Native", 
+#    "Asian", 
+#    "Black or African American", 
+#   "Hispanic/Latino", 
+#    "Native Hawaiian or Pacific Islander", 
+#    "Two or More Races", 
+#    "White"))) 
 ```
 
 ```{r}
-child_count_vs_census_long <- child_count_vs_census_long %>%
-  mutate(Race = fct_rev(Race))
+#child_count_vs_census_long <- child_count_vs_census_long %>%
+#  mutate(Race = fct_rev(Race))
 ```
 
 ```{r}
-library(readr)
+#library(readr)
 
-write_csv(child_count_vs_census_long, "/Users/hata/Desktop/EDLD652_Diss/Data/child_count_vs_census_long.csv")
+#write_csv(child_count_vs_census_long, "/Users/hata/Desktop/EDLD652_Diss/Data/child_count_vs_census_long.csv")
 ```
 
 ```{r}
 # flipping x and y 
-ggplot(child_count_vs_census_long, 
-       aes(x = Percentage, 
-           y = Race, 
-           fill = `...1`)) +  
-  geom_bar(stat = "identity", position = "dodge") +  
-  labs(title = "Child Count vs Census by Race",
-       x = "Percentage",
-       y = "Race",
-       fill = "Location") +
-  theme_minimal(base_family = "Times New Roman")
+#ggplot(child_count_vs_census_long, 
+#       aes(x = Percentage, 
+#           y = Race, 
+#           fill = "Group")) +  
+#  geom_bar(stat = "identity", position = "dodge") +  
+#  labs(title = "Child Count vs Census by Race",
+#       x = "Percentage",
+#       y = "Race",
+#       fill = "Location") +
+#  theme_minimal(base_family = "Times New Roman")
 ```
 
 ```{r}
-library(ggplot2)
-library(viridis)
+# library(ggplot2)
+# library(viridis)
 
-ggplot(child_count_vs_census_long, 
-       aes(x = Percentage, 
-           y = Race, 
-           fill = `...1`)) +  
-  geom_bar(stat = "identity", position = "dodge") +  
-  geom_text(aes(label = Percentage),  # Add data labels
-            position = position_dodge(width = 0.9),  # Align labels with bars
-            vjust = -0.3,  # Position labels above bars
-            size = 3,       # Adjust text size if needed
-            family = "Times New Roman") +  # Font for labels
+# ggplot(child_count_vs_census_long, 
+#       aes(x = Percentage, 
+#           y = Race, 
+#           fill = "Group")) +  
+#  geom_bar(stat = "identity", position = "dodge") +  
+#  geom_text(aes(label = Percentage),  # Add data labels
+#            position = position_dodge(width = 0.9),  # Align labels with bars
+#            vjust = -0.3,  # Position labels above bars
+#            size = 3,       # Adjust text size if needed
+#            family = "Times New Roman") +  # Font for labels
   
-  labs(title = "Child Count vs Census by Race",
-       x = "Percentage",
-       y = "Race",
-       fill = "Location") +
-  theme_minimal(base_family = "Times New Roman")
+#  labs(title = "Child Count vs Census by Race",
+#       x = "Percentage",
+#       y = "Race",
+#       fill = "Location") +
+#  theme_minimal(base_family = "Times New Roman")
 
-```
-
-```{r}
-ggplot(child_count_vs_census_long, 
-       aes(x = Percentage, 
-           y = Race, 
-           fill = `...1`)) +  
-  geom_bar(stat = "identity", position = "dodge") +  
-  geom_text(aes(label = Percentage),  
-            position = position_dodge(width = 0.9),  
-            hjust = -0.2,  # Move labels slightly to the right of bars
-            size = 3,       
-            family = "Times New Roman") +  
-
-  labs(title = "Child Count vs Census by Race",
-       x = "Percentage",
-       y = "Race",
-       fill = "Location") +
-  theme_minimal(base_family = "Times New Roman")
 ```
 
 ## Child count vs census (2020) BUT BY NUMBERS not % so I can run chi-square
 
 ```{r}
-child_count_vs_census_number <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use this racial group representation in general population and in EI NATIONAL.xlsx", sheet = 3)
+# 6/4/25 - runs, redid the excel source to make sure 
+child_count_vs_census_number <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national cc vs census numb")
 ```
 
 ```{r}
@@ -202,15 +193,19 @@ write.csv(child_count_vs_census_number,
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount_vs_census_number.csv", row.names = FALSE)
 ```
 
+### 6/5/25: I was going to transpose the dataset so it shows well, but not sure if it's worth it...? 
+
+```{r}
+transposed_matrix <- t(child_count_vs_census_number_matrix)
+
+```
+
 ### Making child_count_vs_census_number into matrix so I can run corrplot().
 
 -   Save it as matrix
 
--   Drop the total, not needed for chi-square
-
 ```{r}
-child_count_vs_census_number <- child_count_vs_census_number %>% 
-  select(-2)
+# child_count_vs_census_number <- child_count_vs_census_number
 ```
 
 -   Set the row names from first column, because for a chi-square test, you want this stored as a **matrix with named rows**. So, rownames(df_chi) \<- df_chi\[\[1\]\] Takes the first column (e.g., `c("General Population", "EI Population")`) and assigns those as **row names** of the data frame to prepare the structure for conversion to a matrix.
@@ -222,7 +217,7 @@ rownames(child_count_vs_census_number) <- child_count_vs_census_number[[1]]
 -   Drop the first column now that it's row names
 
 ```{r}
-child_count_vs_census_number <- child_count_vs_census_number %>% 
+ child_count_vs_census_number <- child_count_vs_census_number %>% 
   select(-1)
 ```
 
@@ -274,20 +269,36 @@ print(chi_results_cc_vs_census_number$stdres)
 -   The below didn't run first because it had "/" in "Hispanic/Latino" so I changed it to "... or ..."
 
 ```{r}
+colnames(chi_results_cc_vs_census_number$stdres)
+```
+
+```{r}
+str(chi_results_cc_vs_census_number$stdres)
+```
+
+```{r}
+print(chi_results_cc_vs_census_number$stdres)
+```
+
+```{r}
+colnames(chi_results_cc_vs_census_number$stdres)
+```
+
+```{r}
 colnames(chi_results_cc_vs_census_number$stdres) <- c(
-  "American Indian or Alaska Native", 
+  "AI/AN", 
 "Asian", 
-  "Black or African American", 
-  "Hispanic or Latino", 
-  "Native Hawaiian or Pacific Islander", 
-  "Two or More Races", 
+  "Black", 
+  "Hispanic", 
+  "NH/PI", 
+  "Two+ Races", 
   "White")
 ```
 
 ```{r}
 rownames(chi_results_cc_vs_census_number$stdres) <- c(
-  "General Population", 
-  "EI Population"
+  "General Pop", 
+  "EI Pop"
 )
 ```
 
@@ -318,7 +329,39 @@ corrplot(
 
 ```
 
+```{r}
+corrplot(
+  chi_results_cc_vs_census_number$stdres, 
+  method = "number", 
+  is.cor = FALSE,
+)
+
+```
+
+```{r}
+library(corrplot)
+library(RColorBrewer)
+
+corrplot(
+  chi_results_cc_vs_census_number$stdres,
+  is.cor = FALSE,
+  method = "color",
+  col = colorRampPalette(rev(brewer.pal(11, "RdBu")))(200),
+  addCoef.col = "black",     # show residual numbers
+  number.cex = 0.8,          # size of residual numbers
+  tl.col = "black",          # axis label color
+  tl.cex = 0.9               # axis label size
+)
+
+
+
+```
+
 ## Odds ratio for representation by race
+
+```{r}
+
+```
 
 ```{r}
 
