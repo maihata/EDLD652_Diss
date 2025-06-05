@@ -205,7 +205,7 @@ write.csv(child_count_vs_census_number,
 -   Save it as matrix
 
 ```{r}
-# child_count_vs_census_number <- child_count_vs_census_number
+child_count_vs_census_number <- child_count_vs_census_number
 ```
 
 -   Set the row names from first column, because for a chi-square test, you want this stored as a **matrix with named rows**. So, rownames(df_chi) \<- df_chi\[\[1\]\] Takes the first column (e.g., `c("General Population", "EI Population")`) and assigns those as **row names** of the data frame to prepare the structure for conversion to a matrix.
@@ -257,7 +257,7 @@ adj_std_res_race_us_representation <-
   chisq.test(child_count_vs_census_number_matrix)
 ```
 
-### KABLE() of the standard residuals for national racial representation in EI 
+### KABLE() of the standard residuals for national racial representation in EI
 
 ```{r}
 #6/5/25 Trying to save the chi-residuals results in a kable table
