@@ -602,53 +602,60 @@ kable(or_df, caption = "Odds Ratios for EI Representation Relative to Population
 
 ```{r}
 # num2 sheet with NO HISPANIC
-# Step 1–6: Using stdres_matrix_cc_census_noHis
-ei_counts <- stdres_matrix_cc_census_noHis["EI Population", ]
-pop_counts <- stdres_matrix_cc_census_noHis["General Population", ]
+# SHOWS OR of 1 across. GAH 
 
-total_ei <- sum(ei_counts)
-total_pop <- sum(pop_counts)
-overall_rate <- total_ei / total_pop
-overall_odds <- overall_rate / (1 - overall_rate)
+# Step 1: Extract counts from matrix
+ei_counts_2 <- stdres_matrix_cc_census_noHis["EI Population", ]
+pop_counts_2 <- stdres_matrix_cc_census_noHis["General Population", ]
 
-group_rate <- ei_counts / pop_counts
-group_odds <- group_rate / (1 - group_rate)
-or_vs_pop <- group_odds / overall_odds
+# Step 2: Calculate totals and odds
+total_ei_2 <- sum(ei_counts_2)
+total_pop_2 <- sum(pop_counts_2)
+overall_rate_2 <- total_ei_2 / total_pop_2
+overall_odds_2 <- overall_rate_2 / (1 - overall_rate_2)
 
-or_df <- data.frame(
-  Group = names(ei_counts),
-  EI_Count = as.numeric(ei_counts),
-  Pop_Count = as.numeric(pop_counts),
-  EI_Rate = sprintf("%.2f%%", group_rate * 100),
-  Odds_Ratio = round(as.numeric(or_vs_pop), 2)
+# Step 3: Group-specific calculations
+group_rate_2 <- ei_counts_2 / pop_counts_2
+group_odds_2 <- group_rate_2 / (1 - group_rate_2)
+or_vs_pop_2 <- group_odds_2 / overall_odds_2
+
+# Step 4: Create initial dataframe
+or_df_2 <- data.frame(
+  Group_2 = names(ei_counts_2),
+  EI_Total_2 = as.numeric(ei_counts_2),
+  Census_Total_2 = as.numeric(pop_counts_2),
+  EI_Rate_2 = group_rate_2,
+  Odds_Ratio_2 = round(as.numeric(or_vs_pop_2), 2)
 )
 
-or_df <- rbind(
-  or_df,
+# Step 5: Append National Average row (unformatted)
+or_df_2 <- rbind(
+  or_df_2,
   data.frame(
-    Group = "National Average",
-    EI_Count = total_ei,
-    Pop_Count = total_pop,
-    EI_Rate = sprintf("%.2f%%", overall_rate * 100),
-    Odds_Ratio = 1
+    Group_2 = "National Average",
+    EI_Total_2 = total_ei_2,
+    Census_Total_2 = total_pop_2,
+    EI_Rate_2 = overall_rate_2,
+    Odds_Ratio_2 = 1
   )
 )
 
-rownames(or_df) <- or_df$Group
-or_df$Group <- NULL
+# Step 6: Reorder factor levels
+or_df_2$Group_2 <- factor(or_df_2$Group_2, levels = c(
+  setdiff(sort(unique(or_df_2$Group_2)), "National Average"), "National Average"
+))
 
-# Rename columns
-colnames(or_df) <- c("EI Total", "Census Total", "EI Rate", "Odds Ratio")
+# Step 7: Format for display
+or_df_2$EI_Total_2 <- format(as.numeric(or_df_2$EI_Total_2), big.mark = ",")
+or_df_2$Census_Total_2 <- format(as.numeric(or_df_2$Census_Total_2), big.mark = ",")
+or_df_2$EI_Rate_2 <- sprintf("%.2f%%", as.numeric(or_df_2$EI_Rate_2) * 100)
+or_df_2$Odds_Ratio_2 <- sprintf("%.2f", as.numeric(or_df_2$Odds_Ratio_2))
 
-# Format counts with commas
-or_df$`EI Total` <- format(or_df$`EI Total`, big.mark = ",")
-or_df$`Census Total` <- format(or_df$`Census Total`, big.mark = ",")
-
-# Step 7: Display table
+# Step 8: Display table
 library(knitr)
 library(kableExtra)
 
-kable(or_df, caption = "Odds Ratios for EI Representation Relative to Population Average") %>%
+kable(or_df_2, caption = "Odds Ratios for EI Representation Relative to Population Average (No Hispanic)") %>%
   kable_styling(full_width = FALSE, position = "center") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
 
@@ -705,42 +712,58 @@ kable(or_df, caption = "Odds Ratios for EI Representation Relative to Population
 ```{r}
 # num2 sheet with NO HISPANIC
 # Step 1: Extract counts from matrix
-ei_counts <- stdres_matrix_cc_census_noHis["EI Population", ]
-pop_counts <- stdres_matrix_cc_census_noHis["General Population", ]
+# num2 sheet with NO HISPANIC
 
-# Step 2: Calculate total EI rate and odds
-total_ei <- sum(ei_counts)
-total_pop <- sum(pop_counts)
-overall_rate <- total_ei / total_pop
-overall_odds <- overall_rate / (1 - overall_rate)
+# Step 1–6: Using stdres_matrix_cc_census_noHis
+ei_counts_2 <- stdres_matrix_cc_census_noHis["EI Population", ]
+pop_counts_2 <- stdres_matrix_cc_census_noHis["General Population", ]
 
-# Step 3: Group-specific rates and odds
-group_rate <- ei_counts / pop_counts
-group_odds <- group_rate / (1 - group_rate)
+total_ei_2 <- sum(ei_counts_2)
+total_pop_2 <- sum(pop_counts_2)
+overall_rate_2 <- total_ei_2 / total_pop_2
+overall_odds_2 <- overall_rate_2 / (1 - overall_rate_2)
 
-# Step 4: Odds ratio vs population average
-or_vs_pop <- group_odds / overall_odds
+group_rate_2 <- ei_counts_2 / pop_counts_2
+group_odds_2 <- group_rate_2 / (1 - group_rate_2)
+or_vs_pop_2 <- group_odds_2 / overall_odds_2
 
-# Step 5: Combine into a table
-or_df <- data.frame(
-  EI_Count = as.numeric(ei_counts),
-  Pop_Count = as.numeric(pop_counts),
-  EI_Rate = round(group_rate, 4),
-  OR_vs_PopAvg = round(or_vs_pop, 2),
-  row.names = names(ei_counts)
+or_df_2 <- data.frame(
+  Group_2 = names(ei_counts_2),
+  EI_Count_2 = as.numeric(ei_counts_2),
+  Pop_Count_2 = as.numeric(pop_counts_2),
+  EI_Rate_2 = sprintf("%.2f%%", group_rate_2 * 100),
+  Odds_Ratio_2 = round(as.numeric(or_vs_pop_2), 2)
 )
 
-# Optional: Add commas to the counts
-or_df$EI_Count <- format(or_df$EI_Count, big.mark = ",")
-or_df$Pop_Count <- format(or_df$Pop_Count, big.mark = ",")
+or_df_2 <- rbind(
+  or_df_2,
+  data.frame(
+    Group_2 = "National Average",
+    EI_Count_2 = total_ei_2,
+    Pop_Count_2 = total_pop_2,
+    EI_Rate_2 = sprintf("%.2f%%", overall_rate_2 * 100),
+    Odds_Ratio_2 = 1
+  )
+)
 
-# Step 6: Display as a nicely formatted table
+rownames(or_df_2) <- or_df_2$Group_2
+or_df_2$Group_2 <- NULL
+
+# Rename columns
+colnames(or_df_2) <- c("EI Total_2", "Census Total_2", "EI Rate_2", "Odds Ratio_2")
+
+# Format counts with commas
+or_df_2$`EI Total_2` <- format(or_df_2$`EI Total_2`, big.mark = ",")
+or_df_2$`Census Total_2` <- format(or_df_2$`Census Total_2`, big.mark = ",")
+
+# Step 7: Display table
 library(knitr)
 library(kableExtra)
 
-kable(or_df, caption = "Odds Ratios for EI Representation Relative to Population Average") %>%
+kable(or_df_2, caption = "Odds Ratios for EI Representation Relative to Population Average (No Hispanic)") %>%
   kable_styling(full_width = FALSE, position = "center") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
+
 
 ```
 
@@ -766,25 +789,7 @@ or_df$Group <- factor(or_df$Group, levels = c(
 
 ```{r}
 # num2 sheet with NO HISPANIC
-# Step 1: Move rownames to a column
-or_df$Group <- rownames(or_df)
-rownames(or_df) <- NULL
 
-# Step 2: Create a reference row for the national average
-ref_row <- data.frame(
-  EI_Count = format(total_ei, big.mark = ","),
-  Pop_Count = format(total_pop, big.mark = ","),
-  EI_Rate = sprintf("%.4f", overall_rate),
-  OR_vs_PopAvg = 1.00,
-  Group = "National Average"
-)
-
-# Step 3: Append the reference row
-or_df <- rbind(or_df, ref_row)
-
-# Step 4: Reorder factor levels so "National Average" comes last
-or_df$Group <- factor(or_df$Group, levels = c(
-  setdiff(sort
 
 ```
 
