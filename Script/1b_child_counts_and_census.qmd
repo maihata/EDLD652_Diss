@@ -603,55 +603,61 @@ kable(or_df, caption = "Odds Ratios for EI Representation Relative to Population
 ```{r}
 # num2 sheet with NO HISPANIC
 # SHOWS OR of 1 across. GAH 
+# Step 1: Extract counts from the correct matrix (no Hispanic)
+ei_counts_2 <- child_count_vs_census_num2_noHis["EI Population", ]
+pop_counts_2 <- child_count_vs_census_num2_noHis["General Population", ]
 
-# Step 1: Extract counts from matrix
-ei_counts_2 <- stdres_matrix_cc_census_noHis["EI Population", ]
-pop_counts_2 <- stdres_matrix_cc_census_noHis["General Population", ]
-
-# Step 2: Calculate totals and odds
+# Step 2: Calculate totals and overall odds
 total_ei_2 <- sum(ei_counts_2)
 total_pop_2 <- sum(pop_counts_2)
 overall_rate_2 <- total_ei_2 / total_pop_2
 overall_odds_2 <- overall_rate_2 / (1 - overall_rate_2)
 
-# Step 3: Group-specific calculations
+# Step 3: Group-specific rates and odds
 group_rate_2 <- ei_counts_2 / pop_counts_2
 group_odds_2 <- group_rate_2 / (1 - group_rate_2)
 or_vs_pop_2 <- group_odds_2 / overall_odds_2
 
-# Step 4: Create initial dataframe
-or_df_2 <- data.frame(
-  Group_2 = names(ei_counts_2),
-  EI_Total_2 = as.numeric(ei_counts_2),
-  Census_Total_2 = as.numeric(pop_counts_2),
-  EI_Rate_2 = group_rate_2,
-  Odds_Ratio_2 = round(as.numeric(or_vs_pop_2), 2)
+library(tibble)
+library(dplyr)
+
+# Step 4: Build clean tibble with atomic columns
+or_df_2 <- tibble(
+  Race = names(ei_counts_2),
+  EI_Total = as.numeric(ei_counts_2),
+  Census_Total = as.numeric(pop_counts_2),
+  EI_Rate = as.numeric(group_rate_2),
+  Odds_Ratio = round(as.numeric(or_vs_pop_2), 2)
 )
 
-# Step 5: Append National Average row (unformatted)
-or_df_2 <- rbind(
+# Step 5: Append national average row
+or_df_2 <- bind_rows(
   or_df_2,
-  data.frame(
-    Group_2 = "National Average",
-    EI_Total_2 = total_ei_2,
-    Census_Total_2 = total_pop_2,
-    EI_Rate_2 = overall_rate_2,
-    Odds_Ratio_2 = 1
+  tibble(
+    Race = "National Average",
+    EI_Total = total_ei_2,
+    Census_Total = total_pop_2,
+    EI_Rate = overall_rate_2,
+    Odds_Ratio = 1
   )
 )
 
-# Step 6: Reorder factor levels
-or_df_2$Group_2 <- factor(or_df_2$Group_2, levels = c(
-  setdiff(sort(unique(or_df_2$Group_2)), "National Average"), "National Average"
-))
+# Step 6: Reorder Race so "National Average" appears last
+or_df_2 <- or_df_2 %>%
+  mutate(Race = factor(Race, levels = c(
+    setdiff(sort(unique(Race)), "National Average"),
+    "National Average"
+  )))
 
-# Step 7: Format for display
-or_df_2$EI_Total_2 <- format(as.numeric(or_df_2$EI_Total_2), big.mark = ",")
-or_df_2$Census_Total_2 <- format(as.numeric(or_df_2$Census_Total_2), big.mark = ",")
-or_df_2$EI_Rate_2 <- sprintf("%.2f%%", as.numeric(or_df_2$EI_Rate_2) * 100)
-or_df_2$Odds_Ratio_2 <- sprintf("%.2f", as.numeric(or_df_2$Odds_Ratio_2))
+or_df_2 <- or_df_2 %>%
+  mutate(
+    `EI Total` = format(EI_Total, big.mark = ","),
+    `Census Total` = format(Census_Total, big.mark = ","),
+    `EI Rate` = sprintf("%.2f%%", EI_Rate * 100),
+    `Odds Ratio` = sprintf("%.2f", Odds_Ratio)
+  ) %>%
+  select(Race, `EI Total`, `Census Total`, `EI Rate`, `Odds Ratio`)  # reorder for display
 
-# Step 8: Display table
 library(knitr)
 library(kableExtra)
 
@@ -663,6 +669,12 @@ kable(or_df_2, caption = "Odds Ratios for EI Representation Relative to Populati
 
 ```{r}
 print(or_df)
+
+```
+
+```{r}
+# # num2 sheet with NO HISPANIC
+print(or_df_2)
 
 ```
 
@@ -784,13 +796,12 @@ or_df$Group <- factor(or_df$Group, levels = c(
   setdiff(sort(unique(or_df$Group)), "National Average"), "National Average"
 ))
 
-
 ```
 
 ```{r}
 # num2 sheet with NO HISPANIC
 
-
+### NO NEED TO REPEAT THE CODE ABOVE, ALEREADY INCLUDED IN THE LONG CODE CHUNK 
 ```
 
 ```{r}
@@ -820,24 +831,81 @@ ggplot(or_df, aes(x = OR, y = Group)) +
 
 ```{r}
 # num2 sheet with NO HISPANIC
+
+# Step 1: Rename columns safely by inspecting them
+colnames(or_df_2)
+```
+
+```{r}
+# num2 
+# Chunk 2: Rename and convert Odds Ratio for plotting
+library(dplyr)
+
+# Load necessary package
+library(dplyr)
+
+# Step: Convert counts to numeric
+ei_n <- as.numeric(gsub(",", "", or_df_2$`EI Total`))
+pop_n <- as.numeric(gsub(",", "", or_df_2$`Census Total`))
+
+# Step: Compute odds and standard error
+ei_rate <- ei_n / pop_n
+ei_odds <- ei_rate / (1 - ei_rate)
+overall_odds <- sum(ei_n) / (sum(pop_n) - sum(ei_n))
+
+# Odds ratio
+or <- ei_odds / overall_odds
+
+# Compute standard error and 95% CI on log scale
+se_log_or <- sqrt(1 / ei_n + 1 / (pop_n - ei_n))
+lower_ci <- exp(log(or) - 1.96 * se_log_or)
+upper_ci <- exp(log(or) + 1.96 * se_log_or)
+
+# Step: Construct data frame for plotting
+or_df_2_plot <- tibble(
+  Race = or_df_2$Race,
+  Odds_Ratio = or,
+  Lower = lower_ci,
+  Upper = upper_ci
+)
+
+
+```
+
+```{r}
+# num2 
+# Chunk 3: Reorder race factor levels
+or_df_2_plot <- or_df_2_plot %>%
+  mutate(
+    Race = factor(Race, levels = rev(sort(unique(Race))))
+  )
+
+```
+
+```{r}
+# num2
 library(ggplot2)
 
-# Rename column to match plotting code (or adjust plot code instead)
-or_df$OR <- as.numeric(or_df$OR_vs_PopAvg)
+# Ensure Race is a factor for plotting order
+or_df_2_plot$Race <- factor(or_df_2_plot$Race, levels = rev(or_df_2_plot$Race))
 
-# Dummy CI columns (can be replaced with real CIs if available)
-or_df$Lower <- or_df$OR
-or_df$Upper <- or_df$OR
-
-# Make sure Group is a factor, ordered for top-to-bottom display
-or_df$Group <- factor(or_df$Group, levels = rev(sort(unique(or_df$Group))))
-
-# Plot
-ggplot(or_df, aes(x = OR, y = Group)) +
+# Create forest plot
+ggplot(or_df_2_plot, aes(x = Odds_Ratio, y = Race)) +
   geom_point(color = "skyblue", size = 4) +
   geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
   geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
-  geom_text(aes(label = round(OR, 2)), vjust = -1.2, size = 3.5) +
+  geom_text(aes(label = sprintf("%.2f", Odds_Ratio)), vjust = -1.2, size = 3.5) +
   scale_x_log10() +
+  labs(
+    title = "Odds Ratios of EI Representation vs. Population Average (No Hispanic)",
+    x = "Odds Ratio (log scale)",
+    y = ""
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
 
 ```
