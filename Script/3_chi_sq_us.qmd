@@ -1,0 +1,516 @@
+---
+title: "3_chi_sq_us"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(descr)
+```
+
+#### Chi-Square for all the races and all the exit reasons
+
+```{r}
+race_us_2 <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+```
+
+```{r}
+print(race_us_2)
+```
+
+```{r}
+chi_omni_2 <-chisq.test(race_us_2[, 4:9])
+```
+
+```{r}
+print(chi_omni_2)
+```
+
+#### Chi-square with residuals for all the races and all the exit reasons
+
+```{r}
+# Step 1: Extract just the matrix of counts for exit reasons
+chi_matrix_2 <- as.matrix(race_us_2[, 4:9])
+```
+
+```{r}
+# Step 2: Run chi-square test
+chi_result_2 <- chisq.test(race_us_2[, 4:9])
+```
+
+```{r}
+# Step 3: Extract standardized residuals
+stdres_2 <- chi_result_2$stdres
+```
+
+```{r}
+# Step 4: Convert standardized residuals matrix to a tidy data frame
+library(tibble)
+
+stdres_df_2 <- as.data.frame(stdres_2)
+stdres_df_2 <- rownames_to_column(stdres_df_2, var = "Race")
+```
+
+```{r}
+# Select only the exit reason columns (columns 4 to 9)
+race_us_2_matrix <- as.matrix(race_us_2[, 4:9])
+```
+
+```{r}
+# Run the chi-square test
+chi_test_2 <- chisq.test(race_us_2_matrix)
+
+# Extract standardized residuals
+stdres_matrix_2 <- chi_test_2$stdres
+```
+
+```{r}
+stdres_matrix_2
+```
+
+```{r}
+# Set readable row names (races)
+rownames(stdres_matrix_2) <- c(
+  "AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White"
+)
+
+# Set readable column names (exit reasons)
+colnames(stdres_matrix_2) <- c(
+  "Withdrawn", "Dismissed", "Moved Out", 
+  "Part B Eligible", "Not Eligible", "Not Determined"
+)
+
+```
+
+```{r}
+# Alphabetize both race categories (rows) and exit reasons (columns)
+stdres_matrix_2 <- stdres_matrix_2[
+  order(rownames(stdres_matrix_2)), 
+  order(colnames(stdres_matrix_2))
+]
+
+```
+
+```{r}
+
+kable(stdres_matrix_2, digits = 23) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  kable_classic(html_font = "Cambria", full_width = FALSE) %>%
+  column_spec(1:ncol(stdres_matrix_2), extra_css = "text-align: center;") %>%
+  row_spec(0, bold = TRUE)
+```
+
+#### Odds ratio for each racial group to be dismissed, compared to the national average.
+
+```{r}
+colnames(race_us_2)
+```
+
+```{r}
+colnames(race_us_2) <- c(
+  "Race",
+  "area",
+  "Total Exits",
+  "Withdrawn",
+  "Dismissed",
+  "Moved Out",
+  "Part B Eligible",
+  "Not Eligible",
+  "Not Determined"
+)
+
+```
+
+```{r}
+# Ensure all exit columns are numeric (except Total Exit, which we ignore)
+exit_cols <- c("Withdrawn", "Dismissed", "Moved Out", 
+               "Part B Eligible", "Not Eligible", "Not Determined")
+
+# Subset the data to just the exit counts
+exit_data <- race_us_2[, c("Race", exit_cols)]
+
+```
+
+```{r}
+# Step 1: Rename columns for clarity
+colnames(race_us_2) <- c(
+  "Race", "Area", "Total Exit", "Withdrawn", "Dismissed",
+  "Moved Out", "Part B Eligible", "Not Eligible", "Not Determined"
+)
+```
+
+```{r}
+# Step 2: Drop the total exit column — we won't include it in chi-square or OR
+race_us_2_clean <- race_us_2[, !colnames(race_us_2) %in% "Total Exit"]
+```
+
+```{r}
+# Step 3 (Revised): Clean and rename the dataset to prepare for odds ratio analysis
+
+race_us_2_clean <- race_us_2 %>%
+  select(-`Total Exit`, -`Area`) %>%
+  rename(
+    `Withdrawn` = `Withdrawn`,
+    `Dismissed` = `Dismissed`,
+    `Moved Out` = `Moved Out`,
+    `Part B Eligible` = `Part B Eligible`,
+    `Not Eligible` = `Not Eligible`,
+    `Not Determined` = `Not Determined`
+  )
+```
+
+```{r}
+# Step 4: Define a function to compute the odds ratio for being 'Dismissed' for a target group vs. all others
+
+get_dismissed_or <- function(target_group) {
+  # Step 4.1: Get 'Dismissed' count for target group
+  a <- race_us_2_clean %>%
+    filter(Race == target_group) %>%
+    pull(`Dismissed`)
+  
+  # Step 4.2: Get non-dismissed count for target group (sum of other categories)
+  b <- race_us_2_clean %>%
+    filter(Race == target_group) %>%
+    select(-Race, -`Dismissed`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.3: Get total 'Dismissed' count for all other groups
+  c <- race_us_2_clean %>%
+    filter(Race != target_group) %>%
+    pull(`Dismissed`) %>%
+    sum()
+  
+  # Step 4.4: Get total non-dismissed count for all other groups
+  d <- race_us_2_clean %>%
+    filter(Race != target_group) %>%
+    select(-Race, -`Dismissed`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.5: Create 2x2 matrix for Fisher's test
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  
+  # Step 4.6: Run Fisher's exact test and return result
+  fisher.test(mat)
+}
+
+```
+
+```{r}
+# Step 5: Apply the function to compute odds ratios for all race groups
+
+# Step 5.1: Get the list of unique race categories
+race_list <- unique(race_us_2_clean$Race)
+
+# Step 5.2: Use purrr::map to apply get_dismissed_or to each race
+library(purrr)
+
+dismissed_or_results <- map(race_list, get_dismissed_or)
+
+# Step 5.3: Name the list elements by race for easy reference
+names(dismissed_or_results) <- race_list
+
+```
+
+```{r}
+summary_df <- map_dfr(dismissed_or_results, function(x) {
+
+  tibble(
+
+    Odds_Ratio = x$estimate,
+
+    P_Value = x$p.value
+
+  )
+
+}, .id = "Race")
+
+
+```
+
+```{r}
+# # Step 6.1: Extract the key results from each test
+summary_df <- map_dfr(dismissed_or_results, function(x) {
+  tibble(
+    Odds_Ratio = x$estimate,
+    P_Value = x$p.value
+  )
+}, .id = "Race")
+
+# Step 6.2: Round the values for readability
+summary_df <- summary_df %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    P_Value = signif(P_Value, 3)
+  )
+
+# Step 6.3: Move "National Average" to the bottom explicitly
+summary_df <- summary_df %>%
+  mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
+  arrange(Race) %>%
+  mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
+
+
+# Step 6.4: Rename columns, format p-values, and preserve row order
+summary_df <- summary_df %>%
+  rename(
+    `Odds Ratio` = Odds_Ratio,
+    `P Value` = P_Value
+  ) %>%
+  mutate(
+    `P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))
+  )
+
+# Step 6.5: Reorder so National Average is last
+summary_df <- summary_df %>%
+  mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
+  arrange(Race) %>%
+  mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
+
+# Add National Average row manually
+national_row <- tibble(
+  Race = "National Average",
+  `Odds Ratio` = 1.00,
+  `P Value` = NA  # or use "." or "< .001" if you prefer
+)
+
+summary_df <- bind_rows(summary_df, national_row)
+
+
+# Step 6.6: Display table
+kable(summary_df, align = "lcc") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+summary_df %>%
+  rename(
+    `Odds Ratio` = `Odds Ratio`,
+    `P Value` = `P Value`
+  ) %>%
+  mutate(`P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+#### Calculate cohen's h
+
+```{r}
+# Step 1: Load necessary library
+library(dplyr)
+
+# Step 2: Define function to compute Cohen's h
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Create a cleaned version of your data with correct column names
+# Make sure this matches your actual data object name
+race_us_2_clean <- race_us_2 %>%
+  select(Race = Race, Dismissed = `Dismissed`, Total = `Total Exit`) %>%
+  mutate(
+    Dismissed = as.numeric(Dismissed),
+    Total = as.numeric(Total),
+    Proportion = Dismissed / Total
+  )
+
+# Step 4: Calculate national average dismissal rate
+national_dismissed <- sum(race_us_2_clean$Dismissed)
+national_total <- sum(race_us_2_clean$Total)
+national_rate <- national_dismissed / national_total
+
+# Step 5: Calculate Cohen's h for each group
+race_us_2_h <- race_us_2_clean %>%
+  mutate(
+    National_Average = national_rate,
+    Cohens_h = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(Race, `Dismissed N` = Dismissed, `Total N` = Total, 
+         `Dismissed %` = Proportion, `National Avg %` = National_Average, `Cohen's h` = Cohens_h)
+
+# Step 6: Format percentages
+race_us_2_h$`Dismissed %` <- sprintf("%.2f%%", 100 * race_us_2_h$`Dismissed %`)
+race_us_2_h$`National Avg %` <- sprintf("%.2f%%", 100 * race_us_2_h$`National Avg %`)
+
+# Step 7: Display with kable
+library(knitr)
+library(kableExtra)
+```
+
+```{r}
+kable(race_us_2_h, align = c("l", rep("c", ncol(race_us_2_h) - 1))) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    html_font = "Cambria"
+  ) %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+#### Forrest Plot for Odds ratio
+
+```{r}
+print(summary_df)
+```
+
+```{r}
+colnames(summary_df)
+```
+
+```{r}
+# ✅ Step 1: Modify the get_dismissed_or() function to return CIs
+
+get_dismissed_or <- function(group) {
+  a <- race_us_2_clean %>% filter(Race == group) %>% pull(Dismissed)
+  b <- race_us_2_clean %>% filter(Race == group) %>% pull(Total) - a
+  c <- race_us_2_clean %>% filter(Race != group) %>% summarise(sum(Dismissed)) %>% pull()
+  d <- race_us_2_clean %>% filter(Race != group) %>% summarise(sum(Total)) %>% pull() - c
+  
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  result <- stats::fisher.test(mat)
+  
+  tibble(
+    `Odds Ratio` = result$estimate,
+    `P Value` = result$p.value,
+    Lower = result$conf.int[1],
+    Upper = result$conf.int[2]
+  )
+}
+
+```
+
+```{r}
+# ✅ Step 2: Apply it to all racial groups (excluding national average for now)
+r
+Copy
+Edit
+
+races <- race_us_2_clean$Race
+
+summary_df <- map_dfr(races, function(race) {
+  get_dismissed_or(race) %>%
+    mutate(Race = race)
+})
+
+```
+
+```{r}
+# ✅ Step 3: Add the National Average row (optional, with NA CI)
+summary_df <- summary_df %>%
+  bind_rows(tibble(
+    Race = "National Average",
+    `Odds Ratio` = 1,
+    `P Value` = NA,
+    Lower = NA,
+    Upper = NA
+  ))
+
+```
+
+```{r}
+# ✅ Step 4: Clean and prepare for forest plot
+
+summary_df <- summary_df %>%
+  mutate(
+    `Odds Ratio` = round(`Odds Ratio`, 2),
+    Lower = round(Lower, 2),
+    Upper = round(Upper, 2),
+    `P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))
+  )
+
+```
+
+```{r}
+# ✅ Step 5: Make Race a factor so National Average is last
+summary_df$Race <- factor(summary_df$Race, levels = c(
+  setdiff(summary_df$Race, "National Average"), "National Average"
+))
+
+```
+
+```{r}
+# Reverse order: top = A, bottom = Z (with National Average last)
+summary_df$Race <- factor(
+  summary_df$Race,
+  levels = rev(c(sort(setdiff(summary_df$Race, "National Average")), "National Average"))
+)
+
+```
+
+```{r}
+
+ggplot(summary_df, aes(x = `Odds Ratio`, y = Race)) +
+  geom_point(color = "skyblue", size = 4) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = ""
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
