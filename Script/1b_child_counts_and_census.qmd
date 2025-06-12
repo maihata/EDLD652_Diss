@@ -320,6 +320,8 @@ adj_std_res_race_us_rep_noHis <-
 
 ### KABLE() of the standard residuals for national racial representation in EI
 
+### 6/11/25 — CHECK THIS TO SEE HOW TO TRANSPOSE X and Y Axis
+
 ```{r}
 #6/5/25 Trying to save the chi-residuals results in a kable table
 library(tibble)
@@ -333,12 +335,20 @@ stdres_matrix_cc_census_national <- adj_std_res_race_us_representation$stdres
 stdres_df_cc_census_national <- as.data.frame(stdres_matrix_cc_census_national)
 stdres_df_cc_census_national <- rownames_to_column(stdres_df_cc_census_national, var = "Group")
 
+# 🔁 NEW Step 2.5: Transpose the data
+transposed_df <- as.data.frame(t(stdres_df_cc_census_national[,-1]))  # Exclude "Group" column before transpose
+colnames(transposed_df) <- stdres_df_cc_census_national$Group        # Set group names as column headers
+transposed_df <- rownames_to_column(transposed_df, var = "Race") 
+
+# Step 3: Create a clean kable tablekable(transposed_df, digits = 2, caption = "Standardized Residuals (Transposed)") %>%
 # Step 3: Create a clean kable table
-kable(stdres_df_cc_census_national, digits = 2, caption = "Standardized Residuals from Chi-Square Test") %>%
+kable(transposed_df, digits = 2, caption = "Standardized Residuals (Transposed)") %>%
   kable_styling(full_width = FALSE, position = "center") %>%
-  column_spec(1, width = "4cm") %>%  # Adjust widths as needed
-  column_spec(2:ncol(stdres_df_cc_census_national), width = "2cm") %>%
+  column_spec(1, width = "4cm") %>%
+  column_spec(2:ncol(transposed_df), width = "2cm") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
+  
+
 
 ```
 
