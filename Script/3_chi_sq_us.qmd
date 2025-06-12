@@ -147,7 +147,7 @@ kable(stdres_matrix_2, digits = 23) %>%
   row_spec(0, bold = TRUE)
 ```
 
-#### 6/12/25: Checking to see if I can run corrplot() on stdres_matrix_2 
+#### 6/12/25: Checking to see if I can run corrplot() on stdres_matrix_2
 
 ```{r}
 ### In 3_chi_sq_qmd, I'm running corrplot like this with chi_results$stdres, I should be able to with stdres_matrix_2, no? 
