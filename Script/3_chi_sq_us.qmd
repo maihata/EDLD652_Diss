@@ -131,6 +131,10 @@ stdres_matrix_2 <- stdres_matrix_2[
 ```
 
 ```{r}
+kable(stdres_matrix_2)
+```
+
+```{r}
 
 kable(stdres_matrix_2, digits = 23) %>%
   kable_styling(
@@ -141,6 +145,38 @@ kable(stdres_matrix_2, digits = 23) %>%
   kable_classic(html_font = "Cambria", full_width = FALSE) %>%
   column_spec(1:ncol(stdres_matrix_2), extra_css = "text-align: center;") %>%
   row_spec(0, bold = TRUE)
+```
+
+#### 6/12/25: Checking to see if I can run corrplot() on stdres_matrix_2 
+
+```{r}
+### In 3_chi_sq_qmd, I'm running corrplot like this with chi_results$stdres, I should be able to with stdres_matrix_2, no? 
+library(corrplot)
+
+```
+
+```{r}
+corrplot(stdres_matrix_2,
+         is.cor = FALSE,        # This tells it you're plotting non-correlation data
+         tl.cex = 0.8,
+         tl.col = "black",
+         cl.cex = 0.7,
+         cl.offset = 1,
+         cl.ratio = 0.2)
+
+```
+
+```{r}
+corrplot(stdres_matrix_2,
+         is.cor = FALSE,
+         method = "number",
+         number.cex = 0.7,      # Smaller text inside the cells
+         tl.cex = 0.8,          # Axis label size
+         tl.col = "black",
+         cl.cex = 0.7,
+         cl.offset = 1,
+         cl.ratio = 0.2)
+
 ```
 
 #### Odds ratio for each racial group to be dismissed, compared to the national average.
@@ -430,9 +466,7 @@ get_dismissed_or <- function(group) {
 
 ```{r}
 # ✅ Step 2: Apply it to all racial groups (excluding national average for now)
-r
-Copy
-Edit
+
 
 races <- race_us_2_clean$Race
 
@@ -504,13 +538,5 @@ ggplot(summary_df, aes(x = `Odds Ratio`, y = Race)) +
     axis.text.x = element_text(size = 12),
     plot.title = element_text(size = 14, face = "bold")
   )
-
-```
-
-```{r}
-
-```
-
-```{r}
 
 ```

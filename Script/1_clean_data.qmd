@@ -53,6 +53,7 @@ library(rcartocolor)
 library(ggplot2)
 library(quarto)
 library(gt)
+library(clipr)
 ```
 
 ### csv1: 10 exit categories
@@ -278,9 +279,28 @@ race_us_chart <- race_us_chart %>%
 ```
 
 ```{r}
+# 6/11/25 --- added to put "," every 3 digits 
+race_us_chart <- race_us_chart %>%
+  mutate(across(where(is.numeric), ~ format(., big.mark = ",", scientific = FALSE)))
+
+```
+
+```{r}
+race_us_chart
+```
+
+```{r}
 write.csv(race_us_chart, 
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
           row.names = FALSE)
+```
+
+```{r}
+kable(race_us_chart)
+```
+
+```{r}
+write_clip(race_us_chart)
 ```
 
 ### csv 7: race_oregon_chart
