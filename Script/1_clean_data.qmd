@@ -231,6 +231,50 @@ race_us <- race_us %>%
 ```
 
 ```{r}
+# Step 1: Keep only race (col 1) and total (col 3)
+race_us_subset <- race_us %>%
+  select(race, total = 3)  # assuming column 3 is the total count
+
+# Step 2: Calculate grand total
+grand_total <- sum(race_us_subset$total, na.rm = TRUE)
+
+# Step 3: Add grand_total and group ratio columns
+race_us_summary <- race_us_subset %>%
+  mutate(
+    grand_total = grand_total,
+    group_ratio = total / grand_total
+  )
+
+```
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+# Create APA-style table with percentage format
+race_us_summary %>%
+  select(Race = race, Total = total, Proportion = group_ratio) %>%
+  mutate(
+    Total = formatC(Total, format = "d", big.mark = ","),               # comma for Total
+    Proportion = sprintf("%.1f%%", Proportion * 100)                    # convert to % with 1 decimal
+  ) %>%
+  kable(
+    caption = "Proportion of Children by Race in the U.S. (Including Outlying Areas)",
+    col.names = c("Race", "Total", "Proportion (%)"),
+    align = c("l", "r", "r"),
+    format = "html"
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  kable_classic(html_font = "Cambria")
+
+
+```
+
+```{r}
 write.csv(race_us, 
           file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv", 
           row.names = FALSE)
