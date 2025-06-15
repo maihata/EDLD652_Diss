@@ -365,12 +365,20 @@ stdres_matrix_cc_census_noHis <- chi_results_cc_vs_census_num2_noHis$stdres
 stdres_df_cc_census_noHis <- as.data.frame(stdres_matrix_cc_census_noHis)
 stdres_df_cc_census_noHis <- rownames_to_column(stdres_df_cc_census_noHis, var = "Group")
 
+# 🔁 NEW Step 2.5: Transpose the data
+transposed_df_noHis <- as.data.frame(t(stdres_df_cc_census_noHis[,-1])) 
+colnames(transposed_df_noHis) <- stdres_df_cc_census_noHis$Group       
+transposed_df_noHis <- rownames_to_column(transposed_df_noHis, var = "Race") 
+
 # Step 3: Create a clean kable table
-kable(stdres_df_cc_census_noHis, digits = 2, caption = "Standardized Residuals from Chi-Square Test (Race Only, No Hispanic)") %>%
+kable(transposed_df_noHis, digits = 2, caption = "Standardized Residuals from Chi-Square Test (Race Only, No Hispanic)") %>%
   kable_styling(full_width = FALSE, position = "center") %>%
   column_spec(1, width = "4cm") %>%
-  column_spec(2:ncol(stdres_df_cc_census_noHis), width = "2cm") %>%
+  column_spec(2, width = "2cm", extra_css = "text-align: center;") %>%
+  column_spec(3, width = "2cm", extra_css = "text-align: center;") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
+
+
 
 ```
 
@@ -850,13 +858,13 @@ or_df_2_plot <- tibble(
 ```{r}
 # num2 
 # Step : Create numeric version for plotting (drop % signs etc.)
-or_df_2_plot <- or_df_2 %>%
+or_df_2_plot <- or_df_2_plot %>%
   filter(Race != "National Average") %>%
   mutate(
     Odds_Ratio = as.numeric(Odds_Ratio),
     Race = as.character(Race)
   ) %>%
-  select(Race, Odds_Ratio)
+  select(Race, Odds_Ratio, Lower, Upper)
 
 
 ```
@@ -886,4 +894,47 @@ ggplot(or_df_2_plot, aes(x = Odds_Ratio, y = Race)) +
     plot.title = element_text(size = 14, face = "bold")
   )
 
+```
+
+```{r}
+# COHEN'S H
+# Step 1: Filter out "National Average" and compute rate + odds
+or_df_filtered <- or_df_2 %>%
+  filter(Race != "National Average")
+
+ei_n <- as.numeric(gsub(",", "", or_df_filtered$`EI Total`))
+pop_n <- as.numeric(gsub(",", "", or_df_filtered$`Census Total`))
+ei_rate <- ei_n / pop_n
+
+# Step 2: Compute overall rate
+overall_rate <- sum(ei_n) / sum(pop_n)
+
+# Step 3: Compute Cohen’s h
+cohens_h <- 2 * abs(asin(sqrt(ei_rate)) - asin(sqrt(overall_rate)))
+
+# Step 4: Add to plot dataframe
+or_df_2_plot <- or_df_2_plot %>%
+  filter(Race != "National Average") %>%
+  mutate(Cohens_h = cohens_h)
+
+```
+
+```{r}
+or_df_2_plot
+```
+
+```{r}
+# Rename columns for display
+or_df_2_plot <- or_df_2_plot %>%
+  rename(
+    `Odds Ratio` = Odds_Ratio,
+    `Cohen's h` = Cohens_h
+  )
+
+```
+
+```{r}
+kable(or_df_2_plot, caption = "Odds Ratios for EI Representation Relative to Population Average (No Hispanic)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
