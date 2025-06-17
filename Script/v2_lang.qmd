@@ -90,13 +90,13 @@ agg_by_lang <- bylang %>%
 
 ```{r agg_by_lang_no_SL  take out Sign Language and NA rows}
 
-agg_by_lang_no_SL <- agg_by_lang %>% 
-  filter(primary_language != "Sign languages")
+# agg_by_lang_no_SL <- agg_by_lang %>% 
+#  filter(primary_language != "Sign languages")
 ```
 
 ```{r}
 # renaming the category names 
-agg_by_lang_no_SL <- agg_by_lang_no_SL %>% 
+agg_by_lang <- agg_by_lang %>% 
   rename(
     "Primary Language" = primary_language, 
     "Withdrawn" = withdrawal_by_parent, 
@@ -110,8 +110,14 @@ agg_by_lang_no_SL <- agg_by_lang_no_SL %>%
 
 ```{r}
 # reorganizing columns alphabetically 
-agg_by_lang_no_SL <- agg_by_lang_no_SL %>% 
+agg_by_lang <- agg_by_lang %>% 
   select("Primary Language", sort(setdiff(names(.), "Primary Language")))
+```
+
+```{r}
+agg_by_lang <- agg_by_lang %>% 
+  select(-3)
+
 ```
 
 ```{r}
@@ -132,7 +138,7 @@ library(tidyverse)
 library(viridis)
 
 # Pivot to long format
-long_data <- agg_by_lang_no_SL |>
+long_data <- agg_by_lang |>
   pivot_longer(
     cols = -`Primary Language`,  # Use the exact column name here
     names_to = "Exit Reason",

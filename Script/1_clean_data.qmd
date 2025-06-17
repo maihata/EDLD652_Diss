@@ -367,7 +367,7 @@ race_oregon_chart <- race_oregon_chart %>%
   rename(
     "Race" = race, 
     "Withdrawn" = withdrawal_by_parent, 
-   "Disqualified" = attempts_to_contact_unsuccessful, 
+   "Dismissed" = attempts_to_contact_unsuccessful, 
 "Moved Out" = moved_out_of_state, 
     "Part B Eligible" = part_b_eligible_exiting_part_c, 
     "Not Eligible" = complete_or_not_eligible, 
@@ -378,6 +378,12 @@ race_oregon_chart <- race_oregon_chart %>%
 ```{r}
 race_oregon_chart <- race_oregon_chart %>% 
   select("Race", sort(setdiff(names(.), "Race")))
+```
+
+```{r}
+race_oregon_chart <- race_oregon_chart %>%
+  select(-exit_total)
+
 ```
 
 ```{r}
