@@ -201,21 +201,6 @@ kable(summary_df_odds_notdetermined, align = "lcc") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
 
-```{r}
-class(summary_df_odds_notdetermined$`P Value`)
-
-```
-
-```{r}
-summary_df_odds_notdetermined %>%
-  mutate(`P Value` = as.numeric(`P Value`)) %>%
-  mutate(`P Value` = ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3))) %>%
-  kable() %>%
-  kable_styling(full_width = FALSE, position = "center") %>%
-  kable_classic(full_width = FALSE, html_font = "Cambria")
-
-```
-
 ### Not Determined Cohen's h
 
 ```{r}
@@ -234,7 +219,9 @@ race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.cs
 
 colnames(race_us_2_clean2)
 
-# Step 1: Prepare the data
+```
+
+```{r}
 race_us_2_clean2 <- race_us_2_clean2 %>%
   mutate(
     Withdrawn = as.numeric(Withdrawn),
@@ -243,11 +230,15 @@ race_us_2_clean2 <- race_us_2_clean2 %>%
     Part.B.Eligible = as.numeric(Part.B.Eligible),
     Not.Eligible = as.numeric(Not.Eligible),
     Not.Determined = as.numeric(Not.Determined),
-    Total = Withdrawn + Dismissed + Moved.Out + Part.B.Eligible + Not.Eligible + Not.Determined,
+    Total = Withdrawn + Dismissed + Moved.Out +
+            Part.B.Eligible + Not.Eligible + Not.Determined,
     Proportion = Not.Determined / Total
   )
 
-# Step 2: Compute national Not Determined rate
+```
+
+```{r}
+# Step 2: Compute national Not Determined rate}
 national_nd <- sum(race_us_2_clean2$Not.Determined, na.rm = TRUE)
 national_total <- sum(race_us_2_clean2$Total, na.rm = TRUE)
 national_rate <- national_nd / national_total
