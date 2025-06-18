@@ -1,0 +1,512 @@
+---
+title: "3_odds_us_race_not_eligible"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(descr)
+```
+
+```{r}
+race_us_2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv")
+```
+
+```{r}
+colnames(race_us_2) <- c(
+  "Race",
+  "area",
+  "Total Exits",
+  "Withdrawn",
+  "Dismissed",
+  "Moved Out",
+  "Part B Eligible",
+  "Not Eligible",
+  "Not Determined"
+)
+```
+
+```{r}
+# PREPPING race_us_2 for odds ratio for NOT DETERMINED and NOT ELIGIBLE in 3_odds_us_race.qmd
+# Step 3 (Revised): Clean and rename the dataset to prepare for odds ratio analysis
+
+race_us_2 <- race_us_2 %>%
+  select(-`Total Exits`, -`area`) %>%
+  rename(
+    `Withdrawn` = `Withdrawn`,
+    `Dismissed` = `Dismissed`,
+    `Moved Out` = `Moved Out`,
+    `Part B Eligible` = `Part B Eligible`,
+    `Not Eligible` = `Not Eligible`,
+    `Not Determined` = `Not Determined`
+  )
+```
+
+### 1) Odds Ratio for NOT ELIGIBLE by Race (National)
+
+```{r}
+
+# Step 4: Define a function to compute the odds ratio for being 'Not Eligible' using Chi-Square Test
+
+get_not_eligible_odds <- function(target_group) {
+  # Step 4.1: Get 'N' count for target group
+  a <- race_us_2 %>%
+    filter(Race == target_group) %>%
+    pull(`Not Eligible`)
+  
+  # Step 4.2: Get other group's count for target group (sum of other categories)
+  b <- race_us_2 %>%
+    filter(Race == target_group) %>%
+    select(-Race, -`Not Eligible`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.3: Get total 'Not Eligible' count for all other groups
+  c <- race_us_2 %>%
+    filter(Race != target_group) %>%
+    pull(`Not Eligible`) %>%
+    sum()
+  
+  # Step 4.4: Get total non-'Not Eligible' count for all other groups
+  d <- race_us_2 %>%
+    filter(Race != target_group) %>%
+    select(-Race, -`Not Eligible`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.5: Create 2x2 matrix for Chi-Square test
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  
+  # Step 4.6: Run Chi-Square test and return result
+  result <- chisq.test(mat)
+  
+  # Optional: Manually calculate odds ratio from matrix
+  odds_ratio <- (a / b) / (c / d)
+  ci_log <- log(odds_ratio) + c(-1, 1) * 1.96 * sqrt(1/a + 1/b + 1/c + 1/d)
+  
+  tibble(
+    `Odds Ratio` = odds_ratio,
+    `P Value` = result$p.value,
+    Lower = round(exp(ci_log[1]), 2),
+    Upper = round(exp(ci_log[2]), 2)
+  )
+}
+
+```
+
+```{r}
+# Step 5: Apply the function to compute odds ratios for all race groups (Not Eligible)
+
+# Step 5.1: Get the list of unique race categories
+race_list <- unique(race_us_2$Race)
+
+# Step 5.2: Use purrr::map to apply get_not_eligible_odds to each race
+library(purrr)
+
+summary_df_odds_noteligible <- map_dfr(race_list, function(race) {
+  get_not_eligible_odds(race) %>%
+    mutate(Race = race)
+})
+
+```
+
+```{r}
+colnames(summary_df_odds_noteligible)
+
+```
+
+```{r}
+summary_df_odds_noteligible <- summary_df_odds_noteligible %>%
+  bind_rows(tibble(
+    Race = "National Average",
+    `Odds Ratio` = 1,
+    `P Value` = NA,
+    Lower = NA,
+    Upper = NA
+  )) %>%
+  mutate(
+    `Odds Ratio` = round(`Odds Ratio`, 2),
+    Lower = round(Lower, 2),
+    Upper = round(Upper, 2),
+    `P Value` = ifelse(is.na(`P Value`), NA, ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3))),
+    Race = ifelse(Race == "National Average", "zzz_National Average", Race)
+  ) %>%
+  arrange(Race) %>%
+  mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
+
+```
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+kable(summary_df_odds_noteligible, align = "lcccc") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+kable(summary_df_odds_noteligible, align = "lcccc") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+### Not Eligible Cohen's h
+
+```{r}
+# Step 1: Load necessary libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Read and prepare the data
+race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
+
+colnames(race_us_2_clean2)
+```
+
+```{r}
+### Preparing clean data 
+race_us_2_clean2 <- race_us_2_clean2 %>%
+  mutate(
+    Withdrawn = as.numeric(Withdrawn),
+    Dismissed = as.numeric(Dismissed),
+    Moved.Out = as.numeric(Moved.Out),
+    Part.B.Eligible = as.numeric(Part.B.Eligible),
+    Not.Eligible = as.numeric(Not.Eligible),
+    Not.Determined = as.numeric(Not.Determined),
+    Total = Withdrawn + Dismissed + Moved.Out +
+            Part.B.Eligible + Not.Eligible + Not.Determined,
+    Proportion = Not.Eligible / Total
+  )
+
+```
+
+```{r}
+# Compute national row
+national_row <- race_us_2_clean2 %>%
+  summarise(
+    Race = "National Average",
+    Withdrawn = sum(Withdrawn),
+    Dismissed = sum(Dismissed),
+    Moved.Out = sum(Moved.Out),
+    Part.B.Eligible = sum(Part.B.Eligible),
+    Not.Eligible = sum(Not.Eligible),
+    Not.Determined = sum(Not.Determined)
+  ) %>%
+  mutate(
+    Total = Withdrawn + Dismissed + Moved.Out + Part.B.Eligible + Not.Eligible + Not.Determined,
+    Proportion = Not.Eligible / Total
+  )
+
+# Combine
+race_us_2_clean2 <- bind_rows(race_us_2_clean2, national_row)
+
+```
+
+```{r}
+get_not_eligible_or <- function(group) {
+  df <- race_us_2_clean2
+
+  a <- df %>% filter(Race == group) %>% pull(Not.Eligible)
+  b <- df %>% filter(Race == group) %>% pull(Total) - a
+  c <- df %>% filter(Race == "National Average") %>% pull(Not.Eligible)
+  d <- df %>% filter(Race == "National Average") %>% pull(Total) - c
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  result <- chisq.test(mat)
+
+  tibble(
+    `Odds Ratio` = oddsratio.wald(mat)$measure[2, 1],
+    `P Value` = result$p.value,
+    Lower = oddsratio.wald(mat)$measure[2, 2],
+    Upper = oddsratio.wald(mat)$measure[2, 3]
+  )
+}
+
+```
+
+```{r}
+races <- race_us_2_clean2$Race
+races <- races[races != "National Average"]  # 🟨 Exclude National Average
+
+summary_df_not_eligible <- map_dfr(races, function(race) {
+  get_not_eligible_or(race) %>% mutate(Race = race)
+})
+
+```
+
+```{r}
+races <- race_us_2_clean2$Race
+races <- races[races != "National Average"]  # 🟨 Exclude National Average
+
+summary_df_not_eligible <- map_dfr(races, function(race) {
+  get_not_eligible_or(race) %>% mutate(Race = race)
+})
+
+```
+
+```{r}
+summary_df_not_eligible <- bind_rows(
+  summary_df_not_eligible,
+  tibble(
+    Race = "National Average",
+    `Odds Ratio` = 1,
+    `P Value` = NA,
+    Lower = NA,
+    Upper = NA
+  )
+)
+
+```
+
+```{r}
+summary_df_not_eligible <- summary_df_not_eligible %>%
+  mutate(
+    `Odds Ratio` = round(`Odds Ratio`, 2),
+    Lower = round(Lower, 2),
+    Upper = round(Upper, 2),
+    `P Value` = ifelse(is.na(`P Value`), NA, ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3)))
+  )
+
+```
+
+```{r}
+summary_df_not_eligible$Race <- factor(
+  summary_df_not_eligible$Race,
+  levels = rev(c(sort(setdiff(summary_df_not_eligible$Race, "National Average")), "National Average"))
+)
+
+```
+
+```{r}
+ggplot(summary_df_not_eligible, aes(x = `Odds Ratio`, y = Race)) +
+  geom_point(color = "skyblue", size = 4) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    title = "Odds Ratios for 'Not Eligible' Exit Category by Race"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+```
+
+```{r}
+
+```
+
+```{r}
+# races <- race_us_2_clean2$Race
+# races <- races[races != "National Average"]  # 🟨 Exclude National Average
+# 
+# summary_df_not_eligible <- map_dfr(races, function(race) {
+#   get_not_eligible_or(race) %>% mutate(Race = race)
+# })
+
+```
+
+```{r}
+summary_df_not_eligible <- bind_rows(
+  summary_df_not_eligible,
+  tibble(
+    Race = "National Average",
+    `Odds Ratio` = 1,
+    `P Value` = NA,
+    Lower = NA,
+    Upper = NA
+  )
+)
+
+```
+
+```{r}
+```
+
+```{r}
+# Step 2: Compute national Not Eligible rate
+ national_ne <- sum(race_us_2_clean2$Not.Eligible, na.rm = TRUE)
+ national_total <- sum(race_us_2_clean2$Total, na.rm = TRUE)
+ national_rate <- national_ne / national_total
+ 
+# # Step 3: Compute Cohen’s h
+ summary_df_h <- race_us_2_clean2 %>%
+   mutate(
+     `National Avg` = national_rate,
+     `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+   ) %>%
+   select(
+     Race,
+     `Not Eligible N` = Not.Eligible,
+     `Total N` = Total,
+     `Not Eligible %` = Proportion,
+     `National Avg %` = `National Avg`,
+     `Cohen's h`
+   ) %>%
+   mutate(
+     `Not Eligible %` = sprintf("%.2f%%", 100 * `Not Eligible %`),
+     `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+   )
+ 
+ # Step 4: Display with kable
+ kable(summary_df_h, caption = "Cohen's h for 'Not Eligible' Exit Rates by Race") %>%
+   kable_styling(full_width = FALSE, position = "center") %>%
+   kable_classic(full_width = FALSE, html_font = "Cambria")
+```
+
+### ODDS RATIO FORREST PLOT for NOT ELIGIBLE
+
+```{r}
+# get_not_eligible_or <- function(group) {
+#   df <- race_us_2_clean2 %>%
+#     mutate(
+#       Not.Eligible = as.numeric(Not.Eligible),
+#       Total = Withdrawn + Dismissed + Moved.Out + Part.B.Eligible + Not.Eligible + Not.Determined
+#     )
+#   
+#   # Group of interest
+#   a <- df %>% filter(Race == group) %>% pull(Not.Eligible)
+#   b <- df %>% filter(Race == group) %>% pull(Total) - a
+#   
+#   # Everyone else
+#   c <- df %>% filter(Race != group) %>% summarise(sum(Not.Eligible, na.rm = TRUE)) %>% pull()
+#   d <- df %>% filter(Race != group) %>% summarise(sum(Total, na.rm = TRUE)) %>% pull() - c
+#   
+#   # 2x2 table
+#   mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+#   result <- chisq.test(mat)  # Use chi-square test instead of Fisher's test
+#   
+#   tibble(
+#     `Odds Ratio` = oddsratio.wald(mat)$measure[2, 1],
+#     `P Value` = result$p.value,
+#     Lower = oddsratio.wald(mat)$measure[2, 2],
+#     Upper = oddsratio.wald(mat)$measure[2, 3]
+#   )
+# }
+
+```
+
+```{r}
+# Step 2: Apply it to all racial groups for 'Not Eligible'
+
+# races <- race_us_2_clean2$Race
+ 
+# summary_df_not_eligible <- purrr::map_dfr(races, function(race) {
+#   get_not_eligible_or(race) %>%
+#     mutate(Race = race)
+# })
+
+```
+
+```{r}
+# Step 4: Clean and prepare for forest plot
+
+# summary_df_not_eligible <- summary_df_not_eligible %>%
+#   mutate(
+#     `Odds Ratio` = round(`Odds Ratio`, 2),
+#     Lower = round(Lower, 2),
+#     Upper = round(Upper, 2),
+#     `P Value` = ifelse(is.na(`P Value`), NA, ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3)))
+#   )
+
+```
+
+```{r}
+# Step 5: Make Race a factor so National Average is last
+
+# summary_df_not_eligible$Race <- factor(summary_df_not_eligible$Race, levels = c(
+#   setdiff(summary_df_not_eligible$Race, "National Average"), "National Average"
+# ))
+
+```
+
+```{r}
+# # Step 6: Reverse order: top = A, bottom = Z (with National Average last)
+# 
+# summary_df_not_eligible$Race <- factor(
+#   summary_df_not_eligible$Race,
+#   levels = rev(c(sort(setdiff(summary_df_not_eligible$Race, "National Average")), "National Average"))
+# )
+
+```
+
+```{r}
+# Step 7: Forest plot for Not Eligible odds ratios
+
+# ggplot(summary_df_not_eligible, aes(x = `Odds Ratio`, y = Race)) +
+#   geom_point(color = "skyblue", size = 4) +
+#   geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+#   geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+#   geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
+#   scale_x_log10() +
+#   labs(
+#     x = "Odds Ratio (log scale)",
+#     y = "",
+#     title = "Odds Ratios for 'Not Eligible' Exit Category by Race"
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     axis.text.y = element_text(size = 12),
+#     axis.text.x = element_text(size = 12),
+#     plot.title = element_text(size = 14, face = "bold")
+#   )
+
+```
