@@ -76,7 +76,7 @@ race_us_2 <- race_us_2 %>%
   )
 ```
 
-### 1) Odds Ratio for Not Determined by Race (National)
+### 1) Odds Ratio for NOT DETERMINED by Race (National)
 
 ```{r}
 # # PREPPING race_us_2 for odds ratio for ### NOT DETERMINED ### 
