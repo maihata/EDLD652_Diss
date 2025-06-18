@@ -4,8 +4,8 @@ author: "Maiko Hata"
 format: pdf
 execute: 
   eval: true 
-  echo: false
-  message: false 
+  echo: true
+  message: true 
   warning: false
 editor: visual
 engine: knitr
@@ -136,7 +136,7 @@ kable(stdres_matrix_2)
 
 ```{r}
 
-kable(stdres_matrix_2, digits = 23) %>%
+kable(stdres_matrix_2, digits = 2) %>%
   kable_styling(
     full_width = FALSE,
     position = "center",
@@ -145,6 +145,21 @@ kable(stdres_matrix_2, digits = 23) %>%
   kable_classic(html_font = "Cambria", full_width = FALSE) %>%
   column_spec(1:ncol(stdres_matrix_2), extra_css = "text-align: center;") %>%
   row_spec(0, bold = TRUE)
+```
+
+```{r}
+### 6/18/25 --- saving it as csv so that I can modify it on the docs 
+
+# Convert matrix to data frame with Race as a column
+stdres_df_rounded <- as.data.frame(stdres_matrix_2) %>%
+  rownames_to_column(var = "Race") %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+# Write to CSV
+write.csv(stdres_df_rounded, 
+          file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_matrix_2.csv", 
+          row.names = FALSE)
+
 ```
 
 #### 6/12/25: Checking to see if I can run corrplot() on stdres_matrix_2
@@ -220,15 +235,19 @@ colnames(race_us_2) <- c(
 ```
 
 ```{r}
+write.csv(race_us_2, file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv", row.names = FALSE)
+```
+
+```{r}
 # Step 2: Drop the total exit column — we won't include it in chi-square or OR
-race_us_2_clean <- race_us_2[, !colnames(race_us_2) %in% "Total Exit"]
+# race_us_2_clean <- race_us_2[, !colnames(race_us_2) %in% "Total Exit"]
 ```
 
 ```{r}
 # Step 3 (Revised): Clean and rename the dataset to prepare for odds ratio analysis
 
-race_us_2_clean <- race_us_2 %>%
-  select(-`Total Exit`, -`Area`) %>%
+race_us_2 <- race_us_2 %>%
+  select(-`Total Exit`, -`Area`) %>%  # ✅ Corrected column names
   rename(
     `Withdrawn` = `Withdrawn`,
     `Dismissed` = `Dismissed`,
@@ -237,42 +256,46 @@ race_us_2_clean <- race_us_2 %>%
     `Not Eligible` = `Not Eligible`,
     `Not Determined` = `Not Determined`
   )
+
+# Convert all exit count columns to numeric (in case they were read as characters)
+race_us_2[ , 2:ncol(race_us_2)] <- lapply(race_us_2[ , 2:ncol(race_us_2)], function(x) as.numeric(gsub(",", "", x)))
+
+
 ```
 
 ```{r}
+# # PREPPING race_us_2 for odds ratio for ### DISMISSED ### 
 # Step 4: Define a function to compute the odds ratio for being 'Dismissed' for a target group vs. all others
 
-get_dismissed_or <- function(target_group) {
-  # Step 4.1: Get 'Dismissed' count for target group
-  a <- race_us_2_clean %>%
-    filter(Race == target_group) %>%
-    pull(`Dismissed`)
+# ✅ Step 1: Define the odds ratio function for Dismissed exits (clean and CI-ready)
+
+get_dismissed_or <- function(group) {
+  df <- race_us_2_clean %>%
+    mutate(
+      Dismissed = as.numeric(Dismissed),
+      Total = rowSums(across(c(`Withdrawn`, `Dismissed`, `Moved Out`, 
+                                `Part B Eligible`, `Not Eligible`, `Not Determined`)), na.rm = TRUE)
+    )
   
-  # Step 4.2: Get non-dismissed count for target group (sum of other categories)
-  b <- race_us_2_clean %>%
-    filter(Race == target_group) %>%
-    select(-Race, -`Dismissed`) %>%
-    unlist() %>%
-    sum()
+  # Step 1.1: Group of interest
+  a <- df %>% filter(Race == group) %>% pull(Dismissed)
+  b <- df %>% filter(Race == group) %>% pull(Total) - a
   
-  # Step 4.3: Get total 'Dismissed' count for all other groups
-  c <- race_us_2_clean %>%
-    filter(Race != target_group) %>%
-    pull(`Dismissed`) %>%
-    sum()
+  # Step 1.2: All other groups
+  c <- df %>% filter(Race != group) %>% summarise(sum(Dismissed, na.rm = TRUE)) %>% pull()
+  d <- df %>% filter(Race != group) %>% summarise(sum(Total, na.rm = TRUE)) %>% pull() - c
   
-  # Step 4.4: Get total non-dismissed count for all other groups
-  d <- race_us_2_clean %>%
-    filter(Race != target_group) %>%
-    select(-Race, -`Dismissed`) %>%
-    unlist() %>%
-    sum()
-  
-  # Step 4.5: Create 2x2 matrix for Fisher's test
+  # Step 1.3: Construct 2x2 table and run Fisher's Exact Test
   mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  result <- fisher.test(mat)
   
-  # Step 4.6: Run Fisher's exact test and return result
-  fisher.test(mat)
+  # Step 1.4: Return formatted output with estimate and confidence interval
+  tibble(
+    `Odds Ratio` = result$estimate,
+    `P Value` = result$p.value,
+    Lower = result$conf.int[1],
+    Upper = result$conf.int[2]
+  )
 }
 
 ```
@@ -281,37 +304,27 @@ get_dismissed_or <- function(target_group) {
 # Step 5: Apply the function to compute odds ratios for all race groups
 
 # Step 5.1: Get the list of unique race categories
-race_list <- unique(race_us_2_clean$Race)
+race_list <- unique(race_us_2$Race)
 
-# Step 5.2: Use purrr::map to apply get_dismissed_or to each race
+# Step 5.2: Use purrr::map to apply get_dismissed_odds to each race
 library(purrr)
 
-dismissed_or_results <- map(race_list, get_dismissed_or)
+dismissed_odds_results <- map(race_list, get_dismissed_odds)
 
 # Step 5.3: Name the list elements by race for easy reference
-names(dismissed_or_results) <- race_list
+names(dismissed_odds_results) <- race_list
+
 
 ```
 
 ```{r}
-summary_df <- map_dfr(dismissed_or_results, function(x) {
-
-  tibble(
-
-    Odds_Ratio = x$estimate,
-
-    P_Value = x$p.value
-
-  )
-
-}, .id = "Race")
-
+summary_df <- dismissed_or_results
 
 ```
 
 ```{r}
 # # Step 6.1: Extract the key results from each test
-summary_df <- map_dfr(dismissed_or_results, function(x) {
+summary_df_odds_dismissed <- map_dfr(dismissed_odds_results, function(x) {
   tibble(
     Odds_Ratio = x$estimate,
     P_Value = x$p.value
@@ -319,21 +332,20 @@ summary_df <- map_dfr(dismissed_or_results, function(x) {
 }, .id = "Race")
 
 # Step 6.2: Round the values for readability
-summary_df <- summary_df %>%
+summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   mutate(
     Odds_Ratio = round(Odds_Ratio, 2),
     P_Value = signif(P_Value, 3)
   )
 
 # Step 6.3: Move "National Average" to the bottom explicitly
-summary_df <- summary_df %>%
+summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
   arrange(Race) %>%
   mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
 
-
 # Step 6.4: Rename columns, format p-values, and preserve row order
-summary_df <- summary_df %>%
+summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   rename(
     `Odds Ratio` = Odds_Ratio,
     `P Value` = P_Value
@@ -343,7 +355,7 @@ summary_df <- summary_df %>%
   )
 
 # Step 6.5: Reorder so National Average is last
-summary_df <- summary_df %>%
+summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
   arrange(Race) %>%
   mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
@@ -355,71 +367,77 @@ national_row <- tibble(
   `P Value` = NA  # or use "." or "< .001" if you prefer
 )
 
-summary_df <- bind_rows(summary_df, national_row)
-
+summary_df_odds_dismissed <- bind_rows(summary_df_odds_dismissed, national_row)
 
 # Step 6.6: Display table
-kable(summary_df, align = "lcc") %>%
+kable(summary_df_odds_dismissed, align = "lcc") %>%
   kable_styling(full_width = FALSE, position = "center") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
-
 ```
 
 ```{r}
-summary_df %>%
-  rename(
-    `Odds Ratio` = `Odds Ratio`,
-    `P Value` = `P Value`
-  ) %>%
-  mutate(`P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))) %>%
-  kable() %>%
-  kable_styling(full_width = FALSE, position = "center") %>%
-  kable_classic(full_width = FALSE, html_font = "Cambria")
-
+get_dismissed_or("White")
 ```
 
 #### Calculate cohen's h
 
 ```{r}
-# Step 1: Load necessary library
+# Step 1: Load necessary libraries
 library(dplyr)
+library(knitr)
+library(kableExtra)
 
-# Step 2: Define function to compute Cohen's h
+# Step 2: Define Cohen's h function
 compute_cohens_h <- function(p1, p2) {
   2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
 }
 
-# Step 3: Create a cleaned version of your data with correct column names
-# Make sure this matches your actual data object name
-race_us_2_clean <- race_us_2 %>%
-  select(Race = Race, Dismissed = `Dismissed`, Total = `Total Exit`) %>%
+# Step 3: Read and prepare the data from original file (includes Total Exit)
+race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+
+# Step 4: Rename columns properly
+colnames(race_us_2_clean2) <- c(
+  "Race", "Area", "Total Exit", "Withdrawn", "Dismissed",
+  "Moved Out", "Part B Eligible", "Not Eligible", "Not Determined"
+)
+
+# Step 5: Compute totals and proportions
+race_us_2_clean2 <- race_us_2_clean2 %>%
   mutate(
     Dismissed = as.numeric(Dismissed),
-    Total = as.numeric(Total),
+    Total = as.numeric(`Total Exit`),
     Proportion = Dismissed / Total
   )
 
-# Step 4: Calculate national average dismissal rate
-national_dismissed <- sum(race_us_2_clean$Dismissed)
-national_total <- sum(race_us_2_clean$Total)
+# Step 6: Compute national dismissal rate
+national_dismissed <- sum(race_us_2_clean2$Dismissed, na.rm = TRUE)
+national_total <- sum(race_us_2_clean2$Total, na.rm = TRUE)
 national_rate <- national_dismissed / national_total
 
-# Step 5: Calculate Cohen's h for each group
-race_us_2_h <- race_us_2_clean %>%
+# Step 7: Compute Cohen’s h
+summary_df_h_dismissed <- race_us_2_clean2 %>%
   mutate(
-    National_Average = national_rate,
-    Cohens_h = round(compute_cohens_h(Proportion, national_rate), 3)
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
   ) %>%
-  select(Race, `Dismissed N` = Dismissed, `Total N` = Total, 
-         `Dismissed %` = Proportion, `National Avg %` = National_Average, `Cohen's h` = Cohens_h)
+  select(
+    Race,
+    `Dismissed N` = Dismissed,
+    `Total N` = Total,
+    `Dismissed %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Dismissed %` = sprintf("%.2f%%", 100 * `Dismissed %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
 
-# Step 6: Format percentages
-race_us_2_h$`Dismissed %` <- sprintf("%.2f%%", 100 * race_us_2_h$`Dismissed %`)
-race_us_2_h$`National Avg %` <- sprintf("%.2f%%", 100 * race_us_2_h$`National Avg %`)
+# Step 8: Display with kable
+kable(summary_df_h_dismissed, caption = "Cohen's h for 'Dismissed' Exit Rates by Race") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
 
-# Step 7: Display with kable
-library(knitr)
-library(kableExtra)
 ```
 
 ```{r}
