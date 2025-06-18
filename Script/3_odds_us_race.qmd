@@ -1,0 +1,393 @@
+---
+title: "4_plots_or_USRACE_average"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(descr)
+```
+
+### Prepping race_us_2 df from csv (from 3_chi_sq_us.qmd) 
+
+```{r}
+race_us_2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv")
+```
+
+```{r}
+colnames(race_us_2) <- c(
+  "Race",
+  "area",
+  "Total Exits",
+  "Withdrawn",
+  "Dismissed",
+  "Moved Out",
+  "Part B Eligible",
+  "Not Eligible",
+  "Not Determined"
+)
+```
+
+```{r}
+# PREPPING race_us_2 for odds ratio for NOT DETERMINED and NOT ELIGIBLE in 3_odds_us_race.qmd
+# Step 3 (Revised): Clean and rename the dataset to prepare for odds ratio analysis
+
+race_us_2 <- race_us_2 %>%
+  select(-`Total Exits`, -`area`) %>%
+  rename(
+    `Withdrawn` = `Withdrawn`,
+    `Dismissed` = `Dismissed`,
+    `Moved Out` = `Moved Out`,
+    `Part B Eligible` = `Part B Eligible`,
+    `Not Eligible` = `Not Eligible`,
+    `Not Determined` = `Not Determined`
+  )
+```
+
+### 1) Odds Ratio for Not Determined by Race (National) 
+
+```{r}
+# # PREPPING race_us_2 for odds ratio for ### NOT DETERMINED ### 
+# Step 4: Define a function to compute the odds ratio for being 'Dismissed' for a target group vs. all others
+
+get_not_determined_odds <- function(target_group) {
+  # Step 4.1: Get 'N' count for target group
+  a <- race_us_2 %>%
+    filter(Race == target_group) %>%
+    pull(`Not Determined`)
+  
+  # Step 4.2: Get other group's count for target group (sum of other categories)
+  b <- race_us_2 %>%
+    filter(Race == target_group) %>%
+    select(-Race, -`Not Determined`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.3: Get total 'Not Determined' count for all other groups
+  c <- race_us_2 %>%
+    filter(Race != target_group) %>%
+    pull(`Not Determined`) %>%
+    sum()
+  
+  # Step 4.4: Get total non-dismissed count for all other groups
+  d <- race_us_2 %>%
+    filter(Race != target_group) %>%
+    select(-Race, -`Not Determined`) %>%
+    unlist() %>%
+    sum()
+  
+  # Step 4.5: Create 2x2 matrix for Fisher's test
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  
+  # Step 4.6: Run Fisher's exact test and return result
+  fisher.test(mat)
+}
+
+```
+
+```{r}
+# Step 5: Apply the function to compute odds ratios for all race groups
+
+# Step 5.1: Get the list of unique race categories
+race_list <- unique(race_us_2$Race)
+
+# Step 5.2: Use purrr::map to apply get_dismissed_or to each race
+library(purrr)
+
+not_determined_odds_results <- map(race_list, get_not_determined_odds)
+
+# Step 5.3: Name the list elements by race for easy reference
+names(not_determined_odds_results) <- race_list
+```
+
+```{r}
+summary_df_odds_notdetermined <- map_dfr(not_determined_odds_results, function(x) {
+
+  tibble(
+
+    Odds_Ratio = x$estimate,
+
+    P_Value = x$p.value
+
+  )
+
+}, .id = "Race")
+```
+
+```{r}
+# # Step 6.1: Extract the key results from each test
+summary_df_odds_notdetermined <- map_dfr(not_determined_odds_results, function(x) {
+  tibble(
+    Odds_Ratio = x$estimate,
+    P_Value = x$p.value
+  )
+}, .id = "Race")
+
+# Step 6.2: Round the values for readability
+summary_df_odds_notdetermined <- summary_df_odds_notdetermined %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    P_Value = signif(P_Value, 3)
+  )
+
+# Step 6.3: Move "National Average" to the bottom explicitly
+summary_df_odds_notdetermined <- summary_df_odds_notdetermined %>%
+  mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
+  arrange(Race) %>%
+  mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
+
+
+# Step 6.4: Rename columns, format p-values, and preserve row order
+summary_df_odds_notdetermined <- summary_df_odds_notdetermined %>%
+  rename(
+    `Odds Ratio` = Odds_Ratio,
+    `P Value` = P_Value
+  ) %>%
+  mutate(
+    `P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))
+  )
+
+# Step 6.5: Reorder so National Average is last
+summary_df_odds_notdetermined <- summary_df_odds_notdetermined %>%
+  mutate(Race = ifelse(Race == "National Average", "zzz_National Average", Race)) %>%
+  arrange(Race) %>%
+  mutate(Race = ifelse(Race == "zzz_National Average", "National Average", Race))
+
+# Add National Average row manually
+national_row <- tibble(
+  Race = "National Average",
+  `Odds Ratio` = 1.00,
+  `P Value` = NA  # or use "." or "< .001" if you prefer
+)
+
+summary_df_odds_notdetermined <- bind_rows(summary_df_odds_notdetermined, national_row)
+
+
+# Step 6.6: Display table
+kable(summary_df_odds_notdetermined, align = "lcc") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+```
+
+```{r}
+class(summary_df_odds_notdetermined$`P Value`)
+
+```
+
+```{r}
+summary_df_odds_notdetermined %>%
+  mutate(`P Value` = as.numeric(`P Value`)) %>%
+  mutate(`P Value` = ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3))) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+### Not Determined Cohen's h 
+
+```{r}
+# Step 1: Load necessary libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Read and prepare the data
+race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
+
+colnames(race_us_2_clean2)
+
+# Step 1: Prepare the data
+race_us_2_clean2 <- race_us_2_clean2 %>%
+  mutate(
+    Withdrawn = as.numeric(Withdrawn),
+    Dismissed = as.numeric(Dismissed),
+    Moved.Out = as.numeric(Moved.Out),
+    Part.B.Eligible = as.numeric(Part.B.Eligible),
+    Not.Eligible = as.numeric(Not.Eligible),
+    Not.Determined = as.numeric(Not.Determined),
+    Total = Withdrawn + Dismissed + Moved.Out + Part.B.Eligible + Not.Eligible + Not.Determined,
+    Proportion = Not.Determined / Total
+  )
+
+# Step 2: Compute national Not Determined rate
+national_nd <- sum(race_us_2_clean2$Not.Determined, na.rm = TRUE)
+national_total <- sum(race_us_2_clean2$Total, na.rm = TRUE)
+national_rate <- national_nd / national_total
+
+# Step 3: Compute Cohen’s h
+summary_df_h <- race_us_2_clean2 %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Race,
+    `Not Determined N` = Not.Determined,
+    `Total N` = Total,
+    `Not Determined %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Not Determined %` = sprintf("%.2f%%", 100 * `Not Determined %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 4: Display with kable
+kable(summary_df_h, caption = "Cohen's h for 'Not Determined' Exit Rates by Race") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+get_not_determined_or <- function(group) {
+  df <- race_us_2_clean2 %>%
+    mutate(
+      Not.Determined = as.numeric(Not.Determined),
+      Total = Withdrawn + Dismissed + Moved.Out + Part.B.Eligible + Not.Eligible + Not.Determined
+    )
+  
+  # Group of interest
+  a <- df %>% filter(Race == group) %>% pull(Not.Determined)
+  b <- df %>% filter(Race == group) %>% pull(Total) - a
+  
+  # Everyone else
+  c <- df %>% filter(Race != group) %>% summarise(sum(Not.Determined, na.rm = TRUE)) %>% pull()
+  d <- df %>% filter(Race != group) %>% summarise(sum(Total, na.rm = TRUE)) %>% pull() - c
+  
+  # 2x2 table
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  result <- fisher.test(mat)
+  
+  tibble(
+    `Odds Ratio` = result$estimate,
+    `P Value` = result$p.value,
+    Lower = result$conf.int[1],
+    Upper = result$conf.int[2]
+  )
+}
+
+```
+
+```{r}
+# Step 2: Apply it to all racial groups for 'Not Determined'
+
+races <- race_us_2_clean2$Race
+
+summary_df_not_determined <- purrr::map_dfr(races, function(race) {
+  get_not_determined_or(race) %>%
+    mutate(Race = race)
+})
+
+```
+
+```{r}
+# Step 3: Add the National Average row
+summary_df_not_determined <- summary_df_not_determined %>%
+  bind_rows(tibble(
+    Race = "National Average",
+    `Odds Ratio` = 1,
+    `P Value` = NA,
+    Lower = NA,
+    Upper = NA
+  ))
+
+```
+
+```{r}
+# Step 4: Clean and prepare for forest plot
+
+summary_df_not_determined <- summary_df_not_determined %>%
+  mutate(
+    `Odds Ratio` = round(`Odds Ratio`, 2),
+    Lower = round(Lower, 2),
+    Upper = round(Upper, 2),
+    `P Value` = ifelse(is.na(`P Value`), NA, ifelse(`P Value` < 0.001, "< .001", round(`P Value`, 3)))
+  )
+
+```
+
+```{r}
+# Step 5: Make Race a factor so National Average is last
+
+summary_df_not_determined$Race <- factor(summary_df_not_determined$Race, levels = c(
+  setdiff(summary_df_not_determined$Race, "National Average"), "National Average"
+))
+
+```
+
+```{r}
+# Step 6: Reverse order: top = A, bottom = Z (with National Average last)
+
+summary_df_not_determined$Race <- factor(
+  summary_df_not_determined$Race,
+  levels = rev(c(sort(setdiff(summary_df_not_determined$Race, "National Average")), "National Average"))
+)
+
+```
+
+```{r}
+# Step 7: Forest plot for Not Determined odds ratios
+
+ggplot(summary_df_not_determined, aes(x = `Odds Ratio`, y = Race)) +
+  geom_point(color = "skyblue", size = 4) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    title = "Odds Ratios for 'Not Determined' Exit Category by Race"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+```
+
+```{r}
+
+```

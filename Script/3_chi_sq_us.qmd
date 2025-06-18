@@ -47,8 +47,6 @@ library(quarto)
 library(descr)
 ```
 
-DOES THIS PUSH?
-
 #### Chi-Square for all the races and all the exit reasons
 
 ```{r}
@@ -218,6 +216,7 @@ colnames(race_us_2) <- c(
   "Race", "Area", "Total Exit", "Withdrawn", "Dismissed",
   "Moved Out", "Part B Eligible", "Not Eligible", "Not Determined"
 )
+
 ```
 
 ```{r}
