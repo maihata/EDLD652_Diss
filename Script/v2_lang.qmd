@@ -19,31 +19,17 @@ engine: knitr
 
 ```{r}
 library(tidyverse)
-library(here)
-library(rio)
 library(knitr)
-library(gt)
-library(DT)
-library(reactable)
-library(gtsummary)
 library(kableExtra)
-library(tinytex)
 library(janitor)
-library(tidylog)
-library(sjPlot)
-library(lme4)
 library(tibble)
 library(dplyr)
 library(epitools)
 library(readxl)
-library(pwr)
-library(rcompanion)
 library(grateful)
 library(distill)
 library(readxl)
-library(scales)
 library(tidyr)
-library(patchwork)
 library(corrplot)
 library(ggplot2)
 ```
@@ -115,6 +101,7 @@ agg_by_lang <- agg_by_lang %>%
 ```
 
 ```{r}
+### Getting rid of TOTAL 
 agg_by_lang <- agg_by_lang %>% 
   select(-3)
 
@@ -162,12 +149,15 @@ ggplot(long_data, aes(x = `Primary Language`, y = Count, fill = `Exit Reason`)) 
 
 ### I first tried to to make a new version of agg_by_lang with combined Chinese, Russian, ASL, and Vietnamese. But chi-square didn't run as it still had a cell with "0" for "Not Determined".
 
+### So, 6/18/25 - combining them with Other Languages
+
 ```{r}
 # Step 1: Define languages to combine
 langs_to_combine <- c("Chinese", 
                       "Russian", 
                       "Sign languages", 
-                      "Vietnamese")
+                      "Vietnamese", 
+                      "Other languages")
 
 # Step 2: Separate rows to keep and combine
 df_keep <- agg_by_lang[!(agg_by_lang$`Primary Language` 
@@ -239,7 +229,7 @@ write.csv(agg_by_lang_3,
 
 ```{r}
 agg_by_lang_3_matrix <- as.matrix(
-  agg_by_lang_3[, 3:8]
+  agg_by_lang_3[, 2:7]
 )
 ```
 
@@ -261,30 +251,46 @@ adj_std_res_lang_oregon <- chisq.test(agg_by_lang_3_matrix)
 ```
 
 ```{r}
+agg_by_lang_3_matrix
+```
+
+```{r}
 # plot.new()
 # dev.off()
 ```
 
 ```{r}
-colnames(chi_results_lang_3_oregon$stdres) <- c(
-  "Withdrawal", 
-  "Dismissed", 
-  "Moved Out", 
-  "Part B Eligible", 
-  "Not Eligible", 
-  "Not Determined")
+colnames(chi_results_lang_3_oregon$stdres) <- colnames(agg_by_lang_3)[2:7]  # exit reasons
+
 ```
 
 ```{r}
-rownames(chi_results_lang_3_oregon$stdres) <- c(
-  "English", 
-  "Spanish", 
-  "Other Languages/Multiple Languages"
-)
+rownames(chi_results_lang_3_oregon$stdres) <- agg_by_lang_3$`Primary Language`
+
+```
+
+```{r}
+agg_by_lang_3
 ```
 
 ```{r}
 chi_results_lang_3_oregon$stdres <- chi_results_lang_3_oregon$stdres[, order(colnames(chi_results_lang_3_oregon$stdres))]
+```
+
+```{r}
+# Step 1: Convert stdres matrix to data frame and add rownames
+stdres_lang_df <- as.data.frame(chi_results_lang_3_oregon$stdres) %>%
+  tibble::rownames_to_column(var = "Language") %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+# Step 2: Save to CSV
+write.csv(stdres_lang_df, "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3_oregon.csv", row.names = FALSE)
+
+# Step 3: Create kable table
+kable(stdres_lang_df, caption = "Standardized Residuals by Home Language and Exit Reason") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
 ```
 
 ```{r}
