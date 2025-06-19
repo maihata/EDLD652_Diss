@@ -1,8 +1,9 @@
-"race","total","grand_total","group_ratio"
-"Alaska Native or American Indian",23783,3310559,0.00718398312792492
-"Asian",146252,3310559,0.0441774334787569
-"Black or African American",415873,3310559,0.125620174719738
-"Hispanic or Latino",905971,3310559,0.273661034284542
-"Two or More Races",135841,3310559,0.041032647356534
-"Pacific Islander",10654,3310559,0.00321818762329866
-"White",1672185,3310559,0.505106539409205
+Race,Total Number,Total %
+Alaska Native or American Indian,23783,0.72%
+Asian,146252,4.42%
+Black or African American,415873,12.56%
+Hispanic or Latino,905971,27.37%
+Two or More Races,135841,4.10%
+Pacific Islander,10654,0.32%
+White,1672185,50.51%
+Total ,3310559,100.00%
