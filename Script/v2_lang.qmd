@@ -32,6 +32,8 @@ library(readxl)
 library(tidyr)
 library(corrplot)
 library(ggplot2)
+library(rio)
+library(janitor)
 ```
 
 C. Oregon data by LANGUAGES
@@ -149,36 +151,34 @@ ggplot(long_data, aes(x = `Primary Language`, y = Count, fill = `Exit Reason`)) 
 
 ### I first tried to to make a new version of agg_by_lang with combined Chinese, Russian, ASL, and Vietnamese. But chi-square didn't run as it still had a cell with "0" for "Not Determined".
 
-### So, 6/18/25 - combining them with Other Languages
-
 ```{r}
 # Step 1: Define languages to combine
-langs_to_combine <- c("Chinese", 
-                      "Russian", 
-                      "Sign languages", 
-                      "Vietnamese", 
-                      "Other languages")
-
-# Step 2: Separate rows to keep and combine
-df_keep <- agg_by_lang[!(agg_by_lang$`Primary Language` 
-                         %in% langs_to_combine), ]
-df_combine <- agg_by_lang[agg_by_lang$`Primary Language` 
-                          %in% langs_to_combine, ]
-
-# Step 3: Sum the numeric columns
-combined_row <- df_combine |>
-  dplyr::select(-`Primary Language`) |>
-  colSums()
-
-# Step 4: Create the combined row as a data frame
-combined_df <- data.frame(`Primary Language` = 
-                            "Combined Chi/Rus/SL/Vie", t(combined_row))
-
-# Step 5: Make sure column names match exactly
-names(combined_df) <- names(df_keep)
-
-# Step 6: Combine into a new data frame
-agg_by_lang_2 <- rbind(df_keep, combined_df)
+# langs_to_combine <- c("Chinese", 
+#                       "Russian", 
+#                       "Sign languages", 
+#                       "Vietnamese", 
+#                       "Other languages")
+# 
+# # Step 2: Separate rows to keep and combine
+# df_keep <- agg_by_lang[!(agg_by_lang$`Primary Language` 
+#                          %in% langs_to_combine), ]
+# df_combine <- agg_by_lang[agg_by_lang$`Primary Language` 
+#                           %in% langs_to_combine, ]
+# 
+# # Step 3: Sum the numeric columns
+# combined_row <- df_combine |>
+#   dplyr::select(-`Primary Language`) |>
+#   colSums()
+# 
+# # Step 4: Create the combined row as a data frame
+# combined_df <- data.frame(`Primary Language` = 
+#                             "Combined Chi/Rus/SL/Vie", t(combined_row))
+# 
+# # Step 5: Make sure column names match exactly
+# names(combined_df) <- names(df_keep)
+# 
+# # Step 6: Combine into a new data frame
+# agg_by_lang_2 <- rbind(df_keep, combined_df)
 ```
 
 ### So, I had to combine Chinese, Russian, SL, Vietnamese, AND OTHER LANGUAGES which included any combinations of 2 or more or any other languages :( — definitely a limitation!!!
@@ -187,55 +187,55 @@ agg_by_lang_2 <- rbind(df_keep, combined_df)
 
 ```{r}
 # Step 1: Define languages to combine
-langs_to_combine <- c("Chinese", 
-                      "Russian", 
-                      "Sign languages", 
-                      "Vietnamese", 
-                      "Other languages")
-
-# Step 2: Separate rows to keep and combine
-df_keep <- agg_by_lang[!(agg_by_lang$`Primary Language` 
-                         %in% langs_to_combine), ]
-df_combine <- agg_by_lang[agg_by_lang$`Primary Language` 
-                          %in% langs_to_combine, ]
-
-# Step 3: Sum the numeric columns
-combined_row <- df_combine |>
-  dplyr::select(-`Primary Language`) |>
-  colSums()
-
-# Step 4: Create the combined row as a data frame
-combined_df <- data.frame(`Primary Language` = 
-                            "Other Languages and Ch/Ru/SL/Vi", t(combined_row))
-
-# Step 5: Make sure column names match exactly
-names(combined_df) <- names(df_keep)
-
-# Step 6: Combine into a new data frame
-agg_by_lang_3 <- rbind(df_keep, combined_df)
+# langs_to_combine <- c("Chinese", 
+#                       "Russian", 
+#                       "Sign languages", 
+#                       "Vietnamese", 
+#                       "Other languages")
+# 
+# # Step 2: Separate rows to keep and combine
+# df_keep <- agg_by_lang[!(agg_by_lang$`Primary Language` 
+#                          %in% langs_to_combine), ]
+# df_combine <- agg_by_lang[agg_by_lang$`Primary Language` 
+#                           %in% langs_to_combine, ]
+# 
+# # Step 3: Sum the numeric columns
+# combined_row <- df_combine |>
+#   dplyr::select(-`Primary Language`) |>
+#   colSums()
+# 
+# # Step 4: Create the combined row as a data frame
+# combined_df <- data.frame(`Primary Language` = 
+#                             "Other Languages and Ch/Ru/SL/Vi", t(combined_row))
+# 
+# # Step 5: Make sure column names match exactly
+# names(combined_df) <- names(df_keep)
+# 
+# # Step 6: Combine into a new data frame
+# agg_by_lang_3 <- rbind(df_keep, combined_df)
 ```
 
 ```{r}
-write.csv(agg_by_lang_2, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_2.csv")
+# write.csv(agg_by_lang_2, 
+          # file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_2.csv")
 ```
 
 ```{r}
-write.csv(agg_by_lang_3, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3.csv")
+# write.csv(agg_by_lang_3, 
+#           file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3.csv")
 ```
 
 ## Now, I have to make the agg_by_lang_2 into corrplot()
 
 ```{r}
-agg_by_lang_3_matrix <- as.matrix(
-  agg_by_lang_3[, 2:7]
-)
+# agg_by_lang_3_matrix <- as.matrix(
+#   agg_by_lang_3[, 2:7]
+# )
 ```
 
 ```{r}
-chi_results_lang_3_oregon <- chisq.test(agg_by_lang_3_matrix)
-chi_results_lang_3_oregon
+# chi_results_lang_3_oregon <- chisq.test(agg_by_lang_3_matrix)
+# chi_results_lang_3_oregon
 ```
 
 Pearson's Chi-squared test
@@ -243,15 +243,15 @@ Pearson's Chi-squared test
 data: agg_by_lang_3_matrix X-squared = 214.54, df = 10, p-value \< 2.2e-16
 
 ```{r}
-chisq.test(agg_by_lang_3_matrix, correct = FALSE)$stdres
+# chisq.test(agg_by_lang_3_matrix, correct = FALSE)$stdres
 ```
 
 ```{r}
-adj_std_res_lang_oregon <- chisq.test(agg_by_lang_3_matrix)
+# adj_std_res_lang_oregon <- chisq.test(agg_by_lang_3_matrix)
 ```
 
 ```{r}
-agg_by_lang_3_matrix
+# agg_by_lang_3_matrix
 ```
 
 ```{r}
@@ -274,33 +274,33 @@ agg_by_lang_3
 ```
 
 ```{r}
-chi_results_lang_3_oregon$stdres <- chi_results_lang_3_oregon$stdres[, order(colnames(chi_results_lang_3_oregon$stdres))]
+# chi_results_lang_3_oregon$stdres <- chi_results_lang_3_oregon$stdres[, order(colnames(chi_results_lang_3_oregon$stdres))]
 ```
 
 ```{r}
-# Step 1: Convert stdres matrix to data frame and add rownames
-stdres_lang_df <- as.data.frame(chi_results_lang_3_oregon$stdres) %>%
-  tibble::rownames_to_column(var = "Language") %>%
-  mutate(across(where(is.numeric), ~ round(.x, 2)))
-
-# Step 2: Save to CSV
-write.csv(stdres_lang_df, "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3_oregon.csv", row.names = FALSE)
-
-# Step 3: Create kable table
-kable(stdres_lang_df, caption = "Standardized Residuals by Home Language and Exit Reason") %>%
-  kable_styling(full_width = FALSE, position = "center") %>%
-  kable_classic(full_width = FALSE, html_font = "Cambria")
+# # Step 1: Convert stdres matrix to data frame and add rownames
+# stdres_lang_df <- as.data.frame(chi_results_lang_3_oregon$stdres) %>%
+#   tibble::rownames_to_column(var = "Language") %>%
+#   mutate(across(where(is.numeric), ~ round(.x, 2)))
+# 
+# # Step 2: Save to CSV
+# write.csv(stdres_lang_df, "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3_oregon.csv", row.names = FALSE)
+# 
+# # Step 3: Create kable table
+# kable(stdres_lang_df, caption = "Standardized Residuals by Home Language and Exit Reason") %>%
+#   kable_styling(full_width = FALSE, position = "center") %>%
+#   kable_classic(full_width = FALSE, html_font = "Cambria")
 
 ```
 
 ```{r}
-corrplot(chi_results_lang_3_oregon$stdres, 
-         is.cor = FALSE, 
-         tl.cex = 0.8, 
-         tl.col = "black", 
-         cl.cex = 0.7,     
-         cl.offset = 1,    
-         cl.ratio = 0.2)  
+# corrplot(chi_results_lang_3_oregon$stdres, 
+#          is.cor = FALSE, 
+#          tl.cex = 0.8, 
+#          tl.col = "black", 
+#          cl.cex = 0.7,     
+#          cl.offset = 1,    
+#          cl.ratio = 0.2)  
 ```
 
 Then, I have to make the agg_by_lang_2 for DQ vs other exits by making calcurltions that shows that the DQ vs OtherExits

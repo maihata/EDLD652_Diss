@@ -1,0 +1,152 @@
+---
+title: "4_ORRACE_average_no_not_determined"
+author: "Maiko Hata"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(grateful)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(knitr)
+library(corrplot)
+```
+
+```{r}
+race_oregon_no_not_determined <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+)
+```
+
+```{r}
+race_oregon_no_not_determined <- race_oregon_no_not_determined %>% 
+  select(-Not.Determined)
+```
+
+```{r}
+colnames(race_oregon_no_not_determined)
+```
+
+```{r}
+colnames(race_oregon_no_not_determined) <- c(
+  "Race",
+  "Dismissed",
+  "Moved Out",
+  "Not Eligible", 
+  "Part B Eligible",
+  "Withdrawn"
+)
+```
+
+```{r}
+print(race_oregon_no_not_determined)
+```
+
+```{r}
+### ✅ Step 1: Prepare the matrix
+
+chi_matrix_oregon_no_not_determined <- as.matrix(race_oregon_no_not_determined[, 2:6])
+rownames(chi_matrix_oregon_no_not_determined) <- race_oregon_no_not_determined$Race
+```
+
+```{r}
+### ✅ Step 2: Run the chi-square test
+
+chi_result_oregon_no_not_determined <- chisq.test(chi_matrix_oregon_no_not_determined)
+```
+
+```{r}
+### ✅ Step 3: View the results
+
+# Chi-square test output
+chi_result_oregon_no_not_determined
+
+# Standardized residuals (rounded for readability)
+round(chi_result_oregon_no_not_determined$stdres, 2)
+```
+
+```{r}
+# Convert standardized residuals to data frame with row names
+chi_result_oregon_no_not_determined_stdres <- as.data.frame(chi_result_oregon_no_not_determined$stdres)
+chi_result_oregon_no_not_determined_stdres <- tibble::rownames_to_column(chi_result_oregon_no_not_determined_stdres, var = "Race")
+
+# Save as CSV
+write.csv(
+  chi_result_oregon_no_not_determined_stdres,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/chi_residuals_oregon_no_nd.csv",
+  row.names = FALSE
+)
+```
+
+```{r}
+### For chi-square result write up 
+sum(chi_matrix_oregon_no_not_determined)
+```
+
+```{r}
+### Use this csv for the table to copy in diss results 
+write.csv(chi_result_oregon_no_not_determined_stdres )
+```
+
+```{r}
+### corrplot step 1
+stdres_mat_oregon_no_not_determined <- round(chi_result_oregon_no_not_determined$stdres, 2)
+```
+
+```{r}
+### corrplot step 2 --- fig-align: center
+
+```
+
+```{r}
+corrplot(chi_result_oregon_no_not_determined$stdres, 
+         is.cor = FALSE, 
+         tl.cex = 0.8,  
+         tl.col = "black", 
+         cl.cex = 0.7,      
+         cl.offset = 1,    
+         cl.ratio = 0.2)  
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

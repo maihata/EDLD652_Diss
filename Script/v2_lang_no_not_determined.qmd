@@ -1,0 +1,76 @@
+---
+title: "v2"
+author: "Maiko Hata"
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 6
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(janitor)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(grateful)
+library(distill)
+library(readxl)
+library(tidyr)
+library(corrplot)
+library(ggplot2)
+library(rio)
+library(janitor)
+```
+
+C. Oregon data by LANGUAGES
+
+```{r}
+agg_by_lang_4 <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
