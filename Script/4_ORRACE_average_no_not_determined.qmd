@@ -59,6 +59,14 @@ colnames(race_oregon_no_not_determined) <- c(
   "Part B Eligible",
   "Withdrawn"
 )
+
+```
+
+```{r}
+### 6.20.25. CHANGED THIS delete if it doesn't run 
+rownames(race_oregon_no_not_determined) <- c(
+  "AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White"
+)
 ```
 
 ```{r}
@@ -129,6 +137,7 @@ corrplot(chi_result_oregon_no_not_determined$stdres,
          cl.cex = 0.7,      
          cl.offset = 1,    
          cl.ratio = 0.2)  
+
 ```
 
 ```{r}
