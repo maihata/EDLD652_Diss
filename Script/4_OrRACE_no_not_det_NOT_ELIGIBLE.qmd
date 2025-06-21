@@ -1,0 +1,132 @@
+---
+title: "4_OrRACE_no_not_det_NOT_ELIGIBLE"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(grateful)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(knitr)
+library(corrplot)
+```
+
+```{r}
+race_oregon_no_not_determined <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+)
+```
+
+```{r}
+race_oregon_no_not_determined <- race_oregon_no_not_determined %>% 
+  select(-Not.Determined)
+```
+
+```{r}
+colnames(race_oregon_no_not_determined)
+```
+
+```{r}
+colnames(race_oregon_no_not_determined) <- c(
+  "Race",
+  "Dismissed",
+  "Moved Out",
+  "Not Eligible", 
+  "Part B Eligible",
+  "Withdrawn"
+)
+```
+
+```{r}
+race_oregon_no_not_determined$Race <- NULL
+
+```
+
+```{r}
+race_oregon_no_not_determined <- race_oregon_no_not_determined %>%
+  tibble::rownames_to_column(var = "Race")
+
+race_oregon_no_not_determined$Race <- c(
+  "AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White"
+)
+```
+
+```{r}
+print(race_oregon_no_not_determined)
+```
+
+### Odds Ratio — NOT ELIGIBLE in Oregon by Race 
+
+```{r}
+df_ore_not_eligible <- race_oregon_no_not_determined %>%
+  mutate(Not_Eligible_Other = rowSums(select(., -Race, -`Not Eligible`)))
+
+df_ore_not_eligible
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

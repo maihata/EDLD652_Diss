@@ -368,9 +368,4 @@ summary_df_odds_dismissed$Cohens_h <- round(cohens_h_values_padded, 2)
 basic_table_dismissed <- summary_df_odds_dismissed %>%
   select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
 
-
-```
-
-```{r}
-x
 ```
