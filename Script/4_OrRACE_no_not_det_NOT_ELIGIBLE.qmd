@@ -89,6 +89,8 @@ print(race_oregon_no_not_determined)
 ### Odds Ratio — NOT ELIGIBLE in Oregon by Race 
 
 ```{r}
+# ✅ Step 1: Create a new column for "Not Eligible"
+
 df_ore_not_eligible <- race_oregon_no_not_determined %>%
   mutate(Not_Eligible_Other = rowSums(select(., -Race, -`Not Eligible`)))
 
@@ -96,37 +98,211 @@ df_ore_not_eligible
 ```
 
 ```{r}
+# ✅ Step 2: Compute Oregon totals for Not Eligible and Not Not-Eligible
+oregon_not_eligible <- sum(df_ore_not_eligible$`Not Eligible`)
+oregon_not_not_eligible <- sum(df_ore_not_eligible$Not_Eligible_Other)
 
 ```
 
 ```{r}
+# ✅ Step 3: Define a function to compute odds ratio vs Oregon overall average for Not Eligible
+get_not_eligible_or <- function(group_row) {
+  race <- df_ore_not_eligible$Race[group_row]
+  a <- df_ore_not_eligible$`Not Eligible`[group_row]      # Not Eligible in group
+  b <- df_ore_not_eligible$Not_Eligible_Other[group_row]  # Not Not-Eligible in group
+  c <- oregon_not_eligible - a                            # Not Eligible in rest of Oregon
+  d <- oregon_not_not_eligible - b                        # Not Not-Eligible in rest of Oregon
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE,
+                dimnames = list(Group = c(race, "Oregon Average"),
+                                Exit = c("Not Eligible", "Other Exits")))
+
+  result <- oddsratio(mat)
+  return(result)
+}
 
 ```
 
 ```{r}
+# ✅ Step 4: Test the function for the first group (AI/AN)
+get_not_eligible_or(1)
 
 ```
 
 ```{r}
+# ✅ Step 5: Create a list of row indices for each group
+race_list_oregon <- seq_len(nrow(df_ore_not_eligible))
 
 ```
 
 ```{r}
+# ✅ Step 6: Run the odds ratio function for each group
+not_eligible_odds_results <- lapply(race_list_oregon, get_not_eligible_or)
+names(not_eligible_odds_results) <- df_ore_not_eligible$Race
 
 ```
 
 ```{r}
+# ✅ Step 7: Extract odds ratio, CI, and p-value into a summary data frame
+summary_df_odds_not_eligible <- lapply(not_eligible_odds_results, function(x) {
+  data.frame(
+    Odds_Ratio = x$measure[2, 1],
+    Lower_CI = x$measure[2, 2],
+    Upper_CI = x$measure[2, 3],
+    P_Value = x$p.value[2, 1]
+  )
+}) %>%
+  bind_rows(.id = "Race")
 
 ```
 
 ```{r}
+# ✅ Step 8: Round for readability
+summary_df_odds_not_eligible <- summary_df_odds_not_eligible %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    Lower_CI = round(Lower_CI, 2),
+    Upper_CI = round(Upper_CI, 2),
+    P_Value = signif(P_Value, 3)
+  )
 
 ```
 
 ```{r}
+# ✅ Step 9: Write odds ratio summary to CSV
+write.csv(
+  summary_df_odds_not_eligible,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_not_eligible_oregon.csv",
+  row.names = FALSE
+)
 
 ```
 
 ```{r}
+summary_df_odds_not_eligible
+
+```
+
+```{r}
+# ✅ Create the reference row
+nat_avg_row <- data.frame(
+  Race = "National Average",
+  Odds_Ratio = 1,
+  Lower_CI = 1,
+  Upper_CI = 1,
+  P_Value = NA
+)
+
+# ✅ Add to the summary table
+summary_df_odds_not_eligible <- bind_rows(summary_df_odds_not_eligible, nat_avg_row)
+
+```
+
+```{r}
+summary_df_odds_not_eligible$Race <- factor(
+  summary_df_odds_not_eligible$Race,
+  levels = rev(c(
+    sort(setdiff(summary_df_odds_not_eligible$Race, c("White", "National Average"))),
+    "White",
+    "National Average"
+  ))
+)
+
+```
+
+```{r}
+# ✅ Forest plot for 'Not Eligible' exit category by race (Oregon)
+ggplot(summary_df_odds_not_eligible, aes(x = Odds_Ratio, y = Race)) +
+  geom_point(color = "skyblue", size = 4) +
+  geom_errorbarh(aes(xmin = Lower_CI, xmax = Upper_CI), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", Odds_Ratio)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    title = "Odds Ratios for 'Not Eligible' Exit Category by Race (Oregon)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14)
+  )
+
+```
+
+### Cohen's h 
+
+```{r}
+# ✅ Step 1: Add a column for total exits (Not Eligible + Not Not-Eligible)
+df_ore_not_eligible <- df_ore_not_eligible %>%
+  mutate(Total_Exits = `Not Eligible` + Not_Eligible_Other)
+
+```
+
+```{r}
+# ✅ Step 2: Calculate total Not Eligible and total exits for Oregon overall
+# (these will be used to compare each group against the rest of Oregon)
+total_not_eligible_all <- sum(df_ore_not_eligible$`Not Eligible`)
+total_exits_all <- sum(df_ore_not_eligible$Total_Exits)
+
+```
+
+```{r}
+# ✅ Step 3: Define a function to compute Cohen's h from two proportions
+compute_cohens_h <- function(p1, p2) {
+  2 * abs(asin(sqrt(p1)) - asin(sqrt(p2)))
+}
+
+```
+
+```{r}
+# ✅ Step 4: Loop through each racial group to compute Cohen's h
+# Each group's Not Eligible proportion is compared to the rest of Oregon
+
+# Create an empty numeric vector to store results
+cohens_h_values_not_eligible <- numeric(nrow(df_ore_not_eligible))
+
+for (i in seq_len(nrow(df_ore_not_eligible))) {
+  # Group's values
+  group_not_eligible <- df_ore_not_eligible$`Not Eligible`[i]
+  group_total <- df_ore_not_eligible$Total_Exits[i]
+  p1 <- group_not_eligible / group_total
+
+  # Oregon average (excluding this group)
+  other_not_eligible <- total_not_eligible_all - group_not_eligible
+  other_total <- total_exits_all - group_total
+  p2 <- other_not_eligible / other_total
+
+  # Compute Cohen's h
+  cohens_h_values_not_eligible[i] <- compute_cohens_h(p1, p2)
+}
+
+```
+
+```{r}
+# ✅ Add NA to match row count (if "National Average" is included)
+cohens_h_values_not_eligible_padded <- c(cohens_h_values_not_eligible, NA)
+
+# ✅ Then add to the summary table
+summary_df_odds_not_eligible$Cohens_h <- round(cohens_h_values_not_eligible_padded, 2)
+
+```
+
+```{r}
+# ✅ Step 6: Create a basic version with just the essential columns
+basic_table_not_eligible <- summary_df_odds_not_eligible %>%
+  select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
+
+```
+
+```{r}
+# ✅ Save the final summary table to CSV
+write.csv(
+  basic_table_not_eligible,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/basic_table_not_eligible.csv",
+  row.names = FALSE
+)
 
 ```
