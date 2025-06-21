@@ -158,7 +158,7 @@ corrplot(chi_result_oregon_no_not_determined$stdres,
 
 ```
 
-### ODDS RATIO — DISMISSED in Oregon by Race 
+### ODDS RATIO — DISMISSED in Oregon by Race
 
 ```{r}
 # ✅ Step 1: Create a new column for "Not Dismissed"
