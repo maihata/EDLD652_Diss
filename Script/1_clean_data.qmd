@@ -343,9 +343,6 @@ write.csv(race_us_chart,
 kable(race_us_chart)
 ```
 
-```{r}
-write_clip(race_us_chart)
-```
 
 ### csv 7: race_oregon_chart
 
