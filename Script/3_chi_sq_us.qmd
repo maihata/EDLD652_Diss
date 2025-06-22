@@ -52,6 +52,7 @@ race_us_2 <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
 
 ```{r}
 print(race_us_2)
+colnames(race_us_2)
 ```
 
 ```{r}
@@ -236,8 +237,7 @@ colnames(race_us_2) <- c(
 ```
 
 ```{r}
-# Step 2: Drop the total exit column — we won't include it in chi-square or OR
-# race_us_2_clean <- race_us_2[, !colnames(race_us_2) %in% "Total Exit"]
+# Step 2: Deleted because it was redundant (dropping a column)
 ```
 
 ```{r}
@@ -254,16 +254,16 @@ race_us_2 <- race_us_2 %>%
     `Not Determined` = `Not Determined`
   )
 
-# Convert all exit count columns to numeric (in case they were read as characters)
-race_us_2[ , 2:ncol(race_us_2)] <- lapply(race_us_2[ , 2:ncol(race_us_2)], function(x) as.numeric(gsub(",", "", x)))
+library(dplyr)
+
+# ✅ Step 3 continued: Convert all exit count columns to numeric (except Race)
+race_us_2 <- race_us_2 %>%
+  mutate(across(-Race, ~ as.numeric(gsub(",", "", .))))
 
 ```
 
 ```{r}
-# # PREPPING race_us_2 for odds ratio for ### DISMISSED ### 
-# Step 4: Define a function to compute the odds ratio for being 'Dismissed' for a target group vs. all others
-
-# ✅ Step 1: Define the odds ratio function for Dismissed exits (clean and CI-ready)
+# ✅ Step 4: Define the odds ratio function for Dismissed exits (clean and CI-ready)
 
 get_dismissed_or <- function(group) {
   df <- race_us_2 %>%
@@ -273,24 +273,30 @@ get_dismissed_or <- function(group) {
                                 `Part B Eligible`, `Not Eligible`, `Not Determined`)), na.rm = TRUE)
     )
   
-  # Step 1.1: Group of interest
+  # Step 4.1: Group of interest (target group)
   a <- df %>% filter(Race == group) %>% pull(Dismissed)
   b <- df %>% filter(Race == group) %>% pull(Total) - a
   
-  # Step 1.2: All other groups
+  # Step 4.2: All other groups (everyone except target group)
   c <- df %>% filter(Race != group) %>% summarise(sum(Dismissed, na.rm = TRUE)) %>% pull()
   d <- df %>% filter(Race != group) %>% summarise(sum(Total, na.rm = TRUE)) %>% pull() - c
   
-  # Step 1.3: Construct 2x2 table and run Fisher's Exact Test
+  # Step 4.3: Construct 2x2 matrix and run chi-square test
   mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
   result <- chisq.test(mat)
   
-  # Step 1.4: Return formatted output with estimate and confidence interval
+  # Step 4.4: Manually compute odds ratio and 95% confidence interval
+  or <- (a / b) / (c / d)
+  se_log_or <- sqrt(1 / a + 1 / b + 1 / c + 1 / d)
+  ci_lower <- exp(log(or) - 1.96 * se_log_or)
+  ci_upper <- exp(log(or) + 1.96 * se_log_or)
+  
+  # Step 4.5: Return a tibble with the OR, CI, and p-value
   tibble(
-    `Odds Ratio` = (a / b) / (c / d),  # ✅ Manually compute OR
+    `Odds Ratio` = or,
     `P Value` = result$p.value,
-    Lower = NA,
-    Upper = NA
+    Lower = ci_lower,
+    Upper = ci_upper
   )
 }
 
@@ -314,11 +320,6 @@ names(dismissed_odds_results) <- race_list
 ```
 
 ```{r}
-summary_df <- dismissed_odds_results
-
-```
-
-```{r}
 # # Step 6.1: Extract the key results from each test
 summary_df_odds_dismissed <- bind_rows(dismissed_odds_results, .id = "Race")
 
@@ -334,12 +335,14 @@ str(dismissed_odds_results)
 ```
 
 ```{r}
-# Step 6.2: Round the values for readability
+# ✅ Step 6.2: Round the values for readability
 summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   mutate(
-  `Odds Ratio` = round(`Odds Ratio`, 2),
-  `P Value` = signif(`P Value`, 3)
-)
+    `Odds Ratio` = round(`Odds Ratio`, 2),
+    Lower = round(Lower, 2),
+    Upper = round(Upper, 2),
+    `P Value` = ifelse(`P Value` < .001, "< .001", round(`P Value`, 3))
+  )
 
 ```
 
@@ -456,10 +459,6 @@ kable(summary_df_h_dismissed, caption = "Cohen's h for 'Dismissed' Exit Rates by
 ```
 
 #### Forrest Plot for Odds ratio
-
-```{r}
-print(summary_df)
-```
 
 ```{r}
 # ✅ Step 1: Modify the get_dismissed_or() function to return CIs

@@ -86,7 +86,7 @@ race_oregon_no_not_determined$Race <- c(
 print(race_oregon_no_not_determined)
 ```
 
-### Odds Ratio — NOT ELIGIBLE in Oregon by Race 
+### Odds Ratio — NOT ELIGIBLE in Oregon by Race
 
 ```{r}
 # ✅ Step 1: Create a new column for "Not Eligible"
@@ -232,7 +232,7 @@ ggplot(summary_df_odds_not_eligible, aes(x = Odds_Ratio, y = Race)) +
 
 ```
 
-### Cohen's h 
+### Cohen's h
 
 ```{r}
 # ✅ Step 1: Add a column for total exits (Not Eligible + Not Not-Eligible)
