@@ -1,0 +1,312 @@
+---
+title: "4_OrRACE_no_not_det_WITHDRAWN.qmd"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(grateful)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(knitr)
+library(corrplot)
+```
+
+### Prepping
+
+```{r}
+race_oregon_no_not_determined <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+)
+```
+
+```{r}
+race_oregon_no_not_determined <- race_oregon_no_not_determined %>% 
+  select(-Not.Determined)
+```
+
+```{r}
+colnames(race_oregon_no_not_determined) <- c(
+  "Race",
+  "Dismissed",
+  "Moved Out",
+  "Not Eligible", 
+  "Part B Eligible",
+  "Withdrawn"
+)
+```
+
+```{r}
+race_oregon_no_not_determined$Race <- NULL
+
+```
+
+```{r}
+race_oregon_no_not_determined <- race_oregon_no_not_determined %>%
+  tibble::rownames_to_column(var = "Race")
+
+race_oregon_no_not_determined$Race <- c(
+  "AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White"
+)
+```
+
+### Odds Ratio — WITHDRAWN in Oregon by Race
+
+```{r}
+# ✅ Step 1: Create a new column for "Withdrawn"
+
+df_ore_withdrawn <- race_oregon_no_not_determined %>%
+  mutate(Withdrawn_Other = rowSums(select(., -Race, -Withdrawn)))
+
+df_ore_withdrawn
+
+```
+
+```{r}
+# ✅ Step 2: Compute Oregon totals for Withdrawn and Not-Withdrawn
+oregon_withdrawn <- sum(df_ore_withdrawn$Withdrawn)
+oregon_not_withdrawn <- sum(df_ore_withdrawn$Withdrawn_Other)
+
+```
+
+```{r}
+# ✅ Step 3: Define a function to compute odds ratio vs Oregon overall average for Withdrawn
+get_withdrawn_or <- function(group_row) {
+  race <- df_ore_withdrawn$Race[group_row]
+  a <- df_ore_withdrawn$Withdrawn[group_row]          # Withdrawn in group
+  b <- df_ore_withdrawn$Withdrawn_Other[group_row]    # Not Withdrawn in group
+  c <- oregon_withdrawn - a                           # Withdrawn in rest of Oregon
+  d <- oregon_not_withdrawn - b                       # Not Withdrawn in rest of Oregon
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE,
+                dimnames = list(Group = c(race, "Oregon Average"),
+                                Exit = c("Withdrawn", "Other Exits")))
+
+  result <- oddsratio(mat)
+  return(result)
+}
+
+```
+
+```{r}
+# ✅ Step 4: Test the function for the first group (AI/AN)
+get_withdrawn_or(1)
+
+```
+
+```{r}
+# ✅ Step 5: Create a list of row indices for each group
+race_list_oregon <- seq_len(nrow(df_ore_withdrawn))
+```
+
+```{r}
+# ✅ Step 6: Run the odds ratio function for each group
+withdrawn_odds_results <- lapply(race_list_oregon, get_withdrawn_or)
+names(withdrawn_odds_results) <- df_ore_withdrawn$Race
+
+```
+
+```{r}
+# ✅ Step 7: Extract odds ratio, CI, and p-value into a summary data frame
+summary_df_odds_withdrawn <- lapply(withdrawn_odds_results, function(x) {
+  data.frame(
+    Odds_Ratio = x$measure[2, 1],
+    Lower_CI = x$measure[2, 2],
+    Upper_CI = x$measure[2, 3],
+    P_Value = x$p.value[2, 1]
+  )
+}) %>%
+  bind_rows(.id = "Race")
+
+```
+
+```{r}
+# ✅ Step 8: Round for readability
+summary_df_odds_withdrawn <- summary_df_odds_withdrawn %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    Lower_CI = round(Lower_CI, 2),
+    Upper_CI = round(Upper_CI, 2),
+    P_Value = signif(P_Value, 3)
+  )
+
+```
+
+```{r}
+# ✅ Step 9: Write odds ratio summary to CSV
+write.csv(
+  summary_df_odds_withdrawn,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_withdrawn_oregon.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+summary_df_odds_withdrawn
+
+```
+
+```{r}
+# ✅ Create the reference row
+oregon_avg_row <- data.frame(
+  Race = "Oregon Average",
+  Odds_Ratio = 1,
+  Lower_CI = 1,
+  Upper_CI = 1,
+  P_Value = NA
+)
+
+# ✅ Add to the summary table
+summary_df_odds_withdrawn <- bind_rows(summary_df_odds_withdrawn, oregon_avg_row)
+
+```
+
+```{r}
+summary_df_odds_withdrawn$Race <- factor(
+  summary_df_odds_withdrawn$Race,
+  levels = rev(c(
+    sort(setdiff(summary_df_odds_withdrawn$Race, c("White", "Oregon Average"))),
+    "White",
+    "Oregon Average"
+  ))
+)
+
+```
+
+```{r}
+ggplot(summary_df_odds_withdrawn, aes(x = Odds_Ratio, y = Race)) +
+  geom_point(color = "skyblue", size = 4) +
+  geom_errorbarh(aes(xmin = Lower_CI, xmax = Upper_CI), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", Odds_Ratio)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    title = "Odds Ratios for 'Withdrawn' Exit Category by Race (Oregon)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14)
+  )
+```
+
+### Cohen's h
+
+```{r}
+# ✅ Step 1: Add a column for total exits (Withdrawn + Not-Withdrawn)
+df_ore_withdrawn <- df_ore_withdrawn %>%
+  mutate(Total_Exits = Withdrawn + Withdrawn_Other)
+
+```
+
+```{r}
+# ✅ Step 2: Calculate total Withdrawn and total exits for Oregon overall
+# (these will be used to compare each group against the rest of Oregon)
+total_withdrawn_all <- sum(df_ore_withdrawn$Withdrawn)
+total_exits_all <- sum(df_ore_withdrawn$Total_Exits)
+
+```
+
+```{r}
+# ✅ Step 3: Define a function to compute Cohen's h from two proportions
+# p1 = proportion in the focal group, p2 = proportion in the comparison group
+compute_cohens_h <- function(p1, p2) {
+  2 * abs(asin(sqrt(p1)) - asin(sqrt(p2)))
+}
+
+```
+
+```{r}
+# ✅ Step 4: Loop through each racial group to compute Cohen's h
+# Each group's Withdrawn proportion is compared to the rest of Oregon
+
+# Create an empty numeric vector to store results
+cohens_h_values_withdrawn <- numeric(nrow(df_ore_withdrawn))
+
+for (i in seq_len(nrow(df_ore_withdrawn))) {
+  # Group's values
+  group_withdrawn <- df_ore_withdrawn$Withdrawn[i]
+  group_total <- df_ore_withdrawn$Total_Exits[i]
+  p1 <- group_withdrawn / group_total
+
+  # Oregon average (excluding this group)
+  other_withdrawn <- total_withdrawn_all - group_withdrawn
+  other_total <- total_exits_all -_
+
+```
+
+```{r}
+# ✅ Add NA to match row count (if "Oregon Average" is included)
+cohens_h_values_withdrawn_padded <- c(cohens_h_values_withdrawn, NA)
+
+# ✅ Then add to the summary table
+summary_df_odds_withdrawn$Cohens_h <- round(cohens_h_values_withdrawn_padded, 2)
+
+```
+
+```{r}
+# ✅ Step 6: Create a basic version with just the essential columns
+basic_table_withdrawn <- summary_df_odds_withdrawn %>%
+  select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
+
+```
+
+```{r}
+# ✅ Save the final summary table to CSV
+write.csv(
+  basic_table_withdrawn,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/basic_table_withdrawn.csv",
+  row.names = FALSE
+)
+```
+
+```{r}
+summary_df_odds_withdrawn %>%
+  select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
+
+```
+
+```{r}
+summary_df_odds_withdrawn
+
+```
+
+```{r}
+```
+
+```{r}
+```
