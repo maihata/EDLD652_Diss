@@ -12,6 +12,7 @@ editor: visual
 engine: knitr
 ---
 
+
 ```{r}
 library(tidyverse)
 library(rio)
@@ -97,6 +98,7 @@ df_ore_withdrawn
 oregon_withdrawn <- sum(df_ore_withdrawn$Withdrawn)
 oregon_not_withdrawn <- sum(df_ore_withdrawn$Withdrawn_Other)
 
+# average for Withdrawn (this is a comment, not code)
 ```
 
 ```{r}
@@ -254,18 +256,24 @@ compute_cohens_h <- function(p1, p2) {
 # ✅ Step 4: Loop through each racial group to compute Cohen's h
 # Each group's Withdrawn proportion is compared to the rest of Oregon
 
-# Create an empty numeric vector to store results
+# Create an empty vector to store results
 cohens_h_values_withdrawn <- numeric(nrow(df_ore_withdrawn))
 
 for (i in seq_len(nrow(df_ore_withdrawn))) {
-  # Group's values
+  # Group-specific values
   group_withdrawn <- df_ore_withdrawn$Withdrawn[i]
   group_total <- df_ore_withdrawn$Total_Exits[i]
   p1 <- group_withdrawn / group_total
 
-  # Oregon average (excluding this group)
+  # Oregon totals excluding this group
   other_withdrawn <- total_withdrawn_all - group_withdrawn
-  other_total <- total_exits_all -_
+  other_total <- total_exits_all - group_total
+  p2 <- other_withdrawn / other_total
+
+  # Compute Cohen's h
+  cohens_h_values_withdrawn[i] <- compute_cohens_h(p1, p2)
+}
+
 
 ```
 
@@ -302,11 +310,6 @@ summary_df_odds_withdrawn %>%
 
 ```{r}
 summary_df_odds_withdrawn
-
 ```
 
-```{r}
-```
 
-```{r}
-```

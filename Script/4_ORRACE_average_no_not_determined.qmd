@@ -130,26 +130,6 @@ write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_forma
 ```
 
 ```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
 ### ✅ Step 1: Prepare the matrix
 
 chi_matrix_oregon_no_not_determined <- as.matrix(race_oregon_no_not_determined[, 2:6])
@@ -213,53 +193,5 @@ corrplot(chi_result_oregon_no_not_determined$stdres,
          cl.cex = 0.7,      
          cl.offset = 1,    
          cl.ratio = 0.2)  
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
 
 ```
