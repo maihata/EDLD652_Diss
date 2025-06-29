@@ -14,7 +14,6 @@ engine: knitr
 
 ```{r}
 library(tidyverse)
-library(rio)
 library(knitr)
 library(gt)
 library(DT)
