@@ -1,0 +1,255 @@
+---
+title: "v2_lang_Eng_Sp_Others.qmd"
+author: "Maiko Hata"
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 6
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: false
+  message: false 
+  warning: false
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(janitor)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(grateful)
+library(distill)
+library(readxl)
+library(tidyr)
+library(corrplot)
+library(ggplot2)
+library(rio)
+library(janitor)
+```
+
+Oregon data by LANGUAGES
+
+```{r}
+# importing the data and clinining up: 
+# 1. REMOVED DECEASED (the 6th column)
+# 2. CREATED THE complete_or_not_eligible combining three categories 
+
+bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
+  clean_names() %>% 
+  select(-6) %>%
+  mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
+not_eligible_for_part_b_exit_with_referrals_to_other_programs)
+
+view(bylang)
+```
+
+```{r}
+# 6/2/25: Looks like I followed what I did with the race qmd (see below)
+# FROM v1: 
+# aggregated by race for OR
+# race_oregon <- agg_by_race_and_state %>%
+# filter(area == "Oregon")
+
+# aggregated by race for US
+#race_us <- agg_by_race_and_state %>% 
+ # filter(area == "US and Outlying Areas")
+
+agg_by_lang <- bylang %>% 
+  group_by(primary_language) %>% 
+  summarize(exit_total = sum(total), 
+            withdrawal_by_parent = sum(withdrawal_by_parent), 
+            attempts_to_contact_unsuccessful = sum(attempts_to_contact_unsuccessful),
+            moved_out_of_state = sum(moved_out_of_state),
+            part_b_eligible_exiting_part_c = sum(part_b_eligible_exiting_part_c),
+            complete_or_not_eligible = sum(complete_or_not_eligible), 
+            part_b_eligibility_not_determined = sum(part_b_eligibility_not_determined))
+
+
+```
+
+```{r}
+# renaming the category names 
+agg_by_lang <- agg_by_lang %>% 
+  rename(
+    "Primary Language" = primary_language, 
+    "Withdrawn" = withdrawal_by_parent, 
+   "Dismissed" = attempts_to_contact_unsuccessful, 
+"Moved Out" = moved_out_of_state, 
+    "Part B Eligible" = part_b_eligible_exiting_part_c, 
+    "Not Eligible" = complete_or_not_eligible, 
+    "Not Determined" = part_b_eligibility_not_determined, 
+  )
+```
+
+```{r}
+# reorganizing columns alphabetically 
+agg_by_lang <- agg_by_lang %>% 
+  select("Primary Language", sort(setdiff(names(.), "Primary Language")))
+```
+
+```{r}
+### Getting rid of TOTAL 
+agg_by_lang <- agg_by_lang %>% 
+  select(-"exit_total")
+
+```
+
+```{r}
+write.csv(agg_by_lang, 
+          file =  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
+          row.names = FALSE)
+```
+
+```{r}
+kable(agg_by_lang, 
+      caption = "Initial Oregon Data by Home Languages") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+```{r}
+# ✅ Step 1: Define the grouping logic
+agg_by_lang_3group <- agg_by_lang %>%
+  mutate(`Primary Language` = case_when(
+    `Primary Language` == "English" ~ "English",
+    `Primary Language` == "Spanish" ~ "Spanish",
+    TRUE ~ "Other Languages"
+  )) %>%
+  group_by(`Primary Language`) %>%
+  summarise(across(where(is.numeric), sum), .groups = "drop")
+
+# ✅ Step 2: View the result
+print(agg_by_lang_3group)
+
+# ✅ Step 3: Save the result to CSV (absolute path)
+write.csv(
+  agg_by_lang_3group,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+```
+
+### 6/29/25: Per Heather, I analyzed the combine everything else and compare it with English (in v2_lang_Eng_vs_everything_else.qmd). Now, I'm trying to differentiate the Eng vs Spanish vs everything else. 
+
+```{r}
+# ✅ Step 1: Convert to matrix for chi-square test
+chi_matrix_lang_3group <- agg_by_lang_3group %>%
+  column_to_rownames(var = "Primary Language") %>%
+  as.matrix()
+
+# ✅ Step 2: Run chi-square test
+chi_results_lang_3group <- chisq.test(chi_matrix_lang_3group)
+
+# ✅ Step 3: Extract standardized residuals
+stdres_lang_3group <- as.data.frame(chi_results_lang_3group$stdres) %>%
+  tibble::rownames_to_column(var = "Primary Language") %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+# ✅ Step 4: Display standardized residuals table
+library(knitr)
+library(kableExtra)
+
+kable(stdres_lang_3group, caption = "Standardized Residuals for EI Exit Categories: English, Spanish, and Other Languages") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+# ✅ Save standardized residuals to CSV with absolute path
+write.csv(
+  stdres_lang_3group,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3group.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+# ✅ Step 5: Compute Cohen’s h for each exit category (3-group version)
+
+# Step 5.1: Add total exits per group
+agg_lang_3group_prop <- agg_lang_3group %>%
+  mutate(Total = rowSums(across(where(is.numeric))))
+
+# ✅ Step 5.2: Pivot to long format and compute proportions
+lang3_prop_long <- agg_lang_3group_prop %>%
+  pivot_longer(
+    cols = -c(`Primary Language`, Total),
+    names_to = "Exit_Category",
+    values_to = "Count"
+  ) %>%
+  mutate(Proportion = Count / Total)
+
+# ✅ Step 5.3: Pivot wider for pairwise comparison
+lang3_prop_wide <- lang3_prop_long %>%
+  select(`Primary Language`, Exit_Category, Proportion) %>%
+  pivot_wider(names_from = `Primary Language`, values_from = Proportion)
+
+# ✅ Step 5.4: Define Cohen’s h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# ✅ Step 5.5: Compute Cohen's h for all pairwise comparisons
+cohenh_summary_lang3 <- lang3_prop_wide %>%
+  mutate(
+    `English vs Spanish` = compute_cohens_h(English, Spanish),
+    `English vs Others` = compute_cohens_h(English, Others),
+    `Spanish vs Others` = compute_cohens_h(Spanish, Others)
+  ) %>%
+  select(Exit_Category, `English vs Spanish`, `English vs Others`, `Spanish vs Others`) %>%
+  mutate(across(-Exit_Category, ~ round(.x, 3)))
+
+# ✅ Step 5.6: Display table
+kable(cohenh_summary_lang3, caption = "Cohen’s h for EI Exit Categories: English vs. Spanish and Other Languages") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+
+```
+
+```{r}
+# ✅ Save Cohen's h summary for 3-group language comparison
+write.csv(
+  cohenh_summary_lang3,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohenh_summary_lang3.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+# ✅ Step 2: Convert standardized residuals to matrix format (3-group version)
+stdres_matrix_lang_3group <- stdres_lang_3group %>%
+  column_to_rownames(var = "Primary Language") %>%
+  as.matrix()
+
+# ✅ Step 3: Create corrplot of standardized residuals
+corrplot(
+  stdres_matrix_lang_3group, 
+  is.cor = FALSE, 
+  tl.cex = 0.8,        # Text label size
+  tl.col = "black",    # Text label color
+  cl.cex = 0.7,        # Color legend size
+  cl.offset = 1,       # Color legend offset
+  cl.ratio = 0.2       # Color legend width
+)
+
+```
+
+```{r}
+
+```
