@@ -344,39 +344,27 @@ kable(race_us_chart)
 ```
 
 ```{r}
-### 6/28/25 Per LINA, trying to add x% (raw number) above 
-us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", stringsAsFactors = FALSE)
-```
-
-```{r}
-# ✅ Step 1: Read in the CSV
-str(us_race_chart)
-
+### 6/28/25 --- LINA's redone because the % was not within groups 
 library(dplyr)
 
-#✅ Step 2: Clean the numbers (remove commas, convert to numeric)
+# Step 1: If not already loaded
+# us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
+
+# Step 2: Clean numeric columns
 us_race_chart_clean <- us_race_chart %>%
-  mutate(across(-Race, ~ as.numeric(gsub(",", "", .))))
+  mutate(across(-Race, ~ as.numeric(gsub(",", "", .)))) %>%
+  ungroup()
 
-sapply(us_race_chart_clean, class)
-```
-
-```{r}
-# ✅ Step 3: Calculate totals and percentages
-# Select just the numeric exit columns
+# Step 3: Select just numeric exit columns
 raw_only <- us_race_chart_clean %>% select(-Race)
 
-# Column totals
-exit_totals <- colSums(raw_only, na.rm = TRUE)
+# Step 4: Compute row totals (per racial group)
+row_totals <- rowSums(raw_only, na.rm = TRUE)
 
-# Calculate percentages
-percent_matrix <- sweep(raw_only, 2, exit_totals, FUN = "/") * 100
+# Step 5: Row-wise percentages
+percent_matrix <- sweep(raw_only, 1, row_totals, FUN = "/") * 100
 
-```
-
-```{r}
-# ✅ Step 4: Format labels as “xx.xx% (raw)”
-# Format as "xx.xx% (raw)"
+# Step 6: Format each value
 formatted <- mapply(
   function(p, r) sprintf("%.2f%% (%s)", p, format(r, big.mark = ",")),
   percent_matrix,
@@ -384,13 +372,72 @@ formatted <- mapply(
   SIMPLIFY = FALSE
 )
 
-# Convert to data frame
+# Step 7: Assemble final table
 formatted_df <- as.data.frame(formatted, stringsAsFactors = FALSE)
 formatted_df$Race <- us_race_chart_clean$Race
+formatted_df <- formatted_df %>% select(Race, everything())
 
-# Reorder columns
-formatted_df <- formatted_df %>%
-  select(Race, everything())
+# ✅ Step 8: Save with absolute path
+write.csv(
+  formatted_df,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv",
+  row.names = FALSE
+)
+
+# ✅ APA-style table note:
+# Note. Values represent the percentage of exits within each racial group, with raw counts in parentheses. Percentages are rounded to two decimal places.
+
+
+```
+
+```{r}
+### 6/28/25 Per LINA, trying to add x% (raw number) above 
+# us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+# # ✅ Step 1: Read in the CSV
+# str(us_race_chart)
+# 
+# library(dplyr)
+# 
+# #✅ Step 2: Clean the numbers (remove commas, convert to numeric)
+# us_race_chart_clean <- us_race_chart %>%
+#   mutate(across(-Race, ~ as.numeric(gsub(",", "", .))))
+# 
+# sapply(us_race_chart_clean, class)
+```
+
+```{r}
+# # ✅ Step 3: Calculate totals and percentages
+# # Select just the numeric exit columns
+# raw_only <- us_race_chart_clean %>% select(-Race)
+# 
+# # Column totals
+# exit_totals <- colSums(raw_only, na.rm = TRUE)
+# 
+# # Calculate percentages
+# percent_matrix <- sweep(raw_only, 2, exit_totals, FUN = "/") * 100
+
+```
+
+```{r}
+# # ✅ Step 4: Format labels as “xx.xx% (raw)”
+# # Format as "xx.xx% (raw)"
+# formatted <- mapply(
+#   function(p, r) sprintf("%.2f%% (%s)", p, format(r, big.mark = ",")),
+#   percent_matrix,
+#   raw_only,
+#   SIMPLIFY = FALSE
+# )
+# 
+# # Convert to data frame
+# formatted_df <- as.data.frame(formatted, stringsAsFactors = FALSE)
+# formatted_df$Race <- us_race_chart_clean$Race
+# 
+# # Reorder columns
+# formatted_df <- formatted_df %>%
+#   select(Race, everything())
 
 ```
 
@@ -401,7 +448,7 @@ View(formatted_df)
 
 ```{r}
 # ✅ Step 6: Optional – Export to CSV
-write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted.csv", row.names = FALSE)
+# write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted.csv", row.names = FALSE)
 ```
 
 ### csv 7: race_oregon_chart
