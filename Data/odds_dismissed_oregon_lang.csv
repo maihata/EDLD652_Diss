@@ -1,0 +1,4 @@
+"Primary.Language","Odds_Ratio","Lower_CI","Upper_CI","P_Value","Race"
+"English",1.12,1.02,1.22,0.018,NA
+"All Other Languages",0.9,0.82,0.98,0.018,NA
+NA,1,1,1,NA,"National Average"
