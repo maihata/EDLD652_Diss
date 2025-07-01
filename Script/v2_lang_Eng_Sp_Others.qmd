@@ -135,10 +135,6 @@ write.csv(
   "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv",
   row.names = FALSE
 )
-
-```
-
-```{r}
 ```
 
 ### 6/29/25: Per Heather, I analyzed the combine everything else and compare it with English (in v2_lang_Eng_vs_everything_else.qmd). Now, I'm trying to differentiate the Eng vs Spanish vs everything else.
@@ -247,9 +243,4 @@ corrplot(
   cl.offset = 1,       # Color legend offset
   cl.ratio = 0.2       # Color legend width
 )
-
-```
-
-```{r}
-
 ```
