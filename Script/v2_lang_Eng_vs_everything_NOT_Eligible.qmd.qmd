@@ -1,0 +1,185 @@
+---
+title: "v2_lang_Eng_vs_everything_NOT_Eligible.qmd"
+author: "Maiko Hata"
+output: html_document
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+# ✅ Step 1: Load and prepare the data
+agg_lang_2group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv")
+
+df_lang_noteligible <- agg_lang_2group %>%
+  mutate(Not_Not.Eligible = rowSums(select(., -Primary.Language, -Not.Eligible)))  # Total exits excluding Not Eligible
+
+```
+
+```{r}
+# ✅ Step 2: Compute total counts for Oregon overall
+# These will be used to compare each group to the rest of Oregon
+
+oregon_noteligible <- sum(df_lang_noteligible$Not.Eligible)
+oregon_other <- sum(df_lang_noteligible$Not_Not.Eligible)
+
+```
+
+```{r}
+# ✅ Step 3: Define function to calculate odds ratio for Not Eligible vs rest of Oregon
+get_noteligible_or <- function(row_index) {
+  group <- as.character(df_lang_noteligible$Primary.Language[row_index])
+  a <- df_lang_noteligible$Not.Eligible[row_index]
+  b <- df_lang_noteligible$Not_Not.Eligible[row_index]
+  c <- oregon_noteligible - a
+  d <- oregon_other - b
+
+  if (any(is.na(c(a, b, c, d))) || any(c(a, b, c, d) < 0)) {
+    return(NULL)
+  }
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  dimnames(mat) <- list(
+    Group = c(group, "National Average"),
+    Exit = c("Not Eligible", "Other Exits")
+  )
+
+  oddsratio(mat)
+}
+
+```
+
+```{r}
+# ✅ Step 4: Apply the function to each language group to compute odds ratios
+language_list <- seq_len(nrow(df_lang_noteligible))
+noteligible_odds_results <- lapply(language_list, get_noteligible_or)
+names(noteligible_odds_results) <- df_lang_noteligible$Primary.Language
+
+```
+
+```{r}
+# ✅ Step 5: Extract odds ratio, CI, and p-value into a summary data frame
+summary_df_odds_noteligible_lang <- lapply(noteligible_odds_results, function(x) {
+  if (is.null(x)) {
+    return(data.frame(
+      Odds_Ratio = NA,
+      Lower_CI = NA,
+      Upper_CI = NA,
+      P_Value = NA
+    ))
+  } else {
+    data.frame(
+      Odds_Ratio = x$measure[2, 1],
+      Lower_CI = x$measure[2, 2],
+      Upper_CI = x$measure[2, 3],
+      P_Value = x$p.value[2, 1]
+    )
+  }
+}) %>%
+  bind_rows(.id = "Primary.Language")
+
+```
+
+```{r}
+# ✅ Step 6: Round results for readability
+summary_df_odds_noteligible_lang <- summary_df_odds_noteligible_lang %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    Lower_CI = round(Lower_CI, 2),
+    Upper_CI = round(Upper_CI, 2),
+    P_Value = signif(P_Value, 3)
+  )
+
+```
+
+```{r}
+# ✅ Step 7: Plot odds ratios and confidence intervals
+ggplot(summary_df_odds_noteligible_lang, aes(x = Odds_Ratio, y = Primary.Language)) +
+  geom_point(aes(color = P_Value < 0.05), size = 4) +
+  geom_errorbarh(aes(xmin = Lower_CI, xmax = Upper_CI), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", Odds_Ratio)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  scale_color_manual(
+    values = c("TRUE" = "skyblue", "FALSE" = "gray70"),
+    labels = c("FALSE" = "p ≥ .05", "TRUE" = "p < .05")
+  ) +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    color = "Statistical Significance",
+    title = "Odds Ratios for 'Not Eligible' Exit Category by Primary Language (Oregon)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14)
+  )
+
+```
+
+```{r}
+# ✅ Step 8: Add total exit column (Not Eligible + Other) to compute Cohen’s h
+df_lang_noteligible <- df_lang_noteligible %>%
+  mutate(Total_Exits = Not.Eligible + Not_Not.Eligible)
+
+```
+
+```{r}
+# ✅ Step 9: Calculate Oregon totals for Cohen’s h
+total_noteligible_all <- sum(df_lang_noteligible$Not.Eligible)
+total_exits_all <- sum(df_lang_noteligible$Total_Exits)
+
+```
+
+```{r}
+# ✅ Step 10: Define Cohen’s h function
+compute_cohens_h <- function(p1, p2) {
+  2 * abs(asin(sqrt(p1)) - asin(sqrt(p2)))
+}
+
+```
+
+```{r}
+# ✅ Step 11: Loop through each language group to compute Cohen’s h
+cohens_h_values <- numeric(nrow(df_lang_noteligible))
+
+for (i in seq_len(nrow(df_lang_noteligible))) {
+  group_ne <- df_lang_noteligible$Not.Eligible[i]
+  group_total <- df_lang_noteligible$Total_Exits[i]
+  p1 <- group_ne / group_total
+
+  other_ne <- total_noteligible_all - group_ne
+  other_total <- total_exits_all - group_total
+  p2 <- other_ne / other_total
+
+  cohens_h_values[i] <- compute_cohens_h(p1, p2)
+}
+
+```
+
+```{r}
+# ✅ Step 12: Add Cohen’s h values to the summary table
+summary_df_odds_noteligible_lang$Cohens_h <- round(cohens_h_values, 2)
+
+```
+
+```{r}
+# ✅ Step 13: Save final summary to CSV
+write.csv(
+  summary_df_odds_noteligible_lang,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_noteligible_by_language.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+
+```

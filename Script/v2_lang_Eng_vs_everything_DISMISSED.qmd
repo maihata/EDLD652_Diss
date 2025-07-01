@@ -185,7 +185,7 @@ ggplot(summary_df_odds_dismissed_lang, aes(x = Odds_Ratio, y = Primary.Language)
 
 ```
 
-### Cohen's h 
+### Cohen's h
 
 ```{r}
 # ✅ Step 1: Add a column for total exits (Dismissed + Not Dismissed)
@@ -249,9 +249,5 @@ basic_table_dismissed_lang <- summary_df_odds_dismissed_lang %>%
 ```{r}
 # ✅ Step 7: Save summary table with Cohen's h to CSV
 write.csv(summary_df_odds_dismissed_lang, "/Users/hata/Desktop/EDLD652_Diss/Data/summary_dismissed_by_language.csv", row.names = FALSE)
-
-```
-
-```{r}
 
 ```
