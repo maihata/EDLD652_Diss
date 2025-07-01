@@ -1,0 +1,4 @@
+"Primary.Language","Odds_Ratio","Lower_CI","Upper_CI","P_Value","Cohens_h"
+"English",1.02,0.92,1.14,0.664,0.01
+"Other Languages",1.48,1.31,1.66,7.68e-10,0.09
+"Spanish",0.5,0.41,0.6,1.33e-15,0.14
