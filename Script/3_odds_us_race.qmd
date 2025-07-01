@@ -201,6 +201,15 @@ kable(summary_df_odds_notdetermined, align = "lcc") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
 
+```{r}
+# ✅ Step: Write odds ratio summary for 'Not Determined' to CSV (absolute path)
+write.csv(
+  summary_df_odds_notdetermined,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/odds_notdetermined_by_race.csv",
+  row.names = FALSE
+)
+```
+
 ### Not Determined Cohen's h
 
 ```{r}
@@ -380,8 +389,22 @@ ggplot(summary_df_not_determined, aes(x = `Odds Ratio`, y = Race)) +
 ```
 
 ```{r}
-summary_df_not_determined_plot <- summary_df_not_determined %>%
-  filter(Race != "National Average")
+# ✅ Step: Write Cohen's h summary for 'Not Determined' exit category by race to CSV
+write.csv(
+  summary_df_h,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_notdetermined_by_race.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+# ✅ Step: Write filtered odds ratio summary for 'Not Determined' (no National Average) to CSV
+write.csv(
+  summary_df_not_determined_plot,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/odds_notdetermined_plot_by_race.csv",
+  row.names = FALSE
+)
 
 ```
 

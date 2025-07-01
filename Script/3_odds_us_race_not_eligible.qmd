@@ -440,6 +440,15 @@ summary_df_not_eligible <- bind_rows(
    kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
 
+```{r}
+# ✅ Step: Write Cohen's h summary for 'Not Eligible' exit category by race to CSV
+write.csv(
+  summary_df_h,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_noteligible_by_race.csv",
+  row.names = FALSE
+)
+```
+
 ### ODDS RATIO FORREST PLOT for NOT ELIGIBLE
 
 ```{r}

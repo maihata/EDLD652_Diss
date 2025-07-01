@@ -397,6 +397,15 @@ kable(summary_df_odds_dismissed, align = "lcc") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
 
+```{r}
+# ✅ Step: Write summary table to CSV (absolute path)
+write.csv(
+  summary_df_odds_dismissed,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/summary_odds_dismissed_by_race.csv",
+  row.names = FALSE
+)
+```
+
 #### Calculate cohen's h
 
 ```{r}
@@ -456,6 +465,15 @@ kable(summary_df_h_dismissed, caption = "Cohen's h for 'Dismissed' Exit Rates by
   kable_styling(full_width = FALSE, position = "center") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria")
 
+```
+
+```{r}
+# ✅ Step: Write Cohen's h summary to CSV (absolute path)
+write.csv(
+  summary_df_h_dismissed,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_race.csv",
+  row.names = FALSE
+)
 ```
 
 #### Forrest Plot for Odds ratio
@@ -587,5 +605,36 @@ ggplot(summary_df_odds_dismissed_plot, aes(x = `Odds Ratio`, y = Race)) +
   theme(
     axis.text.y = element_text(size = 12),
     axis.text.x = element_text(size = 12),
+
+```
+
+```{r}
+### ✅ Step: Remove "National Average" row before plotting
+summary_df_odds_dismissed_plot <- summary_df_odds_dismissed_plot %>%
+  filter(Race != "National Average")
+
+# ✅ Step: Create forest plot with significance coloring
+ggplot(summary_df_odds_dismissed_plot, aes(x = `Odds Ratio`, y = Race)) +
+  geom_point(aes(color = `P Value` < 0.05), size = 4) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  scale_color_manual(
+    values = c("TRUE" = "skyblue", "FALSE" = "gray70"),
+    labels = c("TRUE" = "p < .05", "FALSE" = "p ≥ .05")
+  ) +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    color = "Statistical Significance",
+    title = "Odds Ratios for 'Dismissed' Exit Category by Race (Oregon)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14)
+  )
 
 ```
