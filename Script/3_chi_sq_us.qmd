@@ -192,7 +192,7 @@ corrplot(stdres_matrix_2,
 
 ```
 
-#### Odds ratio for each racial group to be dismissed, compared to the national average.
+#### Odds ratio for each racial group to be DISMISSED, compared to the national average.
 
 ```{r}
 colnames(race_us_2)

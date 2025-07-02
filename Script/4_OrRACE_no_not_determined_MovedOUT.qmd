@@ -1,0 +1,271 @@
+---
+title: "4_ORRACE_average_no_not_determined_MovedOUT"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(gt)
+library(DT)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(grateful)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(knitr)
+library(corrplot)
+```
+
+```{r}
+# ✅ Step 0: Import the Oregon race-level exit data (chart version, includes all needed columns)
+race_oregon_no_not_determined <- read.csv(
+  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+)
+
+```
+
+```{r}
+# ✅ Step 1: Create a new column for "Not Moved Out"
+df_ore_movedout <- race_oregon_no_not_determined %>%
+  mutate(Not_MovedOut = rowSums(select(., -Race, -Moved.Out)))
+
+df_ore_movedout
+```
+
+```{r}
+# ✅ Step 2: Compute Oregon totals for Moved Out and Not Moved Out
+oregon_movedout <- sum(df_ore_movedout$Moved.Out)
+oregon_not_movedout <- sum(df_ore_movedout$Not_MovedOut)
+
+```
+
+```{r}
+# ✅ Step 3: Define a function to compute odds ratio vs Oregon overall average
+get_movedout_or <- function(group_row) {
+  race <- df_ore_movedout$Race[group_row]
+  a <- df_ore_movedout$Moved.Out[group_row]       # Moved Out in group
+  b <- df_ore_movedout$Not_MovedOut[group_row]    # Not Moved Out in group
+  c <- oregon_movedout - a                        # Moved Out in rest of Oregon
+  d <- oregon_not_movedout - b                    # Not Moved Out in rest of Oregon
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE,
+                dimnames = list(Group = c(race, "Oregon Average"),
+                                Exit = c("Moved Out", "Not Moved Out")))
+
+  result <- oddsratio(mat)
+  return(result)
+}
+
+```
+
+```{r}
+# ✅ Step 4: Create a list of row indices for each group
+race_list_oregon <- seq_len(nrow(df_ore_movedout))
+
+```
+
+```{r}
+# ✅ Step 5: Run the odds ratio function for each group
+movedout_odds_results <- lapply(race_list_oregon, get_movedout_or)
+names(movedout_odds_results) <- df_ore_movedout$Race
+
+```
+
+```{r}
+# ✅ Step 6: Extract odds ratio, CI, and p-value into a summary data frame
+summary_df_odds_movedout <- lapply(movedout_odds_results, function(x) {
+  data.frame(
+    Odds_Ratio = x$measure[2, 1],
+    Lower_CI = x$measure[2, 2],
+    Upper_CI = x$measure[2, 3],
+    P_Value = x$p.value[2, 1]
+  )
+}) %>%
+  bind_rows(.id = "Race")
+
+```
+
+```{r}
+# ✅ Step 7: Round for readability
+summary_df_odds_movedout <- summary_df_odds_movedout %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    Lower_CI = round(Lower_CI, 2),
+    Upper_CI = round(Upper_CI, 2),
+    P_Value = signif(P_Value, 3)
+  )
+
+```
+
+```{r}
+# ✅ Step 8: Write odds ratio summary to CSV
+write.csv(
+  summary_df_odds_movedout,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_movedout_oregon.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
+# ✅ Step 9: Create reference row for plotting
+nat_avg_row <- data.frame(
+  Race = "National Average",
+  Odds_Ratio = 1,
+  Lower_CI = 1,
+  Upper_CI = 1,
+  P_Value = NA
+)
+
+summary_df_odds_movedout <- bind_rows(summary_df_odds_movedout, nat_avg_row)
+
+```
+
+```{r}
+# ✅ Step 10: Reorder Race factor for plot (alphabetical with National Average last)
+summary_df_odds_movedout$Race <- factor(
+  summary_df_odds_movedout$Race,
+  levels = rev(c(
+    sort(setdiff(summary_df_odds_movedout$Race, c("White", "National Average"))),
+    "White", "National Average"
+  ))
+)
+
+```
+
+```{r}
+# ✅ Step 10.5: Remove "National Average" row before plotting
+summary_df_odds_movedout <- summary_df_odds_movedout %>%
+  filter(Race != "National Average")
+
+```
+
+```{r}
+# ✅ Step 10.6: Rename Race categories from abbreviations to full labels
+summary_df_odds_movedout$Race <- recode(
+  summary_df_odds_movedout$Race,
+  "AM" = "AI/AN",
+  "AS" = "Asian",
+  "BL" = "Black",
+  "HI" = "Hispanic",
+  "PI" = "NH/PI",
+  "MU" = "Two+ Races",
+  "WH" = "White"
+)
+
+```
+
+```{r}
+# ✅ Step 11: Create forest plot for 'Moved Out' exit category
+ggplot(summary_df_odds_movedout, aes(x = Odds_Ratio, y = Race)) +
+  geom_point(aes(color = P_Value < 0.05), size = 4) +
+  geom_errorbarh(aes(xmin = Lower_CI, xmax = Upper_CI), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +
+  geom_text(aes(label = sprintf("%.2f", Odds_Ratio)), vjust = -1.2, size = 3.5) +
+  scale_x_log10() +
+  scale_color_manual(
+    values = c("TRUE" = "skyblue", "FALSE" = "gray70"),
+    labels = c("FALSE" = "p ≥ .05", "TRUE" = "p < .05")
+  ) +
+  labs(
+    x = "Odds Ratio (log scale)",
+    y = "",
+    color = "Statistical Significance",
+    title = "Odds Ratios for 'Moved Out' Exit Category by Race (Oregon)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    plot.title = element_text(size = 14)
+  )
+
+```
+
+```{r}
+# ✅ Step 12: Add a column for total exits (Moved Out + Not Moved Out)
+df_ore_movedout <- df_ore_movedout %>%
+  mutate(Total_Exits = Moved.Out + Not_MovedOut)
+
+```
+
+```{r}
+# ✅ Step 13: Compute Oregon-wide totals for Cohen’s h
+total_movedout_all <- sum(df_ore_movedout$Moved.Out)
+total_exits_all <- sum(df_ore_movedout$Total_Exits)
+
+```
+
+```{r}
+# ✅ Step 14: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * abs(asin(sqrt(p1)) - asin(sqrt(p2)))
+}
+
+```
+
+```{r}
+# ✅ Step 15: Loop through each group to compute Cohen’s h
+cohens_h_values <- numeric(nrow(df_ore_movedout))
+
+for (i in seq_len(nrow(df_ore_movedout))) {
+  group_movedout <- df_ore_movedout$Moved.Out[i]
+  group_total <- df_ore_movedout$Total_Exits[i]
+  p1 <- group_movedout / group_total
+
+  other_movedout <- total_movedout_all - group_movedout
+  other_total <- total_exits_all - group_total
+  p2 <- other_movedout / other_total
+
+  cohens_h_values[i] <- compute_cohens_h(p1, p2)
+}
+
+```
+
+```{r}
+# ✅ Step 16: Add Cohen’s h values — only 7 rows (no National Average)
+summary_df_odds_movedout$Cohens_h <- round(cohens_h_values, 2)
+
+```
+
+```{r}
+# ✅ Step 17: Create minimal results table
+basic_table_movedout <- summary_df_odds_movedout %>%
+  select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
+
+```
+
+```{r}
+# ✅ Step 17: Write summary table for 'Moved Out' to CSV
+write.csv(
+  summary_df_odds_movedout,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_movedout_by_race.csv",
+  row.names = FALSE
+)
+
+```
