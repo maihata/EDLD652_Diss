@@ -395,3 +395,64 @@ basic_table_dismissed <- summary_df_odds_dismissed %>%
   select(Race, Odds_Ratio, Lower_CI, Upper_CI, P_Value, Cohens_h)
 
 ```
+
+```{r}
+### 7/3 REDOING THE CHART SAD VERY SAD 
+
+# Step 1: Load necessary libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Compute proportions and national average
+df_ore_dismissed <- df_ore_dismissed %>%
+  mutate(
+    Dismissed = as.numeric(Dismissed),
+    Total = as.numeric(Total_Exits),
+    Proportion = Dismissed / Total
+  )
+
+# Step 4: Compute national dismissal rate
+national_dismissed <- sum(df_ore_dismissed$Dismissed, na.rm = TRUE)
+national_total <- sum(df_ore_dismissed$Total, na.rm = TRUE)
+national_rate <- national_dismissed / national_total
+
+# Step 5: Compute Cohen’s h
+summary_df_h_dismissed <- df_ore_dismissed %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Race,
+    `Dismissed N` = Dismissed,
+    `Total N` = Total,
+    `Dismissed %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Dismissed %` = sprintf("%.2f%%", 100 * `Dismissed %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 6: Display with kable
+kable(summary_df_h_dismissed, caption = "Cohen's h for 'Dismissed' Exit Rates by Race (Oregon)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+write.csv(
+  summary_df_h_dismissed,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_race_OR.csv",
+  row.names = FALSE
+)
+
+```

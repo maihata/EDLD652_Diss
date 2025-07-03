@@ -13,6 +13,7 @@ engine: knitr
 ---
 
 ```{r}
+
 library(tidyverse)
 library(rio)
 library(knitr)
@@ -341,4 +342,64 @@ summary_df_odds_withdrawn %>%
 
 ```{r}
 summary_df_odds_withdrawn
+```
+
+```{r}
+### 7/3 rediong teh table 22 
+
+# Step 1: Load libraries
+
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Compute proportions and national average
+df_ore_withdrawn <- df_ore_withdrawn %>%
+  mutate(
+    Withdrawn_N = as.numeric(Withdrawn),
+    Total = as.numeric(Withdrawn + Withdrawn_Other),
+    Proportion = Withdrawn_N / Total
+  )
+
+# Step 4: National rate for Withdrawn
+national_withdrawn <- sum(df_ore_withdrawn$Withdrawn_N, na.rm = TRUE)
+national_total <- sum(df_ore_withdrawn$Total, na.rm = TRUE)
+national_rate <- national_withdrawn / national_total
+
+# Step 5: Compute Cohen’s h
+summary_df_h_withdrawn <- df_ore_withdrawn %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Race,
+    `Withdrawn N` = Withdrawn_N,
+    `Total N` = Total,
+    `Withdrawn %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Withdrawn %` = sprintf("%.2f%%", 100 * `Withdrawn %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 6: Display styled table
+kable(summary_df_h_withdrawn, caption = "Cohen's h for 'Withdrawn' Exit Rates by Race (Oregon)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+
+```
+
+```{r}
+write.csv(
+  summary_df_h_withdrawn,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_withdrawn_by_race_OR.csv",
+  row.names = FALSE
+)
+
 ```

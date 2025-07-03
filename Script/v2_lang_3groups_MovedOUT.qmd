@@ -178,3 +178,64 @@ write.csv(
   row.names = FALSE
 )
 ```
+
+```{r}
+### 7/3 Redoing Table 34 YAY 
+
+# Step 1: Load libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Compute proportions and national average
+df_lang_movedout <- df_lang_movedout %>%
+  mutate(
+    Moved_Out_N = as.numeric(Moved.Out),
+    Total = as.numeric(Moved.Out + Not_Moved.Out),
+    Proportion = Moved_Out_N / Total
+  )
+
+# Step 4: Compute national moved-out rate
+national_moved_out <- sum(df_lang_movedout$Moved_Out_N, na.rm = TRUE)
+national_total <- sum(df_lang_movedout$Total, na.rm = TRUE)
+national_rate <- national_moved_out / national_total
+
+# Step 5: Compute Cohen’s h
+summary_df_h_movedout_lang <- df_lang_movedout %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Primary.Language,
+    `Moved Out N` = Moved_Out_N,
+    `Total N` = Total,
+    `Moved Out %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Moved Out %` = sprintf("%.2f%%", 100 * `Moved Out %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 6: Display with kable
+kable(summary_df_h_movedout_lang, caption = "Cohen's h for 'Moved Out' Exit Rates by Primary Language (Oregon)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+write.csv(
+  summary_df_h_movedout_lang,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_movedout_by_3language_OR.csv",
+  row.names = FALSE
+)
+
+```

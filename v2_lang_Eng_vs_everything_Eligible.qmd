@@ -177,7 +177,7 @@ ggplot(summary_df_odds_eligible_lang, aes(x = Odds_Ratio, y = Primary.Language))
 
 ```
 
-### Cohen's h 
+### Cohen's h
 
 ```{r}
 # ✅ Step 1: Add a column for total exits (Part B Eligible + Not Part B Eligible)
@@ -249,5 +249,62 @@ write.csv(
 ```
 
 ```{r}
+### 7/3 Redoing table 26 damn it 
+
+# Step 1: Load libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Compute proportions and national average
+df_lang_eligible <- df_lang_eligible %>%
+  mutate(
+    Eligible_N = as.numeric(Part.B.Eligible),
+    Total = as.numeric(Part.B.Eligible + Not_Part.B.Eligible),
+    Proportion = Eligible_N / Total
+  )
+
+# Step 4: Compute national eligibility rate
+national_eligible <- sum(df_lang_eligible$Eligible_N, na.rm = TRUE)
+national_total <- sum(df_lang_eligible$Total, na.rm = TRUE)
+national_rate <- national_eligible / national_total
+
+# Step 5: Compute Cohen’s h
+summary_df_h_eligible_lang <- df_lang_eligible %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Primary.Language,
+    `Part B Eligible N` = Eligible_N,
+    `Total N` = Total,
+    `Part B Eligible %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Part B Eligible %` = sprintf("%.2f%%", 100 * `Part B Eligible %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 6: Display with kable
+kable(summary_df_h_eligible_lang, caption = "Cohen's h for 'Part B Eligible' Exit Rates by Primary Language (Oregon)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+write.csv(
+  summary_df_h_eligible_lang,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_partb_eligible_by_language_OR.csv",
+  row.names = FALSE
+)
 
 ```

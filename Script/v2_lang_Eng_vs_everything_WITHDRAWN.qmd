@@ -158,3 +158,64 @@ write.csv(
   row.names = FALSE
 )
 ```
+
+```{r}
+### 7/3 redoing Table 28 damn it
+
+# Step 1: Load libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Step 2: Define Cohen's h function
+compute_cohens_h <- function(p1, p2) {
+  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+}
+
+# Step 3: Compute proportions and national average
+df_lang_withdrawn <- df_lang_withdrawn %>%
+  mutate(
+    Withdrawn_N = as.numeric(Withdrawn),
+    Total = as.numeric(Withdrawn + Not_Withdrawn),
+    Proportion = Withdrawn_N / Total
+  )
+
+# Step 4: Compute national withdrawal rate
+national_withdrawn <- sum(df_lang_withdrawn$Withdrawn_N, na.rm = TRUE)
+national_total <- sum(df_lang_withdrawn$Total, na.rm = TRUE)
+national_rate <- national_withdrawn / national_total
+
+# Step 5: Compute Cohen’s h
+summary_df_h_withdrawn_lang <- df_lang_withdrawn %>%
+  mutate(
+    `National Avg` = national_rate,
+    `Cohen's h` = round(compute_cohens_h(Proportion, national_rate), 3)
+  ) %>%
+  select(
+    Primary.Language,
+    `Withdrawn N` = Withdrawn_N,
+    `Total N` = Total,
+    `Withdrawn %` = Proportion,
+    `National Avg %` = `National Avg`,
+    `Cohen's h`
+  ) %>%
+  mutate(
+    `Withdrawn %` = sprintf("%.2f%%", 100 * `Withdrawn %`),
+    `National Avg %` = sprintf("%.2f%%", 100 * `National Avg %`)
+  )
+
+# Step 6: Display with kable
+kable(summary_df_h_withdrawn_lang, caption = "Cohen's h for 'Withdrawn' Exit Rates by Primary Language (Oregon)") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+```
+
+```{r}
+write.csv(
+  summary_df_h_withdrawn_lang,
+  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_withdrawn_by_language_OR.csv",
+  row.names = FALSE
+)
+
+```
