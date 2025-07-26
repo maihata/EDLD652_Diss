@@ -237,3 +237,92 @@ corrplot(chi_result_oregon_no_not_determined$stdres,
          cl.ratio = 0.2)  
 
 ```
+
+```{r}
+### 7/26/25 copied from 1_clean_data_table_12.qmd to create the stacked bar plot 
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+
+# Step 1: Clean the raw percent+count values
+formatted_clean <- formatted_df %>%
+  rename_with(str_trim) %>%
+  mutate(across(-Race, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%   # remove raw counts
+  mutate(across(-Race, ~ as.numeric(str_remove(., "%"))))         # remove % signs
+
+# Step 2: Rename other columns for clarity (if needed)
+formatted_clean <- formatted_clean %>%
+  rename(
+    `Moved Out` = Moved.Out,
+    `Not Determined` = Not.Determined,
+    `Not Eligible` = Not.Eligible,
+    `Part B Eligible` = Part.B.Eligible
+  )
+
+# Recode race abbreviations to full names
+formatted_clean <- formatted_clean %>%
+  mutate(Race = recode(Race,
+    "AM" = "American Indian or Alaska Native",
+    "AS" = "Asian",
+    "BL" = "Black or African American",
+    "HI" = "Hispanic or Latino",
+    "MU" = "Two or More Races",
+    "PI" = "Pacific Islander",
+    "WH" = "White"
+  ))
+
+
+# Step 3: Pivot longer for ggplot
+formatted_long <- formatted_clean %>%
+  pivot_longer(
+    cols = -Race,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  ) %>%
+  mutate(
+    Exit_Reason = str_replace_all(Exit_Reason, "\\.", " "),
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason))),
+    Race = factor(Race, levels = sort(unique(Race)))
+  )
+
+# Step 4: Define Viridis color palette with custom lighter blue for Dismissed
+viridis_colors <- viridis(6, option = "C")
+exit_levels <- levels(formatted_long$Exit_Reason)
+
+exit_colors <- setNames(viridis_colors, exit_levels)
+exit_colors["Dismissed"] <- "#a6d8ff"  # Custom light blue
+
+```
+
+```{r}
+ggplot(formatted_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"
+  ) +
+  scale_fill_manual(values = exit_colors) +
+  labs(x = "Race/Ethnicity", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_blank()
+  )
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

@@ -174,56 +174,57 @@ write.csv(
 ```
 
 ```{r}
-# ✅ Step 5: Compute Cohen’s h for each exit category (3-group version)
-
-# Step 5.1: Add total exits per group
-agg_lang_3group_prop <- agg_lang_3group %>%
-  mutate(Total = rowSums(across(where(is.numeric))))
-
-# ✅ Step 5.2: Pivot to long format and compute proportions
-lang3_prop_long <- agg_lang_3group_prop %>%
-  pivot_longer(
-    cols = -c(`Primary Language`, Total),
-    names_to = "Exit_Category",
-    values_to = "Count"
-  ) %>%
-  mutate(Proportion = Count / Total)
-
-# ✅ Step 5.3: Pivot wider for pairwise comparison
-lang3_prop_wide <- lang3_prop_long %>%
-  select(`Primary Language`, Exit_Category, Proportion) %>%
-  pivot_wider(names_from = `Primary Language`, values_from = Proportion)
-
-# ✅ Step 5.4: Define Cohen’s h function
-compute_cohens_h <- function(p1, p2) {
-  2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
-}
-
-# ✅ Step 5.5: Compute Cohen's h for all pairwise comparisons
-cohenh_summary_lang3 <- lang3_prop_wide %>%
-  mutate(
-    `English vs Spanish` = compute_cohens_h(English, Spanish),
-    `English vs Others` = compute_cohens_h(English, Others),
-    `Spanish vs Others` = compute_cohens_h(Spanish, Others)
-  ) %>%
-  select(Exit_Category, `English vs Spanish`, `English vs Others`, `Spanish vs Others`) %>%
-  mutate(across(-Exit_Category, ~ round(.x, 3)))
-
-# ✅ Step 5.6: Display table
-kable(cohenh_summary_lang3, caption = "Cohen’s h for EI Exit Categories: English vs. Spanish and Other Languages") %>%
-  kable_styling(full_width = FALSE, position = "center") %>%
-  kable_classic(full_width = FALSE, html_font = "Cambria")
+### 7/26/25 "Error: object 'agg_lang_3group' not found" 
+# # ✅ Step 5: Compute Cohen’s h for each exit category (3-group version)
+# 
+# # Step 5.1: Add total exits per group
+# agg_lang_3group_prop <- agg_lang_3group %>%
+#   mutate(Total = rowSums(across(where(is.numeric))))
+# 
+# # ✅ Step 5.2: Pivot to long format and compute proportions
+# lang3_prop_long <- agg_lang_3group_prop %>%
+#   pivot_longer(
+#     cols = -c(`Primary Language`, Total),
+#     names_to = "Exit_Category",
+#     values_to = "Count"
+#   ) %>%
+#   mutate(Proportion = Count / Total)
+# 
+# # ✅ Step 5.3: Pivot wider for pairwise comparison
+# lang3_prop_wide <- lang3_prop_long %>%
+#   select(`Primary Language`, Exit_Category, Proportion) %>%
+#   pivot_wider(names_from = `Primary Language`, values_from = Proportion)
+# 
+# # ✅ Step 5.4: Define Cohen’s h function
+# compute_cohens_h <- function(p1, p2) {
+#   2 * asin(sqrt(p1)) - 2 * asin(sqrt(p2))
+# }
+# 
+# # ✅ Step 5.5: Compute Cohen's h for all pairwise comparisons
+# cohenh_summary_lang3 <- lang3_prop_wide %>%
+#   mutate(
+#     `English vs Spanish` = compute_cohens_h(English, Spanish),
+#     `English vs Others` = compute_cohens_h(English, Others),
+#     `Spanish vs Others` = compute_cohens_h(Spanish, Others)
+#   ) %>%
+#   select(Exit_Category, `English vs Spanish`, `English vs Others`, `Spanish vs Others`) %>%
+#   mutate(across(-Exit_Category, ~ round(.x, 3)))
+# 
+# # ✅ Step 5.6: Display table
+# kable(cohenh_summary_lang3, caption = "Cohen’s h for EI Exit Categories: English vs. Spanish and Other Languages") %>%
+#   kable_styling(full_width = FALSE, position = "center") %>%
+#   kable_classic(full_width = FALSE, html_font = "Cambria")
 
 
 ```
 
 ```{r}
 # ✅ Save Cohen's h summary for 3-group language comparison
-write.csv(
-  cohenh_summary_lang3,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohenh_summary_lang3.csv",
-  row.names = FALSE
-)
+# write.csv(
+#   cohenh_summary_lang3,
+#   file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohenh_summary_lang3.csv",
+#   row.names = FALSE
+# )
 
 ```
 
@@ -243,4 +244,160 @@ corrplot(
   cl.offset = 1,       # Color legend offset
   cl.ratio = 0.2       # Color legend width
 )
+```
+
+```{r}
+### COPIED FROM 1_clean_data_table_12.qmd on 7/26/25
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(readr)
+
+# Step 1: Read the CSV
+lang_df <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
+
+# Step 2: Clean the data — remove raw counts and convert % to numeric
+lang_clean <- lang_df %>%
+  rename_with(str_trim) %>%
+  mutate(across(-`Primary Language`, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%   # remove raw count
+  mutate(across(-`Primary Language`, ~ as.numeric(str_remove(., "%"))))         # remove % sign
+
+# Step 3: Rename columns (optional — for clarity)
+lang_clean <- lang_clean %>%
+  rename(
+    `Moved Out` = Moved.Out,
+    `Not Determined` = Not.Determined,
+    `Not Eligible` = Not.Eligible,
+    `Part B Eligible` = Part.B.Eligible
+  )
+
+# Step 4: Pivot to long format
+lang_long <- lang_clean %>%
+  pivot_longer(
+    cols = -`Primary Language`,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  )
+
+# Step 5: Set factor levels (alphabetical)
+lang_long <- lang_long %>%
+  mutate(
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason))),
+    `Primary Language` = factor(`Primary Language`, levels = sort(unique(`Primary Language`)))
+  )
+
+```
+
+```{r}
+library(ggplot2)
+library(viridis)
+
+# Get 6 Viridis-C colors
+viridis_colors <- viridis(6, option = "C")
+
+# Assign Exit_Reason levels (sorted alphabetically)
+exit_levels <- sort(unique(lang_long$Exit_Reason))
+
+# Create named color vector and lighten "Dismissed"
+exit_colors <- setNames(viridis_colors, exit_levels)
+exit_colors["Dismissed"] <- "#a6d8ff"  # Lighter custom blue for visibility
+
+```
+
+```{r}
+ggplot(lang_long, aes(x = `Primary Language`, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"
+  ) +
+  scale_fill_manual(values = exit_colors) +
+  labs(x = "Primary Language", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_blank()
+  )
+
+```
+
+```{r}
+### 7/26/25 agg_by_lang_3group STACKED BAR CHART 
+
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(viridis)
+
+# Step 1: Read the file
+lang_df <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
+
+# Step 2: Clean percentages
+lang_clean <- lang_df %>%
+  rename_with(str_trim) %>%
+  mutate(across(-`Primary Language`, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%
+  mutate(across(-`Primary Language`, ~ as.numeric(str_remove(., "%"))))
+
+# Step 3: Rename columns if needed
+lang_clean <- lang_clean %>%
+  rename(
+    `Moved Out` = Moved.Out,
+    `Not Determined` = Not.Determined,
+    `Not Eligible` = Not.Eligible,
+    `Part B Eligible` = Part.B.Eligible
+  )
+
+# Step 4: Pivot to long format
+lang_long <- lang_clean %>%
+  pivot_longer(
+    cols = -`Primary Language`,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  ) %>%
+  mutate(
+    Exit_Reason = str_replace_all(Exit_Reason, "\\.", " "),
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason))),
+    `Primary Language` = factor(`Primary Language`, levels = sort(unique(`Primary Language`)))
+  )
+
+# Step 5: Assign Viridis colors with lighter color for "Dismissed"
+viridis_colors <- viridis(6, option = "C")
+exit_levels <- sort(unique(lang_long$Exit_Reason))
+
+exit_colors <- setNames(viridis_colors, exit_levels)
+exit_colors["Dismissed"] <- "#a6d8ff"  # Lighter blue
+
+
+
+```
+
+```{r}
+ggplot(lang_long, aes(x = `Primary Language`, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"
+  ) +
+  scale_fill_manual(values = exit_colors) +
+  labs(x = "Primary Language", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_blank()
+  )
+
+```
+
+```{r}
+
+```
+
+```{r}
+
 ```
