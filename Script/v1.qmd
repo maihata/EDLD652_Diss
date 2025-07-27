@@ -65,7 +65,6 @@ library(readxl)
 library(pwr)
 library(rcompanion)
 library(grateful)
-cite_packages(out.dir = ".")
 ```
 
 ```{r}
@@ -569,9 +568,7 @@ In addition, as Crenshaw (1989) established in her seminal work, we must take th
 
 The smaller disparity between racial groups in Oregon in terms of disqualification rate could be due to the state's limited diversity, meaning we simply don't have enough data. This makes it challenging to conduct quantitative studies on marginalized populations, even though research is so urgently needed for that very reason.
 
-Last but not least, researchers have argued that quantitative methods are inequitable, as "the history of quant methods is inseparable from eugenics movement" (p. 4, Castillo & Strunk, 2024) and that it stems from and reinforces inequity. QuantCrit philosophy are based and expands on the centrality of racism and the lack of neutrality in numbers and categories. Going forward, it would be extremely important to remember these tenets and to approach data collection, categorization and analysis with equity and justice as the central philosophy.
-
-\newpage
+Last but not least, researchers have argued that quantitative methods are inequitable, as "the history of quant methods is inseparable from eugenics movement" (p. 4, Castillo & Strunk, 2024) and that it stems from and reinforces inequity. QuantCrit philosophy are based and expands on the centrality of racism and the lack of neutrality in numbers and categories. Going forward, it would be extremely important to remember these tenets and to approach data collection, categorization and analysis with equity and justice as the central philosophy
 
 ```{r}
 # We decided to go with just handtyping references as opposed to using only Zotero. Inserting Zotero citaitons in-line and handthyping renders mixed and cannot be fixed to make it alphabetical, and Zotero doesn't get the automatic citations right for many of them, especially non-journal articles and books (e.g. online sources, database, older and scanned articles, slides, guidance docs etc.)
@@ -600,9 +597,3 @@ Romano, S.D. (2006). Historical perspectives. In G. M. Foley & J.D. Hochman (Eds
 Schneider, A. & Gibbs, H. (2023, December 14). Data dashboard: An overview of child care and early learning in the United States. The Center for American Progress. <https://www.americanprogress.org/article/data-dashboard-an-overview-of-child-care-and-early-learning-in-the-united-states/>
 
 Silverstein, J. (2015, April 15). Genes don’t cause racial-health disparities, society does. The Atlantic. <https://www.theatlantic.com/health/archive/2015/04/genes-dont-cause-racial-health-disparities-society-does/389637/> 
-
-\newpage
-
-```{r}
-cite_packages(output = "paragraph", out.dir = tempdir())
-```

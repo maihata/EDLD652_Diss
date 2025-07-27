@@ -1,0 +1,356 @@
+---
+title: "5_stacked_bars.qmd"
+format: 
+  pdf:
+    mainfont: "Times New Roman"
+    sansfont: "Times New Roman"
+fig-width: 7
+fig-height: 4
+csl: apa.csl
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+library(gt)
+```
+
+1.  Stacked bar chart for US exit data by Race/Ethnicity
+
+```{r}
+### THIS ONE HAS THE FULL RACE NAMES 
+# Step 0
+# table12 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
+# 
+# # Step 1: Clean up percentages (if needed)
+# table12_clean <- table12 %>%
+#   mutate(across(-Race, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%
+#   mutate(across(-Race, ~ as.numeric(str_remove(., "%"))))
+# 
+# 
+# table12_clean <- table12_clean %>%
+#   rename(Dismissed = Disqualified)
+# 
+# 
+# # Step 2: Convert to long format
+# table12_long <- table12_clean %>%
+#   pivot_longer(
+#     cols = -Race,
+#     names_to = "Exit_Reason",
+#     values_to = "Percentage"
+#   )
+# 
+# library(stringr)  # Just in case it's not loaded
+# 
+# # Remove periods from Exit_Reason labels
+# table12_long <- table12_long %>%
+#   mutate(Exit_Reason = str_replace_all(Exit_Reason, "\\.", " "))
+# 
+# # Step 3: Reorder factors
+# table12_long <- table12_long %>%
+#   mutate(
+#     Race = factor(Race, levels = sort(unique(Race))),  # Alphabetical order
+#     Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason)))  # Alphabetical order
+#   )
+```
+
+```{r}
+### With all black overlays 
+# ggplot(table12_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
+#   geom_bar(stat = "identity") +
+#   geom_text(
+#     aes(label = sprintf("%.1f%%", Percentage)),
+#     position = position_stack(vjust = 0.5),
+#     size = 3,
+#     color = "black"
+#   ) +
+#   scale_x_discrete(limits = levels(table12_long$Race))+  # ⬅️ remove rev() to show left-to-right
+#   scale_fill_viridis_d(option = "D") +
+#   labs(x = "Race", y = "Percentage", fill = "Exit Reason") +
+#   theme_minimal() +
+#   theme(
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+#     plot.title = element_blank()
+#   )
+
+```
+
+```{r}
+# Step 0: Load the formatted U.S. race-level data
+table12 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
+
+# Step 1: Clean up percentages (remove raw counts and % signs)
+table12_clean <- table12 %>%
+  mutate(across(-Race, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%
+  mutate(across(-Race, ~ as.numeric(str_remove(., "%"))))
+
+# Rename column
+table12_clean <- table12_clean %>%
+  rename(Dismissed = Disqualified)
+
+# Step 2: Convert to long format
+table12_long <- table12_clean %>%
+  pivot_longer(
+    cols = -Race,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  )
+
+# ✅ Insert: Recode full Race names to abbreviated labels
+table12_long <- table12_long %>%
+  mutate(
+    Race = recode(Race,
+      "Alaska Native or American Indian" = "AN/AI",
+      "Asian" = "Asian",
+      "Black or African American" = "Black",
+      "Hispanic or Latino" = "Hispanic",
+      "Two or More Races" = "Two+ Races",
+      "Pacific Islander" = "PI",
+      "White" = "White"
+    )
+  )
+
+# Step 3: Clean and reorder factor labels
+table12_long <- table12_long %>%
+  mutate(
+    Exit_Reason = str_replace_all(Exit_Reason, "\\.", " "),
+    Race = factor(Race, levels = sort(unique(Race))),
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason)))
+  )
+
+```
+
+```{r}
+### 7/27/25 CREATED A NEW PALETTE that's supposedly color blind friendly 
+exit_colors <- c(
+  "Withdrawn" = "#FFD700",     # golden yellow
+  "Part B Eligible" = "#B0E57C",  # light green
+  "Not Eligible" = "#66C2A5",  # teal
+  "Not Determined" = "#8DA0CB",  # periwinkle blue
+  "Moved Out" = "#A6CEE3",     # sky blue
+  "Dismissed" = "#CAB2D6"      # lavender
+)
+
+```
+
+```{r}
+
+# Plot
+ggplot(table12_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"  # works well with the new lighter colors
+  ) +
+  scale_x_discrete(limits = levels(table12_long$Race)) +  # Left-to-right alphabetical
+  scale_fill_manual(values = exit_colors) +               # ← Switched to manual palette
+  labs(x = "Race/Ethnicity", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_blank()
+  )
+
+```
+
+2.  Initial Oregon data by race and ethnicity
+
+```{r}
+# Step 0: Load the Oregon race-formatted data
+race_oregon_formatted_by_row <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_formatted_by_row.csv")
+
+# Step 1: Clean up percentages (remove raw counts and % signs)
+race_oregon_clean <- race_oregon_formatted_by_row %>%
+  mutate(across(-Race, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%  # remove counts in parentheses
+  mutate(across(-Race, ~ as.numeric(str_remove(., "%"))))        # convert % string to numeric
+
+# Step 2: Convert to long format
+race_oregon_long <- race_oregon_clean %>%
+  pivot_longer(
+    cols = -Race,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  )
+
+# ✅ INSERT HERE: Recode Race abbreviations to readable labels
+race_oregon_long <- race_oregon_long %>%
+  mutate(
+    Race = recode(Race,
+      "AM" = "AN/AI",
+      "AS" = "Asian",
+      "BL" = "Black",
+      "HI" = "Hispanic",
+      "MU" = "Two+ Races",
+      "PI" = "PI",
+      "WH" = "White"
+    )
+  )
+
+# Step 3: Clean up factor labels
+race_oregon_long <- race_oregon_long %>%
+  mutate(
+    Exit_Reason = str_replace_all(Exit_Reason, "\\.", " "),  # Remove any periods
+    Race = factor(Race, levels = sort(unique(Race))),        # Alphabetical Race order
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason)))  # Alphabetical Exit Reason
+  )
+
+
+```
+
+```{r}
+# Plot
+ggplot(race_oregon_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"  # works well with the new lighter colors
+  ) +
+  scale_x_discrete(limits = levels(race_oregon_long$Race)) +  # Left-to-right alphabetical
+  scale_fill_manual(values = exit_colors) +                   # ← Switched to manual palette
+  labs(x = "Race/Ethnicity", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_blank()
+  )
+
+```
+
+3.  Oregon exit data by home language(s)
+
+```{r}
+# Step 0: Load the CSV
+lang_exit <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
+
+# Step 1: Clean up percentages (remove raw counts and % signs)
+lang_clean <- lang_exit %>%
+  rename_with(~ str_replace_all(., "\\.", " ")) %>%
+  mutate(across(-`Primary Language`, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%
+  mutate(across(-`Primary Language`, ~ as.numeric(str_remove(., "%"))))
+
+# Step 2: Convert to long format
+lang_long <- lang_clean %>%
+  pivot_longer(
+    cols = -`Primary Language`,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  )
+
+# Step 3: Reorder factor levels alphabetically
+lang_long <- lang_long %>%
+  mutate(
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason))),
+    `Primary Language` = factor(`Primary Language`, levels = sort(unique(`Primary Language`)))
+  )
+
+```
+
+```{r}
+# Plot
+ggplot(lang_long, aes(x = `Primary Language`, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"  # works well with this palette
+  ) +
+  scale_x_discrete(limits = levels(lang_long$`Primary Language`)) +  # Alphabetical L-to-R
+  scale_fill_manual(values = exit_colors) +
+  labs(x = "Primary Language(s)", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_blank()
+  )
+```
+
+4.  Oregon Exit Data by Home Language(s), Grouped into Three Categories, 2013-2023
+
+```{r}
+# Step 0: Load the 3-group language-formatted data
+lang3_df <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
+
+# Step 1: Clean up percentages and raw counts
+lang3_clean <- lang3_df %>%
+  rename_with(~ str_replace_all(., "\\.", " ")) %>%  # remove periods in column names
+  mutate(across(-`Primary Language`, ~ str_remove(., "\\s*\\([^)]*\\)"))) %>%  # remove raw counts
+  mutate(across(-`Primary Language`, ~ as.numeric(str_remove(., "%"))))        # convert % strings to numeric
+
+# Step 2: Convert to long format
+lang3_long <- lang3_clean %>%
+  pivot_longer(
+    cols = -`Primary Language`,
+    names_to = "Exit_Reason",
+    values_to = "Percentage"
+  )
+
+# Step 3: Reorder factors (alphabetical by default)
+lang3_long <- lang3_long %>%
+  mutate(
+    `Primary Language` = factor(`Primary Language`, levels = sort(unique(`Primary Language`))),
+    Exit_Reason = factor(Exit_Reason, levels = sort(unique(Exit_Reason)))
+  )
+
+```
+
+```{r}
+# Plot
+ggplot(lang3_long, aes(x = `Primary Language`, y = Percentage, fill = Exit_Reason)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "black"
+  ) +
+  scale_x_discrete(limits = levels(lang3_long$`Primary Language`)) +
+  scale_fill_manual(values = exit_colors) +
+  labs(x = "Primary Language(s)", y = "Percentage", fill = "Exit Reason") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    plot.title = element_blank()
+  )
+```

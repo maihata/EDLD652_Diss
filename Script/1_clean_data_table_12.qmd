@@ -304,7 +304,7 @@ race_us_chart <- race_us_chart %>%
   rename(
     "Race" = race, 
     "Withdrawn" = withdrawal_by_parent, 
-   "Disqualified" = attempts_to_contact_unsuccessful, 
+   "Dismissed" = attempts_to_contact_unsuccessful, 
 "Moved Out" = moved_out_of_state, 
     "Part B Eligible" = part_b_eligible_exiting_part_c, 
     "Not Eligible" = complete_or_not_eligible, 
@@ -348,7 +348,7 @@ kable(race_us_chart)
 library(dplyr)
 
 # Step 1: If not already loaded
-# us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
+ us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
 
 # Step 2: Clean numeric columns
 us_race_chart_clean <- us_race_chart %>%
