@@ -85,9 +85,11 @@ ggplot(plot_df, aes(Category, Race)) +
   geom_tile(aes(fill = Odds_Ratio), color = "white") +
   scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58", midpoint = 1, name = "Odds Ratio") +
   labs(y = "Race/Ethnicity") +
-  theme( 
+   theme(
     axis.title.x = element_text(size = 16),
     axis.title.y = element_text(size = 16),
+    axis.text.x  = element_text(size = 13, angle = 30, hjust = 1),  # << bigger x tick labels
+    axis.text.y  = element_text(size = 13)
   ) + 
   geom_tile(data = subset(plot_df, ns), fill = "grey60", color = "white") +
   geom_text(aes(label = label, color = ns), size = 3.6) +
