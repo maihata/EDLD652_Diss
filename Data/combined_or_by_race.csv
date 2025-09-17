@@ -1,0 +1,29 @@
+Race,Odds_Ratio,Lower_CI,Upper_CI,P_Value,Category
+AI/AN,1.49,1.01,2.13,0.0452,Dismissed
+Asian,0.61,0.46,0.79,1.02e-4,Dismissed
+Black,1.2,0.93,1.52,0.16,Dismissed
+Hispanic,1.3,1.18,1.42,5.64e-8,Dismissed
+Two+ Races,0.67,0.53,0.84,2.54e-4,Dismissed
+NH/PI,1.31,0.7,2.24,0.383,Dismissed
+White,0.88,0.81,0.96,0.00387,Dismissed
+AI/AN,1.03,0.59,1.68,0.903,Moved Out
+Asian,2.68,2.21,3.22,0,Moved Out
+Black,1.44,1.08,1.89,0.0132,Moved Out
+Hispanic,0.66,0.58,0.75,9.28e-11,Moved Out
+Two+ Races,1.16,0.93,1.44,0.189,Moved Out
+NH/PI,1.2,0.54,2.31,0.624,Moved Out
+White,1,0.9,1.1,0.933,Moved Out
+AI/AN,1.39,0.98,1.91,0.0611,Not Eligible
+Asian,0.68,0.54,0.84,2.82e-4,Not Eligible
+Black,0.54,0.4,0.71,5.3e-6,Not Eligible
+Hispanic,0.82,0.76,0.9,9.8199999999999992e-06,Not Eligible
+Two+ Races,0.81,0.68,0.97,0.0202,Not Eligible
+NH/PI,0.39,0.15,0.81,0.00925,Not Eligible
+White,1.34,1.24,1.45,2.35e-14,Not Eligible
+AI/AN,0.92,0.65,1.27,0.621,Withdrawn
+Asian,1.39,1.19,1.62,3.7e-5,Withdrawn
+Black,1.06,0.87,1.28,0.57,Withdrawn
+Hispanic,0.73,0.68,0.79,9.99e-16,Withdrawn
+Two+ Races,1.19,1.04,1.37,0.0133,Withdrawn
+NH/PI,1.02,0.61,1.62,0.929,Withdrawn
+White,1.15,1.08,1.23,3.53e-5,Withdrawn

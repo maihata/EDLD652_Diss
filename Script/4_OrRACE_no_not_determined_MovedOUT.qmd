@@ -123,6 +123,22 @@ summary_df_odds_movedout <- summary_df_odds_movedout %>%
 ```
 
 ```{r}
+# ✅ Step 7.9: Standardize Race labels before writing
+summary_df_odds_movedout <- summary_df_odds_movedout %>%
+  mutate(Race = dplyr::recode(
+    Race,
+    "AM" = "AI/AN",
+    "AS" = "Asian",
+    "BL" = "Black",
+    "HI" = "Hispanic",
+    "MU" = "Two+ Races",
+    "PI" = "NH/PI",
+    "WH" = "White"
+  ))
+
+```
+
+```{r}
 # ✅ Step 8: Write odds ratio summary to CSV
 write.csv(
   summary_df_odds_movedout,
@@ -166,17 +182,18 @@ summary_df_odds_movedout <- summary_df_odds_movedout %>%
 ```
 
 ```{r}
+# 9/17/25 --- commenting this out to make sure - I wrote csv earlier to make sure the csv categories are aligned with other csvs in Oregon by race so that I can combine them for a summary heat map
 # ✅ Step 10.6: Rename Race categories from abbreviations to full labels
-summary_df_odds_movedout$Race <- recode(
-  summary_df_odds_movedout$Race,
-  "AM" = "AI/AN",
-  "AS" = "Asian",
-  "BL" = "Black",
-  "HI" = "Hispanic",
-  "PI" = "NH/PI",
-  "MU" = "Two+ Races",
-  "WH" = "White"
-)
+# summary_df_odds_movedout$Race <- recode(
+#   summary_df_odds_movedout$Race,
+#   "AM" = "AI/AN",
+#   "AS" = "Asian",
+#   "BL" = "Black",
+#   "HI" = "Hispanic",
+#   "PI" = "NH/PI",
+#   "MU" = "Two+ Races",
+#   "WH" = "White"
+# )
 
 ```
 

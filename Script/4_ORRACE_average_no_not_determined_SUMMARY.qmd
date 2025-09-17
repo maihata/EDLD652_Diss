@@ -1,0 +1,97 @@
+---
+title: "4_ORRACE_average_no_not_determined_SUMMARY"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(readr)
+library(dplyr)
+
+path <- "/Users/hata/Desktop/EDLD652_Diss/Data"
+
+# Read each CSV and add its Category
+dismissed    <- read_csv(file.path(path, "odds_dismissed_oregon.csv"), show_col_types = FALSE) %>%
+  mutate(Category = "Dismissed")
+
+moved_out    <- read_csv(file.path(path, "odds_movedout_oregon.csv"), show_col_types = FALSE) %>%
+  mutate(Category = "Moved Out")
+
+not_eligible <- read_csv(file.path(path, "odds_not_eligible_oregon.csv"), show_col_types = FALSE) %>%
+  mutate(Category = "Not Eligible")
+
+withdrawn    <- read_csv(file.path(path, "odds_withdrawn_oregon.csv"), show_col_types = FALSE) %>%
+  mutate(Category = "Withdrawn")
+
+# Combine
+all_or <- bind_rows(dismissed, moved_out, not_eligible, withdrawn)
+
+# (Optional) enforce nice ordering for plotting later
+race_order <- c("AI/AN","Asian","Black","Hispanic","Two+ Races","NH/PI","White")
+cat_order  <- c("Dismissed","Moved Out","Not Eligible","Withdrawn")
+
+all_or <- all_or %>%
+  mutate(Race = factor(Race, levels = race_order),
+         Category = factor(Category, levels = cat_order))
+
+# Quick checks
+unique(all_or$Category)
+unique(all_or$Race)
+
+# (Optional) save the combined file
+write_csv(all_or, file.path(path, "combined_or_by_race.csv"))
+
+```
+
+```{r}
+# order Race alphabetically from the top (A..Z top→bottom)
+race_levels <- sort(unique(all_or$Race))
+all_or$Race <- factor(all_or$Race, levels = rev(race_levels))
+
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(all_or, aes(Category, Race, fill = Odds_Ratio)) +
+  geom_tile() +
+  scale_fill_gradient2(midpoint = 1)
+
+```
+
+```{r}
+alpha <- 0.05  # set to 0.001 if you want stricter
+
+plot_df <- all_or %>%
+  mutate(
+    P_Value = suppressWarnings(as.numeric(P_Value)),
+    ns      = is.na(P_Value) | P_Value >= alpha,   # TRUE = non-significant
+    label   = sprintf("%.2f", Odds_Ratio)
+  )
+
+# order Race A→Z from top
+plot_df$Race <- factor(plot_df$Race, levels = rev(sort(unique(plot_df$Race))))
+
+ggplot(plot_df, aes(Category, Race)) +
+  geom_tile(aes(fill = Odds_Ratio), color = "white") +
+  scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58", midpoint = 1, name = "Odds Ratio") +
+  labs(y = "Race/Ethnicity") +
+  theme( 
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+  ) + 
+  geom_tile(data = subset(plot_df, ns), fill = "grey60", color = "white") +
+  geom_text(aes(label = label, color = ns), size = 3.6) +
+  scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black"), guide = "none")
+
+
+```
