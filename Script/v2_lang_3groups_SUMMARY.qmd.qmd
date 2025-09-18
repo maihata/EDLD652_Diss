@@ -88,3 +88,39 @@ ggplot(all_lang, aes(Category, Primary.Language)) +
   )
 
 ```
+
+```{r}
+# thresholds for when tile is "dark" enough to need white text
+low_red   <- 0.75   # OR below this → white text
+high_blue <- 1.25   # OR above this → white text
+
+# (optional) order languages A→Z from top + compute text color
+all_lang <- all_lang %>%
+  dplyr::mutate(
+    Primary.Language = factor(Primary.Language,
+                              levels = rev(sort(levels(Primary.Language)))),
+    txt_col = ifelse(ns | Odds_Ratio < low_red | Odds_Ratio > high_blue, "white", "black")
+  )
+
+ggplot(all_lang, aes(Category, Primary.Language)) +
+  geom_tile(aes(fill = Odds_Ratio), color = "white") +
+  scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58",
+                       midpoint = 1, name = "Odds Ratio") +
+  # gray overlay for non-significant cells
+  geom_tile(data = dplyr::filter(all_lang, ns), fill = "grey60", color = "white") +
+  # numbers on tiles: white on gray OR extreme colors, black otherwise
+  geom_text(aes(label = label, color = txt_col), size = 4) +
+  scale_color_identity(guide = "none") +
+  labs(x = "Exit Category", y = "Primary Language") +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    axis.text.x  = element_text(size = 13, angle = 30, hjust = 1),
+    axis.text.y  = element_text(size = 13),
+    legend.title = element_text(size = 13),
+    legend.text  = element_text(size = 12)
+  )
+
+```

@@ -1,0 +1,8 @@
+"Race","Odds Ratio","P Value","Lower","Upper"
+"Alaska Native or American Indian",0.83,"< .001",0.8,0.86
+"Asian",0.85,"< .001",0.84,0.86
+"Black or African American",0.68,"< .001",0.68,0.69
+"Hispanic or Latino",0.79,"< .001",0.78,0.79
+"Pacific Islander",0.84,"< .001",0.8,0.89
+"Two or More Races",1,"0.96",0.99,1.01
+"White",1.45,"< .001",1.45,1.46

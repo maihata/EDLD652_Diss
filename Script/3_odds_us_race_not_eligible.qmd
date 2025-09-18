@@ -196,6 +196,35 @@ kable(summary_df_odds_noteligible, align = "lcccc") %>%
 
 ```
 
+```{r}
+summary_df_odds_noteligible
+```
+
+```{r}
+summary_df_odds_noteligible <- summary_df_odds_noteligible[, 
+ c("Race", "Odds Ratio", "P Value", "Lower", "Upper")]
+```
+
+```{r}
+tail(summary_df_odds_noteligible)
+unique(summary_df_odds_noteligible$Race)
+
+```
+
+```{r}
+library(dplyr)
+summary_df_odds_noteligible <- summary_df_odds_noteligible %>%
+  mutate(Race = trimws(as.character(Race))) %>%         # normalize
+  filter(!Race %in% c("Race", "National Average"))      # drop header-like row + national
+
+```
+
+```{r}
+write.csv(summary_df_odds_noteligible, 
+          "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
+          row.names = FALSE)
+```
+
 ### Not Eligible Cohen's h
 
 ```{r}

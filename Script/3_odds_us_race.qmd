@@ -366,6 +366,32 @@ summary_df_not_determined$Race <- factor(
 ```
 
 ```{r}
+summary_df_not_determined <- summary_df_not_determined[, 
+  c("Race", "Odds Ratio", "P Value", "Lower", "Upper")]
+
+```
+
+```{r}
+library(dplyr)
+
+summary_df_not_determined <- summary_df_not_determined %>%
+  mutate(Race = trimws(as.character(Race))) %>%              # normalize
+  filter(!Race %in% c("Race", "National Average"))           # drop header-like + national
+
+```
+
+```{r}
+summary_df_not_determined
+```
+
+```{r}
+write.csv(
+  summary_df_not_determined, 
+  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv"
+)
+```
+
+```{r}
 # Step 7: Forest plot for Not Determined odds ratios
 
 ggplot(summary_df_not_determined, aes(x = `Odds Ratio`, y = Race)) +

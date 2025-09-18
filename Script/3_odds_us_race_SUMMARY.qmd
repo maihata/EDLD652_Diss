@@ -1,0 +1,136 @@
+---
+title: "3_odds_us_race_SUMMARY"
+author: "Maiko Hata"
+format: pdf
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+# Chunk 2 — Read each CSV (absolute paths) and tag Category
+df_dismissed <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
+                         show_col_types = FALSE) %>%
+  mutate(Category = "Dismissed")
+
+df_not_determined <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv",
+                              show_col_types = FALSE) %>%
+  mutate(Category = "Not Determined")
+
+df_not_eligible <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
+                            show_col_types = FALSE) %>%
+  mutate(Category = "Not Eligible")
+
+```
+
+```{r}
+# Chunk 3 — Combine (no transformations yet)
+all_three <- bind_rows(
+  df_dismissed,
+  df_not_eligible,
+  df_not_determined
+)
+
+```
+
+```{r}
+# Chunk — recode verbose labels → compact labels
+library(dplyr)
+
+all_three <- all_three %>%
+  mutate(Race = trimws(Race)) %>%
+  mutate(Race = recode(Race,
+    "Alaska Native or American Indian"          = "AI/AN",
+    "American Indian or Alaska Native"          = "AI/AN",
+    "American Indian/Alaska Native"             = "AI/AN",
+    "Asian"                                     = "Asian",
+    "Black or African American"                 = "Black",
+    "Hispanic or Latino"                        = "Hispanic",
+    "Hispanic orLatino"                         = "Hispanic",
+    "Pacific Islander"                          = "NH/PI",
+    "Native Hawaiian or Other Pacific Islander" = "NH/PI",
+    "Two or More Races"                         = "Two+ Races",
+    "Two or more races"                         = "Two+ Races",
+    "White"                                     = "White",
+    .default = Race
+  ))
+
+```
+
+```{r}
+# Chunk — (optional) set display order
+all_three$Race <- factor(all_three$Race,
+  levels = c("AI/AN","Asian","Black","Hispanic","Two+ Races","NH/PI","White")
+)
+
+```
+
+```{r}
+# Chunk 4 — Standardize names, parse p-values, labels, ordering
+#   Ensure columns are named "Odds Ratio" and "P Value"
+if ("Odds_Ratio" %in% names(all_three) && !("Odds Ratio" %in% names(all_three))) {
+  all_three <- rename(all_three, `Odds Ratio` = Odds_Ratio)
+}
+if ("P_Value" %in% names(all_three) && !("P Value" %in% names(all_three))) {
+  all_three <- rename(all_three, `P Value` = P_Value)
+}
+
+all_three <- all_three %>%
+  mutate(
+    P_str   = as.character(`P Value`),
+    P_num   = ifelse(grepl("<", P_str), 0.0005, readr::parse_number(P_str)),  # treat "< .001" as tiny
+    ns      = is.na(P_num) | P_num > 0.05,   # gray ONLY when p > .05 (or NA)
+    label   = sprintf("%.2f", `Odds Ratio`),
+    Race    = factor(Race, levels = rev(sort(unique(Race)))),
+    Category = factor(Category, levels = c("Dismissed","Not Eligible","Not Determined"))
+  )
+
+```
+
+```{r}
+ggplot(plot_df, aes(Category, Race)) +
+  geom_tile(aes(fill = `Odds Ratio`), color = "white") +
+  scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58",
+                       midpoint = 1, name = "Odds Ratio") +
+  geom_tile(data = dplyr::filter(plot_df, ns), fill = "grey60", color = "white") +
+  geom_text(aes(label = label, color = txt_col), size = 4) +
+  scale_color_identity(guide = "none") +
+  labs(x = "Exit Category", y = "Race/Ethnicity") +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    axis.text.x  = element_text(size = 13, angle = 30, hjust = 1),
+    axis.text.y  = element_text(size = 13)
+  )
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

@@ -227,6 +227,16 @@ summary_df_odds_dismissed <- lapply(dismissed_odds_results, function(x) {
 ```
 
 ```{r}
+# 2025.9.18. Trying to fix the CSV to align with other CSVs 
+# ✅ Step 9: Write odds ratio summary to CSV
+write.csv(
+  summary_df_odds_dismissed,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_dismissed_oregon.csv",
+  row.names = FALSE
+)
+```
+
+```{r}
 # ✅ Step 8: Round for readability
 summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   mutate(
@@ -237,6 +247,8 @@ summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
   )
 
 ```
+
+## THIS SHOULD BE CORRECT (9/18/25) 
 
 ```{r}
 # ✅ Step 9: Write odds ratio summary to CSV

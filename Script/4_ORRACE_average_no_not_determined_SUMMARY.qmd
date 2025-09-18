@@ -12,6 +12,8 @@ editor: visual
 engine: knitr
 ---
 
+## 9/18/25 Dear Maiko – Somehow, when you don't open 4_OrRACE_no_not_determined_DISMISSED.qmd and run it, even though the odds_not_eligible_oregon.csv isstored correctly in  the data folder, it might not run. 
+
 ```{r}
 library(readr)
 library(dplyr)
@@ -95,5 +97,36 @@ ggplot(plot_df, aes(Category, Race)) +
   geom_text(aes(label = label, color = ns), size = 3.6) +
   scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black"), guide = "none")
 
+```
+
+```{r}
+alpha <- 0.05         
+high_blue <- 2.0     
+
+plot_df <- all_or %>%
+  dplyr::mutate(
+    P_Value = suppressWarnings(as.numeric(P_Value)),
+    ns      = is.na(P_Value) | P_Value >= alpha,      # TRUE = non-significant (gray overlay)
+    label   = sprintf("%.2f", Odds_Ratio),
+    txt_col = ifelse(ns | Odds_Ratio > high_blue, "white", "black")
+  )
+
+# reverse order vs prior (no rev): top will be last alphabetically
+plot_df$Race <- factor(plot_df$Race, levels = sort(unique(plot_df$Race)))
+
+ggplot(plot_df, aes(Category, Race)) +
+  geom_tile(aes(fill = Odds_Ratio), color = "white") +
+  scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58",
+                       midpoint = 1, name = "Odds Ratio") +
+  labs(y = "Race/Ethnicity") +
+  theme(
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    axis.text.x  = element_text(size = 13, angle = 30, hjust = 1),
+    axis.text.y  = element_text(size = 13)
+  ) +
+  geom_tile(data = subset(plot_df, ns), fill = "grey60", color = "white") +
+  geom_text(aes(label = label, color = txt_col), size = 3.6) +
+  scale_color_identity(guide = "none")
 
 ```

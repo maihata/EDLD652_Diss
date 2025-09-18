@@ -331,6 +331,28 @@ summary_df_odds_dismissed
 ```
 
 ```{r}
+library(dplyr)
+
+summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
+  mutate(Race = trimws(as.character(Race))) %>%
+  filter(!Race %in% c("Race", "National Average"))
+
+```
+
+```{r}
+summary_df_odds_dismissed
+```
+
+```{r}
+write.csv(
+  summary_df_odds_dismissed,
+  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
+  row.names = FALSE
+)
+
+```
+
+```{r}
 str(dismissed_odds_results)
 ```
 
