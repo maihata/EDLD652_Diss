@@ -118,7 +118,7 @@ ggplot(plot_df, aes(Category, Race)) +
   geom_tile(aes(fill = Odds_Ratio), color = "white") +
   scale_fill_gradient2(low = "#a50026", mid = "white", high = "#081d58",
                        midpoint = 1, name = "Odds Ratio") +
-  labs(y = "Race/Ethnicity") +
+  labs(x = "Exit Category", y = "Race/Ethnicity") +
   theme(
     axis.title.x = element_text(size = 16),
     axis.title.y = element_text(size = 16),
