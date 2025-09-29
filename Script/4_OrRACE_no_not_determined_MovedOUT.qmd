@@ -44,7 +44,7 @@ library(corrplot)
 ```{r}
 # ✅ Step 0: Import the Oregon race-level exit data (chart version, includes all needed columns)
 race_oregon_no_not_determined <- read.csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
 )
 
 ```
@@ -142,7 +142,7 @@ summary_df_odds_movedout <- summary_df_odds_movedout %>%
 # ✅ Step 8: Write odds ratio summary to CSV
 write.csv(
   summary_df_odds_movedout,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_movedout_oregon.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/odds_movedout_oregon.csv",
   row.names = FALSE
 )
 
@@ -281,7 +281,7 @@ basic_table_movedout <- summary_df_odds_movedout %>%
 # ✅ Step 17: Write summary table for 'Moved Out' to CSV
 write.csv(
   summary_df_odds_movedout,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_movedout_by_race.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_movedout_by_race.csv",
   row.names = FALSE
 )
 
@@ -346,7 +346,7 @@ kable(summary_df_h_movedout, caption = "Cohen's h for 'Moved Out' Exit Rates by 
 ```{r}
 write.csv(
   summary_df_h_movedout,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_movedout_by_race_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_movedout_by_race_OR.csv",
   row.names = FALSE
 )
 

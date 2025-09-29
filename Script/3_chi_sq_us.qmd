@@ -47,7 +47,7 @@ library(descr)
 #### Chi-Square for all the races and all the exit reasons
 
 ```{r}
-race_us_2 <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+race_us_2 <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")
 ```
 
 ```{r}
@@ -155,7 +155,7 @@ stdres_df_rounded <- as.data.frame(stdres_matrix_2) %>%
 
 # Write to CSV
 write.csv(stdres_df_rounded, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_matrix_2.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/stdres_matrix_2.csv", 
           row.names = FALSE)
 
 ```
@@ -214,7 +214,7 @@ colnames(race_us_2) <- c(
 ```
 
 ```{r}
-write.csv(race_us_2, file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv", row.names = FALSE)
+write.csv(race_us_2, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_2.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -346,7 +346,7 @@ summary_df_odds_dismissed
 ```{r}
 write.csv(
   summary_df_odds_dismissed,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
   row.names = FALSE
 )
 
@@ -423,7 +423,7 @@ kable(summary_df_odds_dismissed, align = "lcc") %>%
 # ✅ Step: Write summary table to CSV (absolute path)
 write.csv(
   summary_df_odds_dismissed,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/summary_odds_dismissed_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_odds_dismissed_by_race.csv",
   row.names = FALSE
 )
 ```
@@ -442,7 +442,7 @@ compute_cohens_h <- function(p1, p2) {
 }
 
 # Step 3: Read and prepare the data from original file (includes Total Exit)
-race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+race_us_2_clean2 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")
 
 # Step 4: Rename columns properly
 colnames(race_us_2_clean2) <- c(
@@ -493,7 +493,7 @@ kable(summary_df_h_dismissed, caption = "Cohen's h for 'Dismissed' Exit Rates by
 # ✅ Step: Write Cohen's h summary to CSV (absolute path)
 write.csv(
   summary_df_h_dismissed,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_race.csv",
   row.names = FALSE
 )
 ```

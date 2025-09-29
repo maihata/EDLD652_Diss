@@ -33,7 +33,7 @@ library(janitor)
 
 ```{r}
 # ✅ Step 1: Load 3-group aggregated language data and compute Not Dismissed column
-agg_lang_3group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
+agg_lang_3group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
 
 df_lang_dismissed <- agg_lang_3group %>%
   mutate(Not_Dismissed = rowSums(select(., -Primary.Language, -Dismissed)))
@@ -182,7 +182,7 @@ summary_df_odds_dismissed_lang$Cohens_h <- round(cohens_h_values, 2)
 # ✅ Step 9: Write summary table to CSV
 write.csv(
   summary_df_odds_dismissed_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_dismissed_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_dismissed_by_language.csv",
   row.names = FALSE
 )
 
@@ -243,7 +243,7 @@ kable(summary_df_h_dismissed_lang, caption = "Cohen's h for 'Dismissed' Exit Rat
 ```{r}
 write.csv(
   summary_df_h_dismissed_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_3language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_dismissed_by_3language_OR.csv",
   row.names = FALSE
 )
 

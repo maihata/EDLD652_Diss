@@ -59,7 +59,7 @@ library(vcd)
 --- OR for black vs white DQ —
 
 ```{r}
-us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+us_data_attempts_BLWH <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 ```
 
 ```{r}
@@ -106,7 +106,7 @@ dq_black_OR <- oddsratio(us_dq_BLWH_matrix)
 ### odd ratio 2:
 
 ```{r}
-byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
+byrace <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/byrace.csv")
 ```
 
 ```{r}
@@ -120,7 +120,7 @@ us_data_attempts <- byrace %>%
 ```
 
 ```{r}
-write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
+write.csv(us_data_attempts, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
 ```
 
 ### odds ratio 3: dq_native
@@ -163,7 +163,7 @@ dq_native_us_OR <- oddsratio(dq_native_us_matrix)
 ```
 
 ```{r}
-write.csv(dq_native_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_native_us.csv", row.names = FALSE)
+write.csv(dq_native_us, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/dq_native_us.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -188,7 +188,7 @@ filter(race == "HI" | race == "WH")
 ```
 
 ```{r}
-write.csv(dq_hispanic_us, file = "/Users/hata/Desktop/EDLD652_Diss/Data/dq_hispanic_us.csv", 
+write.csv(dq_hispanic_us, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/dq_hispanic_us.csv", 
           row.names = FALSE)
 ```
 

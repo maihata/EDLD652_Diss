@@ -64,7 +64,7 @@ kable(exit_categories,
 ### kable 2: race_us_chart
 
 ```{r}
-race_us_chart <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv")
+race_us_chart <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_chart.csv")
 ```
 
 ```{r}
@@ -81,7 +81,7 @@ kable(race_us_chart,
 
 ```{r}
 race_oregon_chart <- read_csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv")
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv")
 ```
 
 ```{r}
@@ -93,7 +93,7 @@ kable(race_oregon_chart,
 ### kable 4: us_data_wide
 
 ```{r}
-us_data_wide <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv") 
+us_data_wide <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_wide.csv") 
 ```
 
 ```{r}
@@ -108,7 +108,7 @@ kable(us_data_wide,
 --- table of ODE 2012-2024 data by language —
 
 ```{r}
-agg_by_lang <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
+agg_by_lang <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
 ```
 
 ```{r}

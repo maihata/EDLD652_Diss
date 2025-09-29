@@ -57,7 +57,7 @@ B-1. Load data
 #|label: load-OSEP-CHILDCOUNT-1920-data
 # Imported excel file with multiple pages but specified only the second sheet. Yay 
 
-childcount1920 <- read_excel("/Users/hata/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
+childcount1920 <- read_excel("/Users/maiko/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
 ```
 
 ```{r}

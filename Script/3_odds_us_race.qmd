@@ -43,7 +43,7 @@ library(descr)
 ### Prepping race_us_2 df from csv (from 3_chi_sq_us.qmd)
 
 ```{r}
-race_us_2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv")
+race_us_2 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_2.csv")
 ```
 
 ```{r}
@@ -205,7 +205,7 @@ kable(summary_df_odds_notdetermined, align = "lcc") %>%
 # ✅ Step: Write odds ratio summary for 'Not Determined' to CSV (absolute path)
 write.csv(
   summary_df_odds_notdetermined,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/odds_notdetermined_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/odds_notdetermined_by_race.csv",
   row.names = FALSE
 )
 ```
@@ -224,7 +224,7 @@ compute_cohens_h <- function(p1, p2) {
 }
 
 # Step 3: Read and prepare the data
-race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
+race_us_2_clean2 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
 
 colnames(race_us_2_clean2)
 
@@ -387,7 +387,7 @@ summary_df_not_determined
 ```{r}
 write.csv(
   summary_df_not_determined, 
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv"
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv"
 )
 ```
 
@@ -418,7 +418,7 @@ ggplot(summary_df_not_determined, aes(x = `Odds Ratio`, y = Race)) +
 # ✅ Step: Write Cohen's h summary for 'Not Determined' exit category by race to CSV
 write.csv(
   summary_df_h,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_notdetermined_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_notdetermined_by_race.csv",
   row.names = FALSE
 )
 
@@ -428,7 +428,7 @@ write.csv(
 # ✅ Step: Write filtered odds ratio summary for 'Not Determined' (no National Average) to CSV
 write.csv(
   summary_df_not_determined_plot,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/odds_notdetermined_plot_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/odds_notdetermined_plot_by_race.csv",
   row.names = FALSE
 )
 

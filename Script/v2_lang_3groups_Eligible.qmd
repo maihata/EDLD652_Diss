@@ -33,7 +33,7 @@ library(janitor)
 
 ```{r}
 # ✅ Step 1: Load aggregated 3-group language data and compute Not Part.B.Eligible
-agg_lang_3group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
+agg_lang_3group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
 
 df_lang_eligible <- agg_lang_3group %>%
   mutate(Not_Eligible = rowSums(select(., -Primary.Language, -Part.B.Eligible)))
@@ -186,7 +186,7 @@ colnames(df_lang_eligible)
 # ✅ Step 9: Write final summary to CSV
 write.csv(
   summary_df_odds_eligible_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_partb_eligible_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_partb_eligible_by_language.csv",
   row.names = FALSE
 )
 
@@ -252,7 +252,7 @@ kable(summary_df_h_eligible_lang, caption = "Cohen's h for 'Part B Eligible' Exi
 ```{r}
 write.csv(
   summary_df_h_eligible_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_partb_eligible_by_3language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_partb_eligible_by_3language_OR.csv",
   row.names = FALSE
 )
 

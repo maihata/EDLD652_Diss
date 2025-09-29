@@ -43,7 +43,7 @@ C. Oregon data by LANGUAGES
 # 1. REMOVED DECEASED (the 6th column)
 # 2. CREATED THE complete_or_not_eligible combining three categories 
 
-bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
+bylang <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
   clean_names() %>% 
   select(-6) %>%
   mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
@@ -111,7 +111,7 @@ agg_by_lang <- agg_by_lang %>%
 
 ```{r}
 write.csv(agg_by_lang, 
-          file =  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
+          file =  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
           row.names = FALSE)
 ```
 
@@ -217,12 +217,12 @@ ggplot(long_data, aes(x = `Primary Language`, y = Count, fill = `Exit Reason`)) 
 
 ```{r}
 # write.csv(agg_by_lang_2, 
-          # file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_2.csv")
+          # file = "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_2.csv")
 ```
 
 ```{r}
 # write.csv(agg_by_lang_3, 
-#           file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3.csv")
+#           file = "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3.csv")
 ```
 
 ## Now, I have to make the agg_by_lang_2 into corrplot()
@@ -284,7 +284,7 @@ agg_by_lang_3
 #   mutate(across(where(is.numeric), ~ round(.x, 2)))
 # 
 # # Step 2: Save to CSV
-# write.csv(stdres_lang_df, "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3_oregon.csv", row.names = FALSE)
+# write.csv(stdres_lang_df, "/Users/maiko/Desktop/EDLD652_Diss/Data/stdres_lang_3_oregon.csv", row.names = FALSE)
 # 
 # # Step 3: Create kable table
 # kable(stdres_lang_df, caption = "Standardized Residuals by Home Language and Exit Reason") %>%

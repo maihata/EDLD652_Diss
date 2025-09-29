@@ -43,7 +43,7 @@ Oregon data by LANGUAGES
 # 1. REMOVED DECEASED (the 6th column)
 # 2. CREATED THE complete_or_not_eligible combining three categories 
 
-bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
+bylang <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
   clean_names() %>% 
   select(-6) %>%
   mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
@@ -105,7 +105,7 @@ agg_by_lang <- agg_by_lang %>%
 
 ```{r}
 write.csv(agg_by_lang, 
-          file =  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
+          file =  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
           row.names = FALSE)
 ```
 
@@ -132,7 +132,7 @@ print(agg_by_lang_3group)
 # ✅ Step 3: Save the result to CSV (absolute path)
 write.csv(
   agg_by_lang_3group,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv",
   row.names = FALSE
 )
 ```
@@ -167,7 +167,7 @@ kable(stdres_lang_3group, caption = "Standardized Residuals for EI Exit Categori
 # ✅ Save standardized residuals to CSV with absolute path
 write.csv(
   stdres_lang_3group,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_3group.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/stdres_lang_3group.csv",
   row.names = FALSE
 )
 
@@ -222,7 +222,7 @@ write.csv(
 # ✅ Save Cohen's h summary for 3-group language comparison
 # write.csv(
 #   cohenh_summary_lang3,
-#   file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohenh_summary_lang3.csv",
+#   file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohenh_summary_lang3.csv",
 #   row.names = FALSE
 # )
 
@@ -254,7 +254,7 @@ library(tidyr)
 library(readr)
 
 # Step 1: Read the CSV
-lang_df <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
+lang_df <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
 
 # Step 2: Clean the data — remove raw counts and convert % to numeric
 lang_clean <- lang_df %>%
@@ -334,7 +334,7 @@ library(ggplot2)
 library(viridis)
 
 # Step 1: Read the file
-lang_df <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
+lang_df <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
 
 # Step 2: Clean percentages
 lang_clean <- lang_df %>%

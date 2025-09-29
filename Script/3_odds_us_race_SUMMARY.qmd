@@ -20,15 +20,15 @@ library(ggplot2)
 
 ```{r}
 # Chunk 2 — Read each CSV (absolute paths) and tag Category
-df_dismissed <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
+df_dismissed <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_dismissed_national.csv",
                          show_col_types = FALSE) %>%
   mutate(Category = "Dismissed")
 
-df_not_determined <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv",
+df_not_determined <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_not_determined_national.csv",
                               show_col_types = FALSE) %>%
   mutate(Category = "Not Determined")
 
-df_not_eligible <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
+df_not_eligible <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
                             show_col_types = FALSE) %>%
   mutate(Category = "Not Eligible")
 

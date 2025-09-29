@@ -44,7 +44,7 @@ library(knitr)
 
 ```{r}
 us_data_DQ_proportion_w_average <- 
-  read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
+  read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
 ```
 
 ```{r}
@@ -117,7 +117,7 @@ us_race_3cols_8rows <- us_race_3cols_8rows %>%
 
 ```{r}
 write.csv(us_race_3cols_8rows, 
-          file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_3cols_8rows.csv")
+          file="/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_3cols_8rows.csv")
 ```
 
 Calculating one Odds Ratio by one but using the us_race_3cols_8rows to minimize my pain time
@@ -238,7 +238,7 @@ us_race_odds_ratio_vs_average <- data.frame(
 
 ```{r}
 write.csv(us_race_odds_ratio_vs_average, 
-          file="/Users/hata/Desktop/EDLD652_Diss/Data/us_race_odds_ratio_vs_average.csv")
+          file="/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_odds_ratio_vs_average.csv")
 ```
 
 ```{r}

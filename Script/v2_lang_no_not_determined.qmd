@@ -40,7 +40,7 @@ C. Oregon data by LANGUAGES
 
 ```{r}
 agg_by_lang_4 <- read.csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang.csv")
 ```
 
 ```{r}

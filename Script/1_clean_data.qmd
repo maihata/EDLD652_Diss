@@ -61,13 +61,13 @@ library(clipr)
 (for Kable table)
 
 ```{r}
-exit_categories <- import("/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.xlsx") %>%
+exit_categories <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/exit_categories.xlsx") %>%
  clean_names() 
 ```
 
 ```{r}
 write.csv(exit_categories, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/exit_categories.csv", 
           row.names = FALSE)
 ```
 
@@ -79,7 +79,7 @@ write.csv(exit_categories,
 #|label: load-data
 # importing the data and cleaning it up
 
-byrace <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
+byrace <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
   clean_names() %>% 
   select(-7, -12) %>% 
   mutate(
@@ -91,7 +91,7 @@ byrace <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>%
 
 ```{r}
 write.csv(byrace, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/byrace.csv", 
           row.names = FALSE)
 ```
 
@@ -102,7 +102,7 @@ So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning 
 I had trouble doing this to collapse years, but somehow writing the first chunk as csv first with row.names = FALSE had to happen BEFORE i can collapse the years?
 
 ```{r}
-byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
+byrace_w_deceased_continuePartC <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
   clean_names() %>% 
   mutate(
     complete_or_not_eligible = 
@@ -113,7 +113,7 @@ byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data
 
 ```{r}
 write.csv(byrace_w_deceased_continuePartC, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
           row.names = FALSE)
 ```
 
@@ -190,7 +190,7 @@ agg_by_race_and_state <- byrace %>%
 
 ```{r}
 write.csv(agg_by_race_and_state, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_race_and_state.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_race_and_state.csv", 
           row.names = FALSE)
 ```
 
@@ -205,7 +205,7 @@ race_oregon <- agg_by_race_and_state %>%
 
 ```{r}
 write.csv(race_oregon, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon.csv", 
           row.names = FALSE)
 ```
 
@@ -276,7 +276,7 @@ race_us_summary %>%
 
 ```{r}
 write.csv(race_us, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv", 
           row.names = FALSE)
 ```
 
@@ -335,7 +335,7 @@ race_us_chart
 
 ```{r}
 write.csv(race_us_chart, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
           row.names = FALSE)
 ```
 
@@ -348,7 +348,7 @@ kable(race_us_chart)
 library(dplyr)
 
 # Step 1: If not already loaded
-# us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
+# us_race_chart <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
 
 # Step 2: Clean numeric columns
 us_race_chart_clean <- us_race_chart %>%
@@ -380,7 +380,7 @@ formatted_df <- formatted_df %>% select(Race, everything())
 # ✅ Step 8: Save with absolute path
 write.csv(
   formatted_df,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv",
   row.names = FALSE
 )
 
@@ -392,7 +392,7 @@ write.csv(
 
 ```{r}
 ### 6/28/25 Per LINA, trying to add x% (raw number) above 
-# us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", stringsAsFactors = FALSE)
+# us_race_chart <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_chart.csv", stringsAsFactors = FALSE)
 ```
 
 ```{r}
@@ -448,7 +448,7 @@ View(formatted_df)
 
 ```{r}
 # ✅ Step 6: Optional – Export to CSV
-# write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted.csv", row.names = FALSE)
+# write.csv(formatted_df, "/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted.csv", row.names = FALSE)
 ```
 
 ### csv 7: race_oregon_chart
@@ -492,7 +492,7 @@ race_oregon_chart <- race_oregon_chart %>%
 
 ```{r}
 write.csv(race_oregon_chart, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", 
           row.names = FALSE)
 ```
 
@@ -511,7 +511,7 @@ area_by_race <- byrace %>%
 ```
 
 ```{r}
-write.csv(area_by_race, file = "/Users/hata/Desktop/EDLD652_Diss/Data/area_by_race.csv", 
+write.csv(area_by_race, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/area_by_race.csv", 
           row.names = FALSE)
 ```
 
@@ -531,7 +531,7 @@ other_by_race <- byrace %>%
 ```
 
 ```{r}
-write.csv(area_by_race, file = "/Users/hata/Desktop/EDLD652_Diss/Data/area_by_race.csv", 
+write.csv(area_by_race, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/area_by_race.csv", 
           row.names = FALSE)
 ```
 
@@ -550,7 +550,7 @@ oregon_by_race <- byrace %>%
 ```
 
 ```{r}
-write.csv(oregon_by_race, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_by_race.csv", 
+write.csv(oregon_by_race, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/oregon_by_race.csv", 
           row.names = FALSE)
 ```
 
@@ -577,7 +577,7 @@ us_data_long <- race_us %>%
 ```
 
 ```{r}
-write.csv(us_data_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_long.csv", 
+write.csv(us_data_long, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_long.csv", 
           row.names = FALSE)
 ```
 
@@ -619,7 +619,7 @@ us_data_wide <- us_data_wide %>%
 ```
 
 ```{r}
-write.csv(us_data_wide, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv", 
+write.csv(us_data_wide, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_wide.csv", 
           row.names = FALSE)
 ```
 
@@ -635,7 +635,7 @@ agg_by_area <- byrace %>%
 ```
 
 ```{r}
-write.csv(agg_by_area, file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_area.csv",
+write.csv(agg_by_area, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_area.csv",
           row.names = FALSE)
 ```
 
@@ -652,7 +652,7 @@ data_oregon <- byrace %>%
 ```
 
 ```{r}
-write.csv(data_oregon, file = "/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv", row.names = FALSE)
+write.csv(data_oregon, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/data_oregon.csv", row.names = FALSE)
 ```
 
 ### csv 13: data_national (exit vs withdrawn)
@@ -669,7 +669,7 @@ data_national <- byrace %>%
 ```
 
 ```{r}
-write.csv(data_national, file = "/Users/hata/Desktop/EDLD652_Diss/Data/data_national.csv",row.names = FALSE)
+write.csv(data_national, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/data_national.csv",row.names = FALSE)
 ```
 
 ```{r}
@@ -684,7 +684,7 @@ us_data_attempts <- byrace %>%
 ```
 
 ```{r}
-write.csv(us_data_attempts, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
+write.csv(us_data_attempts, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts.csv",row.names = FALSE)
 ```
 
 ### csv 14: us_data_attempts_BLWH
@@ -699,7 +699,7 @@ filter(race == "BL" | race == "WH")
 ```
 
 ```{r}
-write.csv(us_data_attempts_BLWH, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv", 
+write.csv(us_data_attempts_BLWH, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv", 
           row.names = FALSE)
 ```
 
@@ -718,7 +718,7 @@ oregon_data_long <- race_oregon %>%
 ```
 
 ```{r}
-write.csv(oregon_data_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_long.csv", 
+write.csv(oregon_data_long, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/oregon_data_long.csv", 
           row.names = FALSE)
 ```
 
@@ -734,7 +734,7 @@ oregon_data_wide <- oregon_data_long %>%
 ```
 
 ```{r}
-write.csv(oregon_data_wide, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide.csv", 
+write.csv(oregon_data_wide, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/oregon_data_wide.csv", 
           row.names = FALSE)
 ```
 
@@ -750,7 +750,7 @@ oregon_data_wide_DQ <- oregon_data_wide %>%
 ```
 
 ```{r}
-write.csv(oregon_data_wide_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
+write.csv(oregon_data_wide_DQ, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
 ```
 
 ### csv 17: us_data_DQ
@@ -780,7 +780,7 @@ sum(attempts_to_contact_unsuccessful))
 ```
 
 ```{r}
-write.csv(us_data_DQ, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ.csv")
+write.csv(us_data_DQ, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_DQ.csv")
 ```
 
 ### csv 18: us_data_DQ_proportion
@@ -847,7 +847,7 @@ us_data_DQ_proportion_w_average <- us_data_DQ_proportion %>%
 ```
 
 ```{r}
-write.csv(us_data_DQ_proportion_w_average, file = "/Users/hata/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
+write.csv(us_data_DQ_proportion_w_average, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_DQ_proportion_w_average.csv")
 ```
 
 # CLEAND UP TO HERE

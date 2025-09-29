@@ -51,7 +51,7 @@ library(quarto)
 --- Kable table of CHILDCOUNT in US/OR
 
 ```{r}
-cc_transposed <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
+cc_transposed <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
 ```
 
 ```{r}
@@ -71,7 +71,7 @@ kable(cc_transposed,
 --- ggplots for US & OR Races in CHILDCOUNT
 
 ```{r}
-childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+childcount1920USOR_long <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
 ```{r}
@@ -96,12 +96,12 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 Rewrite CSV with the race names corrected!!
 
 ```{r}
-write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv",           row.names = FALSE)
+write.csv(childcount1920USOR_long, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv",           row.names = FALSE)
 
 ```
 
 ```{r}
-childcount1920USOR_long <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+childcount1920USOR_long <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 
 ```
 

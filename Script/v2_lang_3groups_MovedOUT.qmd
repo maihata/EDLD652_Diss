@@ -33,7 +33,7 @@ library(janitor)
 
 ```{r}
 # ✅ Step 1: Load data and compute Not Moved.Out column
-agg_by_lang_3group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
+agg_by_lang_3group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
 
 df_lang_movedout <- agg_by_lang_3group %>%
   mutate(Not_Moved.Out = rowSums(select(., -Primary.Language, -Moved.Out)))
@@ -174,7 +174,7 @@ summary_df_odds_movedout_lang$Cohens_h <- round(cohens_h_values, 2)
 # ✅ Step 9: Write summary table to CSV
 write.csv(
   summary_df_odds_movedout_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_movedout_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_movedout_by_language.csv",
   row.names = FALSE
 )
 ```
@@ -234,7 +234,7 @@ kable(summary_df_h_movedout_lang, caption = "Cohen's h for 'Moved Out' Exit Rate
 ```{r}
 write.csv(
   summary_df_h_movedout_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_movedout_by_3language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_movedout_by_3language_OR.csv",
   row.names = FALSE
 )
 

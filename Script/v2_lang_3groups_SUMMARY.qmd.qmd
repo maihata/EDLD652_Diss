@@ -16,7 +16,7 @@ engine: knitr
 library(readr)
 library(dplyr)
 
-path <- "/Users/hata/Desktop/EDLD652_Diss/Data"
+path <- "/Users/maiko/Desktop/EDLD652_Diss/Data"
 
 dismissed_l <- read_csv(file.path(path,"summary_dismissed_by_language.csv"),    show_col_types = FALSE) %>% mutate(Category="Dismissed")
 movedout_l  <- read_csv(file.path(path,"summary_movedout_by_language.csv"),     show_col_types = FALSE) %>% mutate(Category="Moved Out")

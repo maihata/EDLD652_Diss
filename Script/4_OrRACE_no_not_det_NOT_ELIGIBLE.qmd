@@ -44,7 +44,7 @@ library(corrplot)
 
 ```{r}
 race_oregon_no_not_determined <- read.csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
 )
 ```
 
@@ -172,7 +172,7 @@ summary_df_odds_not_eligible <- summary_df_odds_not_eligible %>%
 # ✅ Step 9: Write odds ratio summary to CSV
 write.csv(
   summary_df_odds_not_eligible,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_not_eligible_oregon.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/odds_not_eligible_oregon.csv",
   row.names = FALSE
 )
 
@@ -365,7 +365,7 @@ basic_table_not_eligible <- summary_df_odds_not_eligible %>%
 # ✅ Save the final summary table to CSV
 write.csv(
   basic_table_not_eligible,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/basic_table_not_eligible.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/basic_table_not_eligible.csv",
   row.names = FALSE
 )
 
@@ -426,7 +426,7 @@ kable(summary_df_h_not_eligible, caption = "Cohen's h for 'Not Eligible' Exit Ra
 ```{r}
 write.csv(
   summary_df_h_not_eligible,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_not_eligible_by_race_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_not_eligible_by_race_OR.csv",
   row.names = FALSE
 )
 

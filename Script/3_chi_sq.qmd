@@ -52,9 +52,9 @@ library(descr)
 --- to make the plot using corrplot of national race/exit patterns —
 
 ```{r}
-race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+race_us <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")
 
-race_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv")
+race_oregon <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon.csv")
 
 ```
 
@@ -84,9 +84,9 @@ chisq.test(race_oregon[, 3:8])
 --- US and Oregon entire table. Probably no need as I'll be running the chi-square with stdres anyway. —
 
 ```{r}
-byrace <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv")
+byrace <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/byrace.csv")
 
-data_oregon <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/data_oregon.csv")
+data_oregon <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/data_oregon.csv")
 ```
 
 ```{r}
@@ -98,7 +98,7 @@ chisq.test(data_oregon[, 2])
 --- withdrawn category —
 
 ```{r}
-agg_by_area <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_area.csv")
+agg_by_area <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_area.csv")
 ```
 
 ```{r}
@@ -110,11 +110,11 @@ chisq.test(agg_by_area[, 2:3])
 --- DQ for BLACK and WHITE for chi-square and odds ratio
 
 ```{r}
-us_data_attempts <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+us_data_attempts <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 ```
 
 ```{r}
-us_data_attempts_BLWH <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
+us_data_attempts_BLWH <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_attempts_BLWH.csv")
 
 ```
 
@@ -130,7 +130,7 @@ chi_dq_BLWH_result
 --- I shouldn't need to "call" race_matrix.csv because it's a df but that means I have to recreate it --- I HAVE TO READ IT
 
 ```{r}
-race_us <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv")
+race_us <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")
 ```
 
 ```{r}
@@ -381,7 +381,7 @@ it's NULL so I need to assign names first it says
 ```
 
 ```{r}
-# write.csv(stdres_df,         file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_df.csv",   row.names = FALSE)
+# write.csv(stdres_df,         file = "/Users/maiko/Desktop/EDLD652_Diss/Data/stdres_df.csv",   row.names = FALSE)
 ```
 
 ```{r}

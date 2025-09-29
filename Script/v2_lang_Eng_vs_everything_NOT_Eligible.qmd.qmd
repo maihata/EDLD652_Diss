@@ -14,7 +14,7 @@ engine: knitr
 
 ```{r}
 # ✅ Step 1: Load and prepare the data
-agg_lang_2group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv")
+agg_lang_2group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv")
 
 df_lang_noteligible <- agg_lang_2group %>%
   mutate(Not_Not.Eligible = rowSums(select(., -Primary.Language, -Not.Eligible)))  # Total exits excluding Not Eligible
@@ -174,7 +174,7 @@ summary_df_odds_noteligible_lang$Cohens_h <- round(cohens_h_values, 2)
 # ✅ Step 13: Save final summary to CSV
 write.csv(
   summary_df_odds_noteligible_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_noteligible_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_noteligible_by_language.csv",
   row.names = FALSE
 )
 
@@ -235,7 +235,7 @@ kable(summary_df_h_noteligible_lang, caption = "Cohen's h for 'Not Eligible' Exi
 ```{r}
 write.csv(
   summary_df_h_noteligible_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_not_eligible_by_language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_not_eligible_by_language_OR.csv",
   row.names = FALSE
 )
 

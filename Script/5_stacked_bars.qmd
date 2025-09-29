@@ -57,7 +57,7 @@ library(gt)
 ```{r}
 ### THIS ONE HAS THE FULL RACE NAMES 
 # Step 0
-# table12 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
+# table12 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
 # 
 # # Step 1: Clean up percentages (if needed)
 # table12_clean <- table12 %>%
@@ -114,7 +114,7 @@ library(gt)
 
 ```{r}
 # Step 0: Load the formatted U.S. race-level data
-table12 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
+table12 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
 
 # Step 1: Clean up percentages (remove raw counts and % signs)
 table12_clean <- table12 %>%
@@ -196,7 +196,7 @@ ggplot(table12_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
 
 ```{r}
 # Step 0: Load the Oregon race-formatted data
-race_oregon_formatted_by_row <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_formatted_by_row.csv")
+race_oregon_formatted_by_row <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_formatted_by_row.csv")
 
 # Step 1: Clean up percentages (remove raw counts and % signs)
 race_oregon_clean <- race_oregon_formatted_by_row %>%
@@ -261,7 +261,7 @@ ggplot(race_oregon_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
 
 ```{r}
 # Step 0: Load the CSV
-lang_exit <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
+lang_exit <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv")
 
 # Step 1: Clean up percentages (remove raw counts and % signs)
 lang_clean <- lang_exit %>%
@@ -310,7 +310,7 @@ ggplot(lang_long, aes(x = `Primary Language`, y = Percentage, fill = Exit_Reason
 
 ```{r}
 # Step 0: Load the 3-group language-formatted data
-lang3_df <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
+lang3_df <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group_formatted_by_row.csv")
 
 # Step 1: Clean up percentages and raw counts
 lang3_clean <- lang3_df %>%

@@ -18,7 +18,7 @@ engine: knitr
 library(readr)
 library(dplyr)
 
-path <- "/Users/hata/Desktop/EDLD652_Diss/Data"
+path <- "/Users/maiko/Desktop/EDLD652_Diss/Data"
 
 # Read each CSV and add its Category
 dismissed    <- read_csv(file.path(path, "odds_dismissed_oregon.csv"), show_col_types = FALSE) %>%

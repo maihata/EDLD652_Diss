@@ -37,7 +37,7 @@ library(corrplot)
 
 ```{r}
 race_oregon_no_not_determined <- read.csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv"
 )
 ```
 
@@ -89,7 +89,7 @@ print(race_oregon_no_not_determined)
 library(dplyr)
 
 # Step 1: Read CSV
-race_oregon <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", stringsAsFactors = FALSE)
+race_oregon <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", stringsAsFactors = FALSE)
 
 # Step 2: Convert number columns (remove commas, ensure numeric)
 race_oregon_clean <- race_oregon %>%
@@ -120,7 +120,7 @@ formatted_df <- formatted_df %>% select(Race, everything())
 
 # Step 8: View or export
 View(formatted_df)
-write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_formatted_by_row.csv", row.names = FALSE)
+write.csv(formatted_df, "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_formatted_by_row.csv", row.names = FALSE)
 
 # ✅ APA-style note (updated for row-based calculation)
 # Note. Values represent the percentage of exits within each racial group, with raw counts in parentheses. Percentages are rounded to two decimal places.
@@ -133,7 +133,7 @@ write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_forma
 # library(dplyr)
 # 
 # # Step 1: Read CSV
-# race_oregon <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", stringsAsFactors = FALSE)
+# race_oregon <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_chart.csv", stringsAsFactors = FALSE)
 # 
 # # Step 2: Convert number columns (remove commas if needed, ensure numeric)
 # race_oregon_clean <- race_oregon %>%
@@ -166,7 +166,7 @@ write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_forma
 # # Step 8: View or export
 # View(formatted_df)
 # 
-# write.csv(formatted_df, "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_formatted.csv", 
+# write.csv(formatted_df, "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_formatted.csv", 
 #           row.names = FALSE)
 
 ```
@@ -202,7 +202,7 @@ chi_result_oregon_no_not_determined_stdres <- tibble::rownames_to_column(chi_res
 # Save as CSV
 write.csv(
   chi_result_oregon_no_not_determined_stdres,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/chi_residuals_oregon_no_nd.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/chi_residuals_oregon_no_nd.csv",
   row.names = FALSE
 )
 ```

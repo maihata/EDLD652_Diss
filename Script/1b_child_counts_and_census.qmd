@@ -54,7 +54,7 @@ library(readr)
     ### DON'T USE THESE CHUNKS for VIZ - see Excel "use_this_replacement_racial_group_representation" - "2020 national CC vs census char" sheet for the representation chart.
 
 ```{r}
-# child_count_vs_census <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national CC vs census")
+# child_count_vs_census <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national CC vs census")
 
 ## I used to use the file in "Old_dont_use" excel and it worked 
 ```
@@ -137,7 +137,7 @@ library(readr)
 ```{r}
 #library(readr)
 
-#write_csv(child_count_vs_census_long, "/Users/hata/Desktop/EDLD652_Diss/Data/child_count_vs_census_long.csv")
+#write_csv(child_count_vs_census_long, "/Users/maiko/Desktop/EDLD652_Diss/Data/child_count_vs_census_long.csv")
 ```
 
 ```{r}
@@ -181,12 +181,12 @@ library(readr)
 
 ```{r}
 # 6/4/25 - runs, redid the excel source to make sure 
-child_count_vs_census_number <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national cc vs census numb")
+child_count_vs_census_number <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national cc vs census numb")
 ```
 
 ```{r}
 # 6/8/25 using different sheet, num2, without HISPANIC 
-child_count_vs_census_num2_noHis <- import("/Users/hata/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national CC vs census num2")
+child_count_vs_census_num2_noHis <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/use_this_replacement_racial_group_representation.xlsx", sheet = "2020 national CC vs census num2")
 ```
 
 ```{r}
@@ -200,13 +200,13 @@ head(child_count_vs_census_num2_noHis)
 
 ```{r}
 write.csv(child_count_vs_census_number, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount_vs_census_number.csv", row.names = FALSE)
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/childcount_vs_census_number.csv", row.names = FALSE)
 ```
 
 ```{r}
 # num2 sheet with NO HISPANIC
 write.csv(child_count_vs_census_num2_noHis, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount_vs_census_num2_noHis.csv", row.names = FALSE)
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/childcount_vs_census_num2_noHis.csv", row.names = FALSE)
 ```
 
 ### 6/5/25: I was going to transpose the dataset so it shows well, but not sure if it's worth it...?

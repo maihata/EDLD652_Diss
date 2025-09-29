@@ -61,13 +61,13 @@ library(clipr)
 (for Kable table)
 
 ```{r}
-exit_categories <- import("/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.xlsx") %>%
+exit_categories <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/exit_categories.xlsx") %>%
  clean_names() 
 ```
 
 ```{r}
 write.csv(exit_categories, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/exit_categories.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/exit_categories.csv", 
           row.names = FALSE)
 ```
 
@@ -79,7 +79,7 @@ write.csv(exit_categories,
 #|label: load-data
 # importing the data and cleaning it up
 
-byrace <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
+byrace <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
   clean_names() %>% 
   select(-7, -12) %>% 
   mutate(
@@ -91,7 +91,7 @@ byrace <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>%
 
 ```{r}
 write.csv(byrace, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/byrace.csv", 
           row.names = FALSE)
 ```
 
@@ -102,7 +102,7 @@ So, I'm making this one on 3/15/25 as I realized the Method Section I'm turning 
 I had trouble doing this to collapse years, but somehow writing the first chunk as csv first with row.names = FALSE had to happen BEFORE i can collapse the years?
 
 ```{r}
-byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
+byrace_w_deceased_continuePartC <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/race v.2.xlsx") %>% 
   clean_names() %>% 
   mutate(
     complete_or_not_eligible = 
@@ -113,7 +113,7 @@ byrace_w_deceased_continuePartC <- import("/Users/hata/Desktop/EDLD652_Diss/Data
 
 ```{r}
 write.csv(byrace_w_deceased_continuePartC, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/byrace_w_deceased_continuePartC.csv", 
           row.names = FALSE)
 ```
 
@@ -190,7 +190,7 @@ agg_by_race_and_state <- byrace %>%
 
 ```{r}
 write.csv(agg_by_race_and_state, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_race_and_state.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_race_and_state.csv", 
           row.names = FALSE)
 ```
 
@@ -205,7 +205,7 @@ race_oregon <- agg_by_race_and_state %>%
 
 ```{r}
 write.csv(race_oregon, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon.csv", 
           row.names = FALSE)
 ```
 
@@ -276,7 +276,7 @@ race_us_summary %>%
 
 ```{r}
 write.csv(race_us, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv", 
           row.names = FALSE)
 ```
 
@@ -335,7 +335,7 @@ race_us_chart
 
 ```{r}
 write.csv(race_us_chart, 
-          file = "/Users/hata/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
+          file = "/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_chart.csv", 
           row.names = FALSE)
 ```
 
@@ -348,7 +348,7 @@ kable(race_us_chart)
 library(dplyr)
 
 # Step 1: If not already loaded
- us_race_chart <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
+ us_race_chart <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart.csv", stringsAsFactors = FALSE)
 
 # Step 2: Clean numeric columns
 us_race_chart_clean <- us_race_chart %>%
@@ -380,14 +380,14 @@ formatted_df <- formatted_df %>% select(Race, everything())
 # ✅ Step 8: Save with absolute path
 write.csv(
   formatted_df,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv",
   row.names = FALSE
 )
 
 ```
 
 ```{r}
-table12 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
+table12 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_race_chart_formatted_by_row.csv")
 ```
 
 ```{r}

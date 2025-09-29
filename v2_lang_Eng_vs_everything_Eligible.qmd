@@ -43,7 +43,7 @@ library(corrplot)
 
 ```{r}
 # ✅ Step 1: Load data
-agg_lang_2group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv")
+agg_lang_2group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv")
 
 ```
 
@@ -137,7 +137,7 @@ summary_df_odds_eligible_lang
 # ✅ Step 9: Write odds ratio summary to CSV
 write.csv(
   summary_df_odds_eligible_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/odds_eligible_oregon_lang.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/odds_eligible_oregon_lang.csv",
   row.names = FALSE
 )
 
@@ -242,7 +242,7 @@ basic_table_eligible_lang <- summary_df_odds_eligible_lang %>%
 # ✅ Step 7: Save summary table with Cohen's h to CSV
 write.csv(
   summary_df_odds_eligible_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_eligible_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_eligible_by_language.csv",
   row.names = FALSE
 )
 
@@ -303,7 +303,7 @@ kable(summary_df_h_eligible_lang, caption = "Cohen's h for 'Part B Eligible' Exi
 ```{r}
 write.csv(
   summary_df_h_eligible_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_partb_eligible_by_language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_partb_eligible_by_language_OR.csv",
   row.names = FALSE
 )
 

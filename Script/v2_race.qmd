@@ -67,7 +67,7 @@ library(quarto)
 -   cc_transposed (childcount1920USOR but X and Y flipped)
 
 ```{r}
-childcount1920 <- read_excel("/Users/hata/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
+childcount1920 <- read_excel("/Users/maiko/Desktop/EDLD652_Diss/Data/1920-cchildcountandsettings-11.xlsx", sheet = 2)
 ```
 
 ```{r}
@@ -96,7 +96,7 @@ childcount1920USOR[, 2:7] <- lapply(childcount1920USOR[, 2:7], function(x) round
 ```{r}
 # childcount1920 still has all the states. 
 
-write.csv(childcount1920USOR, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR.csv", row.names = FALSE)
+write.csv(childcount1920USOR, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -116,7 +116,7 @@ cc_transposed$Category <- c("Race/Ethnicity",
 ```
 
 ```{r}
-write.csv(cc_transposed, file = "/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
+write.csv(cc_transposed, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
 ```
 
 ### cc csv 2: childcount1920USOR_long
@@ -138,7 +138,7 @@ childcount1920USOR_long <- childcount1920USOR_long %>%
 ```
 
 ```{r}
-write.csv(childcount1920USOR_long, file = "/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+write.csv(childcount1920USOR_long, file = "/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
 # OLD - don't use, use the codes freom 3_chi_sq.qmd HELP: DOESN'T RUN ANYMOER! WHERE DID VAR2 go for residuals_df?

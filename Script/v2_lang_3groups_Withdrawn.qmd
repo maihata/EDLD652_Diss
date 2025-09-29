@@ -33,7 +33,7 @@ library(janitor)
 
 ```{r}
 # ✅ Step 1: Load 3-group language data and create Not_Withdrawn column
-agg_lang_3group <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
+agg_lang_3group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
 
 df_lang_withdrawn <- agg_lang_3group %>%
   mutate(Not_Withdrawn = rowSums(select(., -Primary.Language, -Withdrawn)))
@@ -172,7 +172,7 @@ summary_df_odds_withdrawn_lang$Cohens_h <- round(cohens_h_values, 2)
 # ✅ Step 9: Save Withdrawn odds ratio and Cohen’s h summary to CSV
 write.csv(
   summary_df_odds_withdrawn_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/summary_withdrawn_by_language.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_withdrawn_by_language.csv",
   row.names = FALSE
 )
 ```
@@ -236,7 +236,7 @@ kable(summary_df_h_withdrawn_lang, caption = "Cohen's h for 'Withdrawn' Exit Rat
 ```{r}
 write.csv(
   summary_df_h_withdrawn_lang,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_withdrawn_by_3language_OR.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_withdrawn_by_3language_OR.csv",
   row.names = FALSE
 )
 

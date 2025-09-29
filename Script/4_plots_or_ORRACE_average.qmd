@@ -36,7 +36,7 @@ library(corrplot)
 ```
 
 ```{r}
-race_oregon <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv")
+race_oregon <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon.csv")
 ```
 
 ```{r}
@@ -100,7 +100,7 @@ race_oregon_w_average <- race_oregon_w_average %>%
 
 ```{r}
 write.csv(race_oregon_w_average, 
-            file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_average.csv")
+            file="/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_w_average.csv")
 ```
 
 ```{r}
@@ -231,7 +231,7 @@ race_oregon_w_average_full.csv - all the OREGON races' odds ratio against averag
 
 ```{r}
 write.csv(race_oregon_w_average_full, 
-          file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_average_full.csv")
+          file="/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_w_average_full.csv")
 ```
 
 ```{r}
@@ -387,7 +387,7 @@ race_oregon_w_WHITE <- data.frame(
 
 ```{r}
 write.csv(race_oregon_w_WHITE, 
-          file="/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon_w_WHITE.csv")
+          file="/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon_w_WHITE.csv")
 ```
 
 ```{r}
@@ -432,7 +432,7 @@ ggplot(race_oregon_w_WHITE,
 
 ```{r}
 race_oregon_all_exits <- read.csv(
-  "/Users/hata/Desktop/EDLD652_Diss/Data/race_oregon.csv"
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/race_oregon.csv"
 )
 ```
 

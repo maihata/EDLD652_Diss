@@ -43,7 +43,7 @@ Oregon data by LANGUAGES
 # 1. REMOVED DECEASED (the 6th column)
 # 2. CREATED THE complete_or_not_eligible combining three categories 
 
-bylang <- import("/Users/hata/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
+bylang <- import("/Users/maiko/Desktop/EDLD652_Diss/Data/ODE data v3.xlsx") %>% 
   clean_names() %>% 
   select(-6) %>%
   mutate(complete_or_not_eligible = no_longer_eligible_for_part_c_prior_to_reaching_age_three + not_eligible_for_part_b_exit_with_no_referrals +
@@ -105,7 +105,7 @@ agg_by_lang <- agg_by_lang %>%
 
 ```{r}
 write.csv(agg_by_lang, 
-          file =  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
+          file =  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang.csv", 
           row.names = FALSE)
 ```
 
@@ -146,7 +146,7 @@ formatted_df_lang <- formatted_df_lang %>% select(`Primary Language`, everything
 # ✅ Step 7: Save to CSV with absolute path
 write.csv(
   formatted_df_lang,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_formatted_by_row.csv",
   row.names = FALSE
 )
 
@@ -189,7 +189,7 @@ agg_lang_2group
 # ✅ Save the two-row summary to your Data folder
 write.csv(
   agg_lang_2group,
-  "/Users/hata/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv",
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/agg_lang_2group.csv",
   row.names = FALSE
 )
 ```
@@ -222,7 +222,7 @@ kable(stdres_lang_2group, caption = "Standardized Residuals for EI Exit Categori
 # ✅ Save standardized residuals to CSV with absolute path
 write.csv(
   stdres_lang_2group,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/stdres_lang_2group.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/stdres_lang_2group.csv",
   row.names = FALSE
 )
 

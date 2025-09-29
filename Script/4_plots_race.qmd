@@ -57,7 +57,7 @@ library(quarto)
 --- DQ data in US —-
 
 ```{r}
-us_data_wide <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/us_data_wide.csv")
+us_data_wide <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/us_data_wide.csv")
 ```
 
 # category names changed already to cleaner names - check the DF so it runs
@@ -96,7 +96,7 @@ ggplot(us_data_wide, aes(x = Race, y = attempts_to_contact_unsuccessful)) +
 ### plot 2: oregon_data_wide_DQ
 
 ```{r}
-oregon_data_wide_DQ <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
+oregon_data_wide_DQ <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/oregon_data_wide_DQ.csv")
 ```
 
 ```{r}
@@ -128,7 +128,7 @@ oregon_data_wide_DQ <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/oregon_da
 --- Kable table of CHILDCOUNT in US/OR
 
 ```{r}
-race_us_chart <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
+race_us_chart <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/cc_transposed.csv")
 ```
 
 ```{r}
@@ -148,7 +148,7 @@ kable(cc_transposed,
 --- ggplots for US & OR Races in CHILDCOUNT
 
 ```{r}
-race_us_chart <- read_csv("/Users/hata/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
+race_us_chart <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/childcount1920USOR_long.csv")
 ```
 
 ```{r}
@@ -218,7 +218,7 @@ ggplot(childcount1920USOR_long, aes(x = state, y = percent, fill = race)) +
 --- Chi-square with Residuals —
 
 ```{r}
-residuals_df <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/residuals_df.csv
+residuals_df <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/residuals_df.csv
 ```
 
 ## Caused by error: ! object 'Var2' not found Run `rlang::last_trace()` to see where the error occurred. \>

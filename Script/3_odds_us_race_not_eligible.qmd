@@ -49,7 +49,7 @@ library(descr)
 ```
 
 ```{r}
-race_us_2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv")
+race_us_2 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_2.csv")
 ```
 
 ```{r}
@@ -221,7 +221,7 @@ summary_df_odds_noteligible <- summary_df_odds_noteligible %>%
 
 ```{r}
 write.csv(summary_df_odds_noteligible, 
-          "/Users/hata/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
+          "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_df_odds_not_eligible_national.csv",
           row.names = FALSE)
 ```
 
@@ -239,7 +239,7 @@ compute_cohens_h <- function(p1, p2) {
 }
 
 # Step 3: Read and prepare the data
-race_us_2_clean2 <- read.csv("/Users/hata/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
+race_us_2_clean2 <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us_2.csv") 
 
 colnames(race_us_2_clean2)
 ```
@@ -473,7 +473,7 @@ summary_df_not_eligible <- bind_rows(
 # ✅ Step: Write Cohen's h summary for 'Not Eligible' exit category by race to CSV
 write.csv(
   summary_df_h,
-  file = "/Users/hata/Desktop/EDLD652_Diss/Data/cohens_h_noteligible_by_race.csv",
+  file = "/Users/maiko/Desktop/EDLD652_Diss/Data/cohens_h_noteligible_by_race.csv",
   row.names = FALSE
 )
 ```
