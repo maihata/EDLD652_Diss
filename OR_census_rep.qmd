@@ -98,9 +98,39 @@ or_census_by_race
 ```
 
 ```{r}
+or_census_by_race_total <- or_census_by_race %>%
+  bind_rows(
+    summarise(., across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+      mutate(RACE = NA_integer_)
+  ) %>%
+  mutate(RACE_label = ifelse(is.na(RACE), "Total", as.character(RACE)))
+```
+
+```{r}
+library(dplyr)
+
+or_census_by_race_total <- or_census_by_race_total %>%
+  mutate(RACE_label = trimws(as.character(RACE_label))) %>%
+  mutate(
+    Percentage = ifelse(
+      RACE_label == "Total",
+      100,
+      round(
+        ESTIMATESBASE2020 / 
+          sum(ESTIMATESBASE2020[RACE_label != "Total"], na.rm = TRUE) * 100,
+        1
+      )
+    )
+  )
+
+or_census_by_race_total
 
 ```
 
 ```{r}
+kable(or_census_by_race_total)
+```
 
+```{r}
+kable(or_census_combined)
 ```
