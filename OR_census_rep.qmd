@@ -1,0 +1,106 @@
+---
+title: "OR_census_rep"
+output: html_document
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(gt)
+library(DT)
+library(reactable)
+library(gtsummary)
+library(kableExtra)
+library(tinytex)
+library(janitor)
+library(tidylog)
+library(sjPlot)
+library(lme4)
+library(tibble)
+library(dplyr)
+library(epitools)
+library(readxl)
+library(pwr)
+library(rcompanion)
+library(grateful)
+library(distill)
+library(readxl)
+library(scales)
+library(tidyr)
+library(patchwork)
+library(corrplot)
+library(distill)
+library(tibble)
+library(rcartocolor)
+library(ggplot2)
+library(quarto)
+```
+
+```{r}
+setwd("/Users/maiko/Desktop/EDLD652_Diss")
+```
+
+```{r}
+or_census <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/sc-est2024-alldata6.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+head(or_census)
+```
+
+```{r}
+or_census_clean <- or_census %>%
+  select(-SUMLEV, -REGION, -DIVISION, -NAME, -SEX,
+         -POPESTIMATE2020, -POPESTIMATE2021, -POPESTIMATE2022,
+         -POPESTIMATE2023, -POPESTIMATE2024)
+
+glimpse(or_census_clean)
+```
+
+```{r}
+or_census_or <- or_census_clean %>%
+  filter(STATE == 41)
+
+glimpse(or_census_or)
+```
+
+```{r}
+or_census_age0_2 <- or_census_or %>%
+  filter(AGE %in% c(0, 1, 2))
+
+glimpse(or_census_age0_2)
+```
+
+```{r}
+or_census_combined <- or_census_age0_2 %>%
+  group_by(ORIGIN) %>%
+  summarise(across(where(is.numeric), sum, na.rm = TRUE))
+
+or_census_combined
+```
+
+```{r}
+or_census_by_race <- or_census_age0_2 %>%
+  group_by(RACE) %>%
+  summarise(across(where(is.numeric), sum, na.rm = TRUE))
+
+or_census_by_race
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
