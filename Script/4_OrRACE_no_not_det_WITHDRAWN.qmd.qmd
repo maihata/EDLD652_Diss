@@ -195,6 +195,7 @@ summary_df_odds_withdrawn <- bind_rows(summary_df_odds_withdrawn, oregon_avg_row
 ```
 
 ```{r}
+
 summary_df_odds_withdrawn$Race <- factor(
   summary_df_odds_withdrawn$Race,
   levels = rev(c(
@@ -207,8 +208,9 @@ summary_df_odds_withdrawn$Race <- factor(
 ```
 
 ```{r}
+# 11/1/25 - added to drop the Oregon Average from the df/ggplot
 summary_df_odds_withdrawn_plot <- summary_df_odds_withdrawn %>%
-  filter(Race != "National Average")
+  filter(Race != "Oregon Average")
 
 ```
 

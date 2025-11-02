@@ -128,7 +128,8 @@ or_census_by_race_total
 ```
 
 ```{r}
-kable(or_census_by_race_total)
+library(knitr)
+kable(head(or_census_by_race_total), format = "pandoc")
 ```
 
 ```{r}
