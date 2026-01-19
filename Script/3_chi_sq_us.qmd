@@ -41,7 +41,6 @@ library(tibble)
 library(rcartocolor)
 library(ggplot2)
 library(quarto)
-library(descr)
 ```
 
 #### Chi-Square for all the races and all the exit reasons
