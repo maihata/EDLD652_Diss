@@ -314,15 +314,3 @@ ggplot(formatted_long, aes(x = Race, y = Percentage, fill = Exit_Reason)) +
   )
 
 ```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```

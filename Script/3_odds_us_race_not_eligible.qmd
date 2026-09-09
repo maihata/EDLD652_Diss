@@ -45,7 +45,6 @@ library(tibble)
 library(rcartocolor)
 library(ggplot2)
 library(quarto)
-library(descr)
 ```
 
 ```{r}

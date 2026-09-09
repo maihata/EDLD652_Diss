@@ -248,7 +248,7 @@ summary_df_odds_dismissed <- summary_df_odds_dismissed %>%
 
 ```
 
-## THIS SHOULD BE CORRECT (9/18/25) 
+## THIS SHOULD BE CORRECT (9/18/25)
 
 ```{r}
 # ✅ Step 9: Write odds ratio summary to CSV
