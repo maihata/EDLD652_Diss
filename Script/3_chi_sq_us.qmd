@@ -1,11 +1,13 @@
 ---
 title: "3_chi_sq_us"
 author: "Maiko Hata"
-format: pdf
+format: html
 execute: 
   eval: true 
 editor: visual
 engine: knitr
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}
@@ -145,6 +147,51 @@ kable(stdres_matrix_2, digits = 2) %>%
 ```
 
 ```{r}
+#2026/9/8
+# Read a fresh copy so this doesn't depend on race_us_2 being mutated elsewhere in the script
+race_us_2_table <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")
+
+counts_matrix <- as.matrix(race_us_2_table[, 4:9])
+rownames(counts_matrix) <- c("AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White")
+colnames(counts_matrix) <- c("Withdrawn", "Dismissed", "Moved Out", "Part B Eligible", "Not Eligible", "Not Determined")
+
+# Alphabetize to match stdres_matrix_2's current order
+counts_matrix <- counts_matrix[order(rownames(counts_matrix)), order(colnames(counts_matrix))]
+
+# Row percentages: % of that race's total exits falling in each category
+pct_matrix <- round(100 * counts_matrix / rowSums(counts_matrix), 1)
+
+# Combine N (%) into one string per cell, adding * where |residual| >= 2
+combined_matrix <- matrix(
+  paste0(format(counts_matrix, big.mark = ","), " (", pct_matrix, "%)",
+         ifelse(abs(stdres_matrix_2) >= 2, "*", "")),
+  nrow = nrow(counts_matrix),
+  dimnames = dimnames(counts_matrix)
+)
+
+# Add row totals
+row_totals <- rowSums(counts_matrix)
+combined_df <- as.data.frame(combined_matrix) %>%
+  rownames_to_column("Race") %>%
+  mutate(Total = format(row_totals, big.mark = ","))
+
+# Add column totals row
+col_totals <- colSums(counts_matrix)
+grand_total <- sum(counts_matrix)
+totals_row <- as_tibble_row(setNames(
+  as.list(c("Total", format(col_totals, big.mark = ","), format(grand_total, big.mark = ","))),
+  names(combined_df)
+))
+combined_df <- bind_rows(combined_df, totals_row)
+
+kable(combined_df, align = "lcccccc",
+      caption = "Number (%) of Children in Each Exit Category by Race and Ethnicity, U.S. Data, 2013–2022") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  kable_classic(html_font = "Cambria", full_width = FALSE) %>%
+  footnote(general = "N (row %). * indicates |standardized residual| \u2265 2, a statistically significant deviation from expected counts.")
+```
+
+```{r}
 ### 6/18/25 --- saving it as csv so that I can modify it on the docs 
 
 # Convert matrix to data frame with Race as a column
@@ -177,6 +224,20 @@ corrplot(stdres_matrix_2,
          cl.ratio = 0.2)
 
 ```
+
+```{r}
+corrplot(stdres_matrix_2,
+         is.cor = FALSE,        # This tells it you're plotting non-correlation data
+         tl.cex = 0.8,
+         tl.col = "black",
+         cl.cex = 0.7,
+         cl.offset = 1,
+         cl.ratio = 0.2,
+         addCoef.col = "black", # overlays the residual value on each cell
+         number.cex = 0.6)      # adjust text size so numbers fit inside the circles
+```
+
+`{# {r} # library(ggplot2) # library(reshape2) #  # # Raw counts from Table 1 # counts <- matrix(c( #   3262,  1045,  2480,   4395,   9035,  3155,   # AI/AN #   6559,  8031, 22848,  26712,  52840, 21737,   # Asian #   56155, 14648, 69687,    353, 139607, 48699,   # Black #   79951, 26699,173416, 165654, 318999,109469,   # Hispanic #   977,   559,  1532,   1911,   3587,  1467,   # NH/PI #   11676,  6477, 15813,  28996,  50699, 19195,   # Two+ Races #   99922, 65399,178843, 402568, 623690,242489    # White # ), nrow = 7, byrow = TRUE, # dimnames = list( #   c("AI/AN","Asian","Black","Hispanic","NH/PI","Two+ Races","White"), #   c("Dismissed","Moved Out","Not Determined","Not Eligible","Part B Eligible","Withdrawn") # )) #  # # Row percentages: % of that race's total exits falling in each category # row_pct <- round(100 * counts / rowSums(counts), 1) #  # # Use your existing standardized residual matrix (already computed elsewhere in your script) # resid <- stdres_matrix_2 #  # # Reshape all three into one long dataframe for ggplot # df_counts <- melt(counts, varnames = c("Race","Category"), value.name = "N") # df_pct    <- melt(row_pct, varnames = c("Race","Category"), value.name = "Pct") # df_resid  <- melt(resid,  varnames = c("Race","Category"), value.name = "Resid") #  # df <- Reduce(function(x, y) merge(x, y, by = c("Race","Category")), #              list(df_counts, df_pct, df_resid)) #  # df$label <- paste0(format(df$N, big.mark = ","), "\n(", df$Pct, "%)\n", round(df$Resid, 1)) #  # # Order factors to match original table layout # df$Race <- factor(df$Race, levels = rev(rownames(counts))) # df$Category <- factor(df$Category, levels = colnames(counts)) #  # # Row, column, and grand totals for the caption # row_totals <- rowSums(counts) # col_totals <- colSums(counts) # grand_total <- sum(counts) #  # note_text <- paste0( #   "Note. Cell values show N (row %) and the standardized residual (bottom number); ", #   "residuals above ±2 indicate a statistically significant deviation from expected counts. ", #   "Row totals: ", paste(names(row_totals), row_totals, sep = "=", collapse = ", "), ". ", #   "Column totals: ", paste(names(col_totals), format(col_totals, big.mark=","), sep = "=", collapse = ", "), ". ", #   "Total N = ", format(grand_total, big.mark = ","), "." # ) #  # ggplot(df, aes(x = Category, y = Race, fill = Resid)) + #   geom_tile(color = "white") + #   geom_text(aes(label = label), size = 2.8, lineheight = 0.85) + #   scale_fill_gradient2(low = "#B2182B", mid = "white", high = "#2166AC", #                         midpoint = 0, name = "Std.\nResidual") + #   labs(title = "Number of Children in Each Exit Category by Race and Ethnicity,\nU.S. Data, 2013–2022", #        x = NULL, y = NULL, caption = note_text) + #   theme_minimal(base_size = 11) + #   theme(axis.text.x = element_text(angle = 30, hjust = 1), #         plot.caption = element_text(hjust = 0, size = 7, margin = margin(t = 10)), #         panel.grid = element_blank())`
 
 ```{r}
 # corrplot(stdres_matrix_2,
@@ -602,30 +663,6 @@ ggplot(summary_df_odds_dismissed, aes(x = `Odds Ratio`, y = Race)) +
 ```{r}
 summary_df_odds_dismissed_plot <- summary_df_odds_dismissed %>%
   filter(Race != "National Average")
-
-```
-
-```{r}
-ggplot(summary_df_odds_dismissed_plot, aes(x = `Odds Ratio`, y = Race)) +
-  geom_point(aes(color = `P Value` < 0.05), size = 4) +
-  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "green") +  # keep reference line
-  geom_text(aes(label = sprintf("%.2f", `Odds Ratio`)), vjust = -1.2, size = 3.5) +
-  scale_x_log10() +
-  scale_color_manual(
-    values = c("TRUE" = "skyblue", "FALSE" = "gray70"),
-    labels = c("TRUE" = "p < .05", "FALSE" = "p ≥ .05")
-  ) +
-  labs(
-    x = "Odds Ratio (log scale)",
-    y = "",
-    color = "Statistical Significance",
-    title = "Odds Ratios for 'Dismissed' Exit Category by Race (Oregon)"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_text(size = 12),
-    axis.text.x = element_text(size = 12),
 
 ```
 
