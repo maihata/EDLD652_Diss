@@ -147,6 +147,82 @@ kable(stdres_matrix_2, digits = 2) %>%
 ```
 
 ```{r}
+# Build the observed-counts matrix using the SAME renaming and ordering
+# already applied to stdres_matrix_2, so cells line up exactly
+
+obs_matrix_2 <- race_us_2_matrix
+
+rownames(obs_matrix_2) <- c(
+  "AI/AN", "Asian", "Black", "Hispanic", "Two+ Races", "NH/PI", "White"
+)
+colnames(obs_matrix_2) <- c(
+  "Withdrawn", "Dismissed", "Moved Out",
+  "Part B Eligible", "Not Eligible", "Not Determined"
+)
+
+obs_matrix_2 <- obs_matrix_2[
+  order(rownames(obs_matrix_2)),
+  order(colnames(obs_matrix_2))
+]
+
+# Sanity check: these two matrices should now have identical dimnames
+identical(dimnames(obs_matrix_2), dimnames(stdres_matrix_2))
+```
+
+```{r}
+# Significance flag: |SR| >= 2
+sig_flag_2 <- ifelse(abs(stdres_matrix_2) >= 2, "*", "")
+
+# Build combined cell text: "SR* (N)"
+table2_display <- matrix(
+  paste0(round(stdres_matrix_2, 2), sig_flag_2, " (", obs_matrix_2, ")"),
+  nrow = nrow(stdres_matrix_2),
+  dimnames = dimnames(stdres_matrix_2)
+)
+
+# Row totals (N per race group)
+row_totals_2 <- rowSums(obs_matrix_2)
+table2_final <- cbind(as.data.frame(table2_display), `Row N` = row_totals_2)
+
+table2_final
+```
+
+```{r}
+# Significance flag: |SR| >= 2
+sig_flag_2 <- ifelse(abs(stdres_matrix_2) >= 2, "*", "")
+
+# Build combined cell text: "SR* (N)"
+table2_display <- matrix(
+  paste0(round(stdres_matrix_2, 2), sig_flag_2, " (", obs_matrix_2, ")"),
+  nrow = nrow(stdres_matrix_2),
+  dimnames = dimnames(stdres_matrix_2)
+)
+
+# Row totals (N per race group)
+row_totals_2 <- rowSums(obs_matrix_2)
+table2_final <- cbind(as.data.frame(table2_display), `Row N` = row_totals_2)
+
+table2_final
+```
+
+```{r}
+kable(table2_final, digits = 2, align = "c") %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  kable_classic(html_font = "Cambria", full_width = FALSE) %>%
+  column_spec(1:ncol(table2_final), extra_css = "text-align: center;") %>%
+  row_spec(0, bold = TRUE) %>%
+  footnote(general = "Values shown as standardized residual (cell N). * indicates |standardized residual| ≥ 2, a statistically significant deviation from expected counts.")
+```
+
+```{r}
+
+```
+
+```{r}
 #2026/9/8
 # Read a fresh copy so this doesn't depend on race_us_2 being mutated elsewhere in the script
 race_us_2_table <- read_csv("/Users/maiko/Desktop/EDLD652_Diss/Data/race_us.csv")

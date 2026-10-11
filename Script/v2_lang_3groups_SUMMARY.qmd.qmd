@@ -124,3 +124,250 @@ ggplot(all_lang, aes(Category, Primary.Language)) +
   )
 
 ```
+
+```{r}
+head(all_lang)
+```
+
+```{r}
+names(all_lang)
+```
+
+```{r}
+forest_df <- all_lang %>%
+  dplyr::mutate(
+    lo = Lower_CI,
+    hi = Upper_CI,
+    Primary.Language = factor(Primary.Language,
+                              levels = c("English", "Spanish", "Other Languages")),
+    Category = forcats::fct_recode(Category,
+                                   "Dismissed for Lost Contact" = "Dismissed"),
+    Category = forcats::fct_rev(Category),
+    fill_col = ifelse(ns, "ns", as.character(Primary.Language))
+  )
+
+group_cols   <- c("English" = "#2a78d6",
+                  "Spanish" = "#eb6834",
+                  "Other Languages" = "#1baf7a")
+group_labels <- c("English" = "English-only",
+                  "Spanish" = "Spanish-only",
+                  "Other Languages" = "Other Single and Multiple Languages")
+group_shapes <- c("English" = 21, "Spanish" = 22, "Other Languages" = 24)
+
+dodge <- position_dodge(width = 0.6)
+
+forest <- ggplot(forest_df,
+                 aes(x = Category, y = Odds_Ratio, ymin = lo, ymax = hi,
+                     color = Primary.Language, shape = Primary.Language,
+                     group = forcats::fct_rev(Primary.Language))) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+  geom_linerange(position = dodge, linewidth = 0.8) +
+  geom_point(aes(fill = fill_col), position = dodge, size = 2.8, stroke = 1) +
+  scale_y_log10(breaks = c(0.4, 0.5, 0.6, 0.8, 1, 1.25, 1.5, 2),
+                limits = c(0.38, 2)) +
+  scale_color_manual(values = group_cols, labels = group_labels) +
+  scale_shape_manual(values = group_shapes, labels = group_labels) +
+  scale_fill_manual(values = c(group_cols, ns = "white"), guide = "none") +
+  coord_flip() +
+  labs(x = NULL, y = "Odds ratio (95% CI, log scale)",
+       color = NULL, shape = NULL) +
+  guides(color = guide_legend(nrow = 2, override.aes = list(fill = unname(group_cols))),
+         shape = guide_legend(nrow = 2, override.aes = list(fill = unname(group_cols)))) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position    = "bottom",
+        panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank())
+
+forest
+```
+
+```{r}
+all_lang %>%
+  dplyr::filter(Primary.Language == "Other Languages", Category == "Withdrawn") %>%
+  dplyr::select(Odds_Ratio, Lower_CI, Upper_CI, P_Value, ns)
+```
+
+```{r}
+forest_df <- all_lang %>%
+  dplyr::mutate(
+    lo = Lower_CI,
+    hi = Upper_CI,
+    Primary.Language = factor(Primary.Language,
+                              levels = c("English", "Spanish", "Other Languages")),
+    Category = forcats::fct_recode(Category,
+                                   "Dismissed for Lost Contact" = "Dismissed"),
+    Category = forcats::fct_rev(Category),
+    fill_col = ifelse(ns, "ns", as.character(Primary.Language)),
+    lang     = as.character(Primary.Language),
+    xpos     = as.numeric(Category) +
+      c("English" = 0.22, "Spanish" = 0, "Other Languages" = -0.22)[lang],
+    letter   = c("English" = "E", "Spanish" = "S", "Other Languages" = "O")[lang]
+  )
+
+group_cols   <- c("English" = "#2a78d6",
+                  "Spanish" = "#eb6834",
+                  "Other Languages" = "#1baf7a")
+group_labels <- c("English" = "E = English-only",
+                  "Spanish" = "S = Spanish-only",
+                  "Other Languages" = "O = Other Single and Multiple Languages")
+
+forest <- ggplot(forest_df, aes(x = xpos, y = Odds_Ratio, color = Primary.Language)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+  geom_linerange(aes(ymin = lo, ymax = hi), linewidth = 0.8) +
+  geom_point(aes(fill = fill_col), shape = 21, size = 5, stroke = 1) +
+  # white letters on filled (significant) circles
+  geom_text(data = dplyr::filter(forest_df, !ns), aes(label = letter),
+            color = "white", size = 2.8, fontface = "bold", show.legend = FALSE) +
+  # colored letters on hollow (not significant) circles
+  geom_text(data = dplyr::filter(forest_df, ns), aes(label = letter),
+            size = 2.8, fontface = "bold", show.legend = FALSE) +
+  scale_x_continuous(breaks = seq_along(levels(forest_df$Category)),
+                     labels = levels(forest_df$Category)) +
+  scale_y_log10(breaks = c(0.4, 0.5, 0.6, 0.8, 1, 1.25, 1.5, 2),
+                limits = c(0.38, 2)) +
+  scale_color_manual(values = group_cols, labels = group_labels) +
+  scale_fill_manual(values = c(group_cols, ns = "white"), guide = "none") +
+  coord_flip() +
+  labs(x = NULL, y = "Odds ratio (95% CI, log scale)", color = NULL) +
+  guides(color = guide_legend(nrow = 2,
+                              override.aes = list(fill = unname(group_cols),
+                                                  shape = 21, size = 4))) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position    = "bottom",
+        panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank())
+
+forest
+```
+
+```{r}
+# SWAP THIS Category = forcats::fct_rev(Category),
+
+# With 
+
+# THIS Category = factor(Category, levels = rev(c("Not Eligible",
+                                           "Part B Eligible",
+                                           "Dismissed for Lost Contact",
+                                           "Moved Out",
+                                           "Withdrawn"))),
+```
+
+```{r}
+forest_df <- all_lang %>%
+  dplyr::mutate(
+    lo = Lower_CI,
+    hi = Upper_CI,
+    Primary.Language = factor(Primary.Language,
+                              levels = c("English", "Spanish", "Other Languages")),
+    Category = forcats::fct_recode(Category,
+                                   "Dismissed for Lost Contact" = "Dismissed"),
+    Category = factor(Category, levels = rev(c("Not Eligible",
+                                               "Part B Eligible",
+                                               "Dismissed for Lost Contact",
+                                               "Moved Out",
+                                               "Withdrawn"))),
+    fill_col = ifelse(ns, "ns", as.character(Primary.Language)),
+    lang     = as.character(Primary.Language),
+    xpos     = as.numeric(Category) +
+      c("English" = 0.22, "Spanish" = 0, "Other Languages" = -0.22)[lang],
+    letter   = c("English" = "E", "Spanish" = "S", "Other Languages" = "O")[lang]
+  )
+
+group_cols <- c("English"         = "#0072B2",   # blue
+                "Spanish"         = "#D55E00",   # vermillion
+                "Other Languages" = "#009E73")   # bluish green
+group_labels <- c("English" = "E = English-only",
+                  "Spanish" = "S = Spanish-only",
+                  "Other Languages" = "O = Other Single and Multiple Languages")
+
+forest <- ggplot(forest_df, aes(x = xpos, y = Odds_Ratio, color = Primary.Language)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray50") +
+  geom_linerange(aes(ymin = lo, ymax = hi), linewidth = 0.8) +
+  geom_point(aes(fill = fill_col), shape = 21, size = 5, stroke = 1) +
+  # white letters on filled (significant) circles
+  geom_text(data = dplyr::filter(forest_df, !ns), aes(label = letter),
+            color = "white", size = 2.8, fontface = "bold",
+            family = "Times New Roman", show.legend = FALSE) +
+  # colored letters on hollow (not significant) circles
+  geom_text(data = dplyr::filter(forest_df, ns), aes(label = letter),
+            size = 2.8, fontface = "bold",
+            family = "Times New Roman", show.legend = FALSE) +
+  scale_x_continuous(breaks = seq_along(levels(forest_df$Category)),   # <- restored line
+                     labels = levels(forest_df$Category)) +
+  scale_y_log10(breaks = c(0.4, 0.5, 0.6, 0.8, 1, 1.25, 1.5, 2),
+                limits = c(0.38, 2)) +
+  scale_color_manual(values = group_cols, labels = group_labels) +
+  scale_fill_manual(values = c(group_cols, ns = "white"), guide = "none") +
+  coord_flip() +
+  labs(x = NULL, y = "Odds ratio (95% CI, log scale)", color = NULL) +
+  guides(color = guide_legend(nrow = 2,
+                              override.aes = list(fill = unname(group_cols),
+                                                  shape = 21, size = 4))) +
+  theme_light(base_size = 10, base_family = "Times New Roman") +
+  theme(legend.position    = "bottom",
+        panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank(),
+        axis.text          = element_text(color = "black"),
+        axis.title         = element_text(color = "black"))
+
+forest
+```
+
+```{r}
+ggsave("forest_plot_exit_by_language.png", forest,
+       device = ragg::agg_png,
+       width = 6.5, height = 5, units = "in", res = 300, bg = "white")
+```
+
+```{r}
+# Playing with corrplot type chart 1
+bubble_df <- forest_df %>%
+  dplyr::mutate(
+    Category         = forcats::fct_rev(Category),          # Not Eligible on the left
+    Primary.Language = forcats::fct_rev(Primary.Language),  # English on top
+    log_or = log(Odds_Ratio),
+    label  = sprintf("%.2f\n[%.2f, %.2f]", Odds_Ratio, lo, hi)
+  )
+
+bubble_df %>% dplyr::select(Primary.Language, Category, Odds_Ratio, label, ns)
+```
+
+```{r}
+# Playing with corrplot type chart 2
+lang_labels <- c("English"         = "English-only",
+                 "Spanish"         = "Spanish-only",
+                 "Other Languages" = "Other Single and\nMultiple Languages")
+
+bubble <- ggplot(bubble_df, aes(x = Category, y = Primary.Language)) +
+  geom_point(aes(size = abs(log_or), fill = ifelse(ns, NA, log_or)),
+             shape = 21, color = "gray50", stroke = 0.6) +
+  geom_text(aes(label = label, color = ns),
+            nudge_y = -0.42, size = 3.2, lineheight = 0.9,
+            family = "Times New Roman") +
+  scale_fill_gradient2(low = "#08306b", mid = "white", high = "#a50026",
+                       midpoint = 0,
+                       limits = log(c(0.67, 1.5)),
+                       breaks = log(c(0.67, 0.8, 1, 1.25, 1.5)),
+                       labels = c("0.67", "0.8", "1", "1.25", "1.5"),
+                       oob = scales::squish,
+                       na.value = "white", name = "Odds ratio") +
+  scale_size_continuous(range = c(7, 22), guide = "none") +
+  scale_color_manual(values = c("FALSE" = "gray10", "TRUE" = "gray55"),
+                     guide = "none") +
+  scale_x_discrete(position = "top",
+                   labels = function(x) stringr::str_wrap(x, 12)) +
+  scale_y_discrete(labels = lang_labels,
+                   expand = expansion(add = c(0.8, 0.5))) +
+  labs(x = NULL, y = NULL) +
+  theme_minimal(base_size = 12, base_family = "Times New Roman") +
+  theme(panel.grid = element_blank(),
+        legend.key.height = unit(1.2, "cm"))
+
+bubble
+```
+
+```{r}
+ggsave("or_bubble_exit_by_language.png", bubble,
+       device = ragg::agg_png,
+       width = 7.5, height = 5.5, units = "in", res = 300, bg = "white")
+```
