@@ -241,15 +241,7 @@ forest
 ```
 
 ```{r}
-# SWAP THIS Category = forcats::fct_rev(Category),
-
-# With 
-
-# THIS Category = factor(Category, levels = rev(c("Not Eligible",
-                                           "Part B Eligible",
-                                           "Dismissed for Lost Contact",
-                                           "Moved Out",
-                                           "Withdrawn"))),
+unique(all_lang$Category)
 ```
 
 ```{r}
@@ -265,7 +257,8 @@ forest_df <- all_lang %>%
                                                "Part B Eligible",
                                                "Dismissed for Lost Contact",
                                                "Moved Out",
-                                               "Withdrawn"))),
+                                               "Withdrawn", 
+                                               "Not Determined"))),
     fill_col = ifelse(ns, "ns", as.character(Primary.Language)),
     lang     = as.character(Primary.Language),
     xpos     = as.numeric(Category) +

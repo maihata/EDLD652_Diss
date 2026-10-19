@@ -1,0 +1,136 @@
+---
+title: "v2_lang_3groups_NOTDETERMINED.qmd"
+author: "Maiko Hata"
+output: html_document
+execute: 
+  eval: true 
+  echo: true
+  message: true 
+  warning: true
+  error: true
+editor: visual
+engine: knitr
+---
+
+```{r}
+library(tidyverse)
+library(epitools)
+```
+
+```{r}
+# ✅ Step 0: Check the column names in the data
+# Look for the Not Determined column in the list this prints.
+agg_lang_3group <- read.csv("/Users/maiko/Desktop/EDLD652_Diss/Data/agg_by_lang_3group.csv")
+names(agg_lang_3group)
+```
+
+```{r}
+# ✅ Step 0b: Type the EXACT Not Determined column name from Step 0 here
+# (for example "Not.Determined" or "Not_Determined")
+nd_col <- "Not.Determined"
+```
+
+```{r}
+# ✅ Step 1: Create Not_Determined and Not_NotDetermined columns
+df_lang_nd <- agg_lang_3group %>%
+  rename(Not_Determined = all_of(nd_col)) %>%
+  mutate(Not_NotDetermined = rowSums(select(., -Primary.Language, -Not_Determined)))
+
+df_lang_nd
+```
+
+```{r}
+# ✅ Step 2: Calculate state totals for Not Determined and all other exits
+total_nd_all    <- sum(df_lang_nd$Not_Determined)
+total_notnd_all <- sum(df_lang_nd$Not_NotDetermined)
+```
+
+```{r}
+# ✅ Step 3: Define function to compute odds ratio for Not Determined by language group
+# Each group is compared with all other children in the dataset
+get_nd_or <- function(row_index) {
+  group <- as.character(df_lang_nd$Primary.Language[row_index])
+  a <- df_lang_nd$Not_Determined[row_index]
+  b <- df_lang_nd$Not_NotDetermined[row_index]
+  c <- total_nd_all - a
+  d <- total_notnd_all - b
+
+  if (any(is.na(c(a, b, c, d))) || any(c(a, b, c, d) < 0)) {
+    return(NULL)
+  }
+
+  mat <- matrix(c(a, b, c, d), nrow = 2, byrow = TRUE)
+  dimnames(mat) <- list(
+    Group = c(group, "All other children"),
+    Exit  = c("Not Determined", "Other exits")
+  )
+
+  oddsratio(mat)
+}
+```
+
+```{r}
+# ✅ Step 4: Compute odds ratios for all language groups
+nd_odds_results <- lapply(seq_len(nrow(df_lang_nd)), get_nd_or)
+names(nd_odds_results) <- df_lang_nd$Primary.Language
+```
+
+```{r}
+# ✅ Step 5: Create summary table of odds ratios and p-values
+summary_df_odds_nd_lang <- lapply(nd_odds_results, function(x) {
+  if (is.null(x)) {
+    data.frame(Odds_Ratio = NA, Lower_CI = NA, Upper_CI = NA, P_Value = NA)
+  } else {
+    data.frame(
+      Odds_Ratio = x$measure[2, 1],
+      Lower_CI   = x$measure[2, 2],
+      Upper_CI   = x$measure[2, 3],
+      P_Value    = x$p.value[2, 1]
+    )
+  }
+}) %>%
+  bind_rows(.id = "Primary.Language") %>%
+  mutate(
+    Odds_Ratio = round(Odds_Ratio, 2),
+    Lower_CI   = round(Lower_CI, 2),
+    Upper_CI   = round(Upper_CI, 2),
+    P_Value    = signif(P_Value, 3)
+  )
+
+# You should see: 3 rows. Check against Table 3:
+# English 0.86 [0.67, 1.10], Spanish 1.12 [0.80, 1.56], Other 1.16 [0.85, 1.58]
+summary_df_odds_nd_lang
+```
+
+```{r}
+# ✅ Step 6: Compute Cohen's h for Not Determined (same method as the Withdrawn script)
+df_lang_nd <- df_lang_nd %>%
+  mutate(Total_Exits = Not_Determined + Not_NotDetermined)
+
+total_exits_all <- sum(df_lang_nd$Total_Exits)
+
+compute_cohens_h <- function(p1, p2) {
+  2 * abs(asin(sqrt(p1)) - asin(sqrt(p2)))
+}
+
+cohens_h_values <- numeric(nrow(df_lang_nd))
+
+for (i in seq_len(nrow(df_lang_nd))) {
+  p1 <- df_lang_nd$Not_Determined[i] / df_lang_nd$Total_Exits[i]
+  other_nd    <- total_nd_all - df_lang_nd$Not_Determined[i]
+  other_total <- total_exits_all - df_lang_nd$Total_Exits[i]
+  p2 <- other_nd / other_total
+  cohens_h_values[i] <- compute_cohens_h(p1, p2)
+}
+
+summary_df_odds_nd_lang$Cohens_h <- round(cohens_h_values, 2)
+```
+
+```{r}
+# ✅ Step 7: Save Not Determined odds ratio and Cohen's h summary to CSV
+write.csv(
+  summary_df_odds_nd_lang,
+  "/Users/maiko/Desktop/EDLD652_Diss/Data/summary_notdetermined_by_language.csv",
+  row.names = FALSE
+)
+```
